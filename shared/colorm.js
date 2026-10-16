@@ -32,7 +32,7 @@ const ColorM = (function () {
     { no: 3, name: '편집', short: '편집', path: 'maker-3' },
     { no: 4, name: '표지 · 출판', short: '출판', path: 'maker-4' },
     // 2시간 특강용 메이커 (4회 수업과 따로 쓰는 한 번에 끝나는 메이커 · 저장도 따로)
-    { no: 5, name: '2시간 특강', short: '특강', path: 'special', title: '마음색 그림책 2시간 특강', label: '특강', single: true }
+    { no: 5, name: '2시간 특강', short: '특강', path: 'special', title: '마음색 그림책 특강', label: '특강', single: true }
   ];
   // 화면에 쓰는 회차 이름: 1회 ~ 4회, 특강
   function sessionLabel(no) {
@@ -468,7 +468,7 @@ const ColorM = (function () {
         return '<i style="background:' + (flow ? flow[i] : (m.color || '#E9E2DE')) + ';opacity:' + (flow || !m.color ? 1 : 0.35) + '"></i>';
       }).join('');
       const cur = sessionOf(activeKey);
-      const steps = '<li class="side-session">' + (cur === 5 ? '2시간 특강' : cur + '회 메이커') + '</li>' + STEPS.filter(function (s) { return s.session === cur; }).map(function (s) {
+      const steps = '<li class="side-session">' + (cur === 5 ? '마음색 그림책 특강' : cur + '회 메이커') + '</li>' + STEPS.filter(function (s) { return s.session === cur; }).map(function (s) {
         const on = s.key === activeKey;
         return '<li class="' + (st[s.key] ? 'done' : '') + (on ? ' on' : '') + '"><a href="' + base + s.path + '">' + (st[s.key] ? '✓ ' : '· ') + s.name + '</a></li>';
       }).join('');

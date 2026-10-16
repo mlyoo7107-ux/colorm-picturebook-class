@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>06 작가의 말 — 마음색 그림책 2시간 특강</title>
+<title>06 작가의 말 — 마음색 그림책 특강</title>
 <link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-5.svg">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
@@ -95,7 +95,7 @@ $('polishBtn').addEventListener('click', function(){
 });
 function downloadTXT(){
   if(!$('authorText').value.trim()){ alert('먼저 작가의 말을 만들어 주세요.'); return; }
-  ColorM.downloadTXT('COLOR.M_'+ColorM.getProject().projectName+'_작가의말.txt', 'COLOR.M 마음색 그림책 2시간 특강 · 06 작가의 말\n================================\n\n' + $('authorText').value.trim());
+  ColorM.downloadTXT('COLOR.M_'+ColorM.getProject().projectName+'_작가의말.txt', 'COLOR.M 마음색 그림책 특강 · 06 작가의 말\n================================\n\n' + $('authorText').value.trim());
 }
 
 // 작성하던 답 자동 저장 · 이미 만든 작가의 말 다시 보여주기
