@@ -13,7 +13,7 @@
      </script>
    =================================================================== */
 const ColorM = (function () {
-  // 메이커(회차)마다 저장 공간을 따로 써요: colorm_class_s1_… ~ colorm_class_s4_…
+  // 메이커(회차)마다 저장 공간을 따로 써요: colorm_class_s1_… ~ colorm_class_s4_… (특강은 s5)
   // 회차가 바뀌면 자동으로 이어지지 않고, 지난 회차에서 저장한 작업파일(.json)을 「불러오기」해야 이어져요.
   // (라이브 그림책 메이커의 colorm_project_v1과도 겹치지 않아요 — 같은 github.io 주소에 올라가도 섞이지 않게)
   const SESSION_NO = +document.documentElement.dataset.session || 0;
@@ -30,8 +30,15 @@ const ColorM = (function () {
     { no: 1, name: '기획 · 이야기 · 스토리보드', short: '이야기', path: 'maker-1' },
     { no: 2, name: '캐릭터 · 장면 생성', short: '그림', path: 'maker-2' },
     { no: 3, name: '편집', short: '편집', path: 'maker-3' },
-    { no: 4, name: '표지 · 출판', short: '출판', path: 'maker-4' }
+    { no: 4, name: '표지 · 출판', short: '출판', path: 'maker-4' },
+    // 2시간 특강용 메이커 (4회 수업과 따로 쓰는 한 번에 끝나는 메이커 · 저장도 따로)
+    { no: 5, name: '2시간 특강', short: '특강', path: 'special', title: '마음색 그림책 2시간 특강', label: '특강', single: true }
   ];
+  // 화면에 쓰는 회차 이름: 1회 ~ 4회, 특강
+  function sessionLabel(no) {
+    const se = SESSIONS[no - 1];
+    return se && se.label ? se.label : no + '회';
+  }
 
   // 단계 공통 순서 정의 — key는 project 객체의 필드명과 동일하게 맞춥니다. path는 사이트 맨 위 폴더 기준.
   const STEPS = [
@@ -43,10 +50,22 @@ const ColorM = (function () {
     { key: 'edit', label: 'EDIT', num: '편집 1', name: '그림책 정리', session: 3, path: 'maker-3/edit.html' },
     { key: 'canva', label: 'CANVA', num: '편집 2', name: '캔바 편집', session: 3, path: 'maker-3/canva.html' },
     { key: 'cover', label: '06 COVER', num: '06', name: '표지', session: 4, path: 'maker-4/06-cover.html' },
-    { key: 'publish', label: '07 PUBLISH', num: '07', name: '출판정보', session: 4, path: 'maker-4/07-publish.html' }
+    { key: 'publish', label: '07 PUBLISH', num: '07', name: '출판정보', session: 4, path: 'maker-4/07-publish.html' },
+    // 2시간 특강: 같은 단계(기획·캐릭터·표지 등)를 다시 쓰고, 마지막에 작가의 말
+    { key: 'plan', label: '01 PLAN', num: '01', name: '기획', session: 5, path: 'special/01-plan.html' },
+    { key: 'storyboard', label: '02 STORY', num: '02', name: '이야기', session: 5, path: 'special/02-story.html' },
+    { key: 'character', label: '03 CHARACTER', num: '03', name: '캐릭터', session: 5, path: 'special/03-character.html' },
+    { key: 'scene', label: '04 BOOK', num: '04', name: '그림책', session: 5, path: 'special/04-book.html' },
+    { key: 'cover', label: '05 COVER', num: '05', name: '표지', session: 5, path: 'special/05-cover.html' },
+    { key: 'author', label: '06 AUTHOR', num: '06', name: '작가의 말', session: 5, path: 'special/06-author.html' }
   ];
+  // 같은 단계가 여러 메이커에 있을 수 있어서, 지금 열린 메이커의 단계를 먼저 찾아요
+  function stepFor(key) {
+    return STEPS.find(function (x) { return x.key === key && x.session === SESSION_NO; }) ||
+      STEPS.find(function (x) { return x.key === key; });
+  }
   function sessionOf(key) {
-    const s = STEPS.find(function (x) { return x.key === key; });
+    const s = stepFor(key);
     return s ? s.session : 0;
   }
 
@@ -142,7 +161,8 @@ const ColorM = (function () {
       edit: !!(project.edit && project.edit.confirmedAt),
       canva: !!(project.canva && project.canva.doneAt),
       cover: !!(project.cover && project.cover.title),
-      publish: !!(project.publish && project.publish.fields && project.publish.fields.title)
+      publish: !!(project.publish && project.publish.fields && project.publish.fields.title),
+      author: !!(project.author && project.author.text)
     };
   }
 
@@ -248,7 +268,7 @@ const ColorM = (function () {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = ('COLOR.M_' + project.projectName + (SESSION_NO ? '_' + SESSION_NO + '회' : '') + '.json').replace(/[\\/:*?"<>|]/g, '_');
+    a.download = ('COLOR.M_' + project.projectName + (SESSION_NO ? '_' + sessionLabel(SESSION_NO) : '') + '.json').replace(/[\\/:*?"<>|]/g, '_');
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -307,7 +327,7 @@ const ColorM = (function () {
     // 회차마다 따로 쓰는 메이커: 로고·이름·메뉴·탭 모두 그 회차 안에서만 이동해요. (저장소는 하나라 작업은 이어져요)
     const se = SESSIONS[curSession - 1];
     const homeHref = se ? base + se.path + '/index.html' : base + 'index.html';
-    const appName = se ? '마음색 그림책 ' + se.no + '회 메이커' : '마음색 그림책 교실';
+    const appName = se ? (se.title || '마음색 그림책 ' + se.no + '회 메이커') : '마음색 그림책 교실';
     const tabsHTML = STEPS.filter(function (s) { return s.session === curSession; }).map(function (s) {
       const isOn = s.key === activeKey;
       const done = status[s.key];
@@ -448,7 +468,7 @@ const ColorM = (function () {
         return '<i style="background:' + (flow ? flow[i] : (m.color || '#E9E2DE')) + ';opacity:' + (flow || !m.color ? 1 : 0.35) + '"></i>';
       }).join('');
       const cur = sessionOf(activeKey);
-      const steps = '<li class="side-session">' + cur + '회 메이커</li>' + STEPS.filter(function (s) { return s.session === cur; }).map(function (s) {
+      const steps = '<li class="side-session">' + (cur === 5 ? '2시간 특강' : cur + '회 메이커') + '</li>' + STEPS.filter(function (s) { return s.session === cur; }).map(function (s) {
         const on = s.key === activeKey;
         return '<li class="' + (st[s.key] ? 'done' : '') + (on ? ' on' : '') + '"><a href="' + base + s.path + '">' + (st[s.key] ? '✓ ' : '· ') + s.name + '</a></li>';
       }).join('');
@@ -566,7 +586,7 @@ const ColorM = (function () {
   // ---------- 다른 단계 안내 ----------
   // 같은 회차 메이커 안의 단계면 링크, 다른 회차면 "1회 메이커의 …" 글자만 (메이커끼리는 서로 이동하지 않아요)
   function stepRef(key, label) {
-    const s = STEPS.find(function (x) { return x.key === key; });
+    const s = stepFor(key);
     if (!s) return escapeHTML(label);
     const here = +document.documentElement.dataset.session || 0;
     return s.session === here
@@ -578,29 +598,33 @@ const ColorM = (function () {
   function renderStepNav(containerId, activeKey) {
     const root = document.getElementById(containerId);
     if (!root) return;
-    const idx = STEPS.findIndex(function (s) { return s.key === activeKey; });
+    const idx = STEPS.indexOf(stepFor(activeKey));
     const cur = STEPS[idx];
     const prev = STEPS[idx - 1];
     const next = STEPS[idx + 1];
     // 회차의 마지막 단계에서는 다음 단계 대신 "이번 회차 마무리" 화면으로 보냅니다. (다음 시간에 이어서)
     // 다른 회차 메이커로는 넘어가지 않아요. 회차의 첫 단계는 그 회차 처음 화면으로 돌아가요.
+    const label = sessionLabel(cur.session);
+    const nextSame = next && next.session === cur.session;
+    // 다음 회차로 이어지는 건 4회 수업(1→2→3→4) 안에서만이에요. 4회와 특강은 마지막이 끝이에요.
+    const nextSession = !nextSame && cur.session < 4 ? cur.session + 1 : 0;
     const prevHTML = prev && prev.session === cur.session
       ? '<a class="btn ghost" href="../' + prev.path + '">← 이전 단계 (' + prev.num + ' ' + prev.name + ')</a>'
-      : '<a class="btn ghost" href="index.html">← ' + cur.session + '회 처음 화면</a>';
-    const nextHTML = !next
-      ? '<a class="btn primary" href="summary.html">전체 결과 보기 →</a>'
-      : next.session === cur.session
-        ? '<a class="btn primary" href="../' + next.path + '">다음 단계 (' + next.num + ' ' + next.name + ') →</a>'
-        : '<a class="btn primary" href="index.html#wrapup">' + cur.session + '회 마무리하기 ✓</a>';
+      : '<a class="btn ghost" href="index.html">← ' + label + ' 처음 화면</a>';
+    const nextHTML = nextSame
+      ? '<a class="btn primary" href="../' + next.path + '">다음 단계 (' + next.num + ' ' + next.name + ') →</a>'
+      : cur.session === 4
+        ? '<a class="btn primary" href="summary.html">전체 결과 보기 →</a>'
+        : '<a class="btn primary" href="index.html#wrapup">' + label + ' 마무리하기 ✓</a>';
     root.innerHTML = prevHTML + nextHTML;
     // 회차의 마지막 단계: 다음 회차에서 불러올 작업파일을 바로 저장할 수 있게 버튼을 붙여요
-    if (next && next.session !== cur.session && !document.getElementById('cmSessionSave')) {
+    if (nextSession && !document.getElementById('cmSessionSave')) {
       const box = document.createElement('div');
       box.id = 'cmSessionSave';
       box.className = 'session-save';
-      box.innerHTML = '<div><b>💾 ' + cur.session + '회 끝! 작업파일을 꼭 저장해요</b>' +
-        '<small>다음 시간 ' + next.session + '회 메이커 첫 화면에서 이 파일을 불러와야 오늘 작업이 이어져요.</small></div>' +
-        '<button type="button" class="btn primary">' + next.session + '회에 쓸 작업파일 저장</button>';
+      box.innerHTML = '<div><b>💾 ' + label + ' 끝! 작업파일을 꼭 저장해요</b>' +
+        '<small>다음 시간 ' + nextSession + '회 메이커 첫 화면에서 이 파일을 불러와야 오늘 작업이 이어져요.</small></div>' +
+        '<button type="button" class="btn primary">' + nextSession + '회에 쓸 작업파일 저장</button>';
       box.querySelector('button').addEventListener('click', exportProject);
       root.parentNode.insertBefore(box, root);
     }
@@ -891,6 +915,8 @@ const ColorM = (function () {
     selectOther: selectOther,
     applyDrops: applyDrops,
     STEPS: STEPS,
+    stepFor: stepFor,
+    sessionLabel: sessionLabel,
     SESSIONS: SESSIONS,
     sessionOf: sessionOf,
     STORAGE_KEY: STORAGE_KEY,

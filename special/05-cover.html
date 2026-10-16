@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko" data-session="5">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 표지 — 마음색 그림책 2시간 특강</title>
+<link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-5.svg">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="../shared/colorm.css">
+<style>
+.prev-box{background:var(--tint);border:1px solid var(--ab);border-radius:14px;padding:14px 16px;font-size:13px;line-height:1.7;color:#5e575b;white-space:pre-wrap}
+.lang-tag{display:inline-block;font-size:11px;font-weight:900;padding:3px 8px;border-radius:999px;margin:10px 0 6px}
+.lang-kr{background:var(--soft);color:var(--m)}
+.lang-en{background:#eef3ff;color:#3a5bd9}
+</style>
+</head>
+<body>
+<div id="cmHeader"></div>
+<header class="hero hero-sub">
+<p class="sub">책 제목을 정하고 <b>표지 그림 요청문</b>을 만들어요. 전자책은 <b>앞표지 한 장</b>이면 돼요.<br>그림을 만든 뒤 제목 글자는 캔바에서 얹어요.</p>
+</header>
+
+<main class="wrap">
+<!-- 수업용: 이전 단계 정보는 자동으로 불러오고 화면에는 보이지 않게 둡니다 -->
+<section class="card cm-hide">
+<div class="step"><span>STEP 01</span><h2>이전 단계 정보</h2></div>
+<p class="help">02 이야기와 03 캐릭터 정보를 <b>자동으로 불러왔어요.</b> 바뀐 게 있다면 아래 버튼으로 다시 불러오세요.</p>
+<div class="actions"><button class="btn ghost" type="button" onclick="loadPrevData()">다시 불러오기</button></div>
+<div id="prevPreview" class="prev-box" style="margin-top:14px">아직 불러온 정보가 없습니다.</div>
+</section>
+
+<form id="coverForm">
+<section class="card">
+<div class="step"><span>STEP 01</span><h2>제목과 표지 장면</h2></div>
+<div class="grid">
+<label>제목<input id="title" placeholder="예: 나에게도 색이 있었어"></label>
+<label>부제 <small>(선택)</small><input id="subtitle" placeholder="예: 루나의 색깔 여행"></label>
+</div>
+<p class="help" style="margin-top:10px">03 캐릭터 정보가 요청문에 자동으로 들어가요. 이미지 AI에 넣을 때 <b>03에서 만든 캐릭터 그림을 함께 첨부</b>하면 표지에서도 같은 모습으로 그려져요.</p>
+<label style="margin-top:12px">표지 장면 설명<textarea id="sceneDesc" rows="2" placeholder="예: 루나가 여러 빛깔의 빛에 둘러싸여 환하게 웃고 있는 모습"></textarea></label>
+</section>
+
+<section class="card">
+<div class="step"><span>STEP 02</span><h2>표지 모양</h2></div>
+<p class="help">캔바에서 쓸 <b>책 크기와 같은 비율</b>로 골라요. (정사각형 1:1 · 가로형 4:3 · 세로형 3:4)</p>
+<div class="grid3 cover-grid">
+<label>이미지 비율<select id="ratio"><option>1:1</option><option selected>3:4</option><option>4:3</option><option>16:9</option><option>9:16</option></select></label>
+<label class="cm-hide">배경<input id="iBg" placeholder="예: 색색의 빛이 감도는 몽환적인 배경"></label>
+<label class="cm-hide">조명<select id="iLight"><option selected>부드러운 자연광</option><option>따뜻한 노을빛</option><option>은은한 달빛</option><option>맑고 화사한 낮빛</option><option>신비로운 역광</option></select></label>
+</div>
+<div class="grid3 cover-grid">
+<label class="cm-hide">컬러 분위기<input id="iColor" placeholder="예: 파스텔 라벤더와 핑크 톤"></label>
+<label class="cm-hide">카메라 거리<select id="iDistance"><option>클로즈업</option><option selected>미디엄 샷</option><option>풀 샷</option><option>와이드 샷</option></select></label>
+<label class="cm-hide">시점<select id="iAngle"><option selected>정면 시점</option><option>측면 시점</option><option>위에서 내려다본 시점</option><option>아래에서 올려다본 시점</option></select></label>
+</div>
+<label class="cm-hide">이미지 안 글자 <small>(제목 글자를 AI가 직접 그리게 할지 정해보세요)</small><select id="textInImage"><option selected>없음 (기본)</option><option>있음</option></select></label>
+</section>
+
+<section class="card cm-hide">
+<div class="step"><span>STEP 04</span><h2>뒷표지 설정</h2></div>
+<p class="help">작은 소품이나 주인공 뒷모습만 작게 두고, 나머지는 글자를 위한 여백으로 남기는 구성이에요. 배경은 단색·그라데이션·작은 패턴 중에서 골라요.</p>
+<label>뒷표지 배경 스타일<select id="backCoverStyle">
+<option selected>단색 배경</option>
+<option>은은한 그라데이션</option>
+<option>작은 패턴 배경</option>
+<option value="직접 입력">+ 직접 입력</option>
+</select></label>
+<label id="backCoverCustomWrap" hidden>배경 스타일 직접 입력<input id="backCoverStyleCustom" placeholder="예: 반짝이는 별이 흩뿌려진 짙은 남색 배경"></label>
+</section>
+
+<section class="card cm-hide">
+<div class="step"><span>STEP 05</span><h2>간지(속표지) 설정</h2></div>
+<p class="help">표지를 넘기면 나오는 페이지예요. 보통 제목만 깔끔하게 들어가고, 배경은 단색·그라데이션·작은 패턴 중에서 골라요.</p>
+<label>간지 배경 스타일<select id="halfTitleStyle">
+<option selected>단색 배경</option>
+<option>은은한 그라데이션</option>
+<option>작은 패턴 배경</option>
+<option value="직접 입력">+ 직접 입력</option>
+</select></label>
+<label id="halfTitleCustomWrap" hidden>배경 스타일 직접 입력<input id="halfTitleStyleCustom" placeholder="예: 반짝이는 별이 흩뿌려진 짙은 남색 배경"></label>
+</section>
+
+<button class="btn primary big" type="submit">표지 요청문 만들기</button>
+</form>
+
+<section id="results" class="results hidden">
+<p class="eyebrow">RESULT</p>
+<h2>표지 요청문이 완성되었어요!</h2>
+<div class="result-grid">
+<article class="result cm-hide"><h3>① 표지 설명</h3><div id="coverDesc" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('coverDesc')">복사하기</button></article>
+<article class="result">
+<h3>① 표지 그림 요청문</h3><p class="help" style="margin:0 0 6px">ChatGPT나 캔바에 붙여넣고, <b>03에서 저장한 기준 캐릭터 그림</b>을 함께 첨부해요.</p>
+
+<div id="coverPrompt" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('coverPrompt')">복사하기</button>
+<span class="lang-tag lang-en cm-hide">🇺🇸 English · Midjourney·캔바 Magic Media 등 이미지 전용 AI용</span>
+<div id="coverPromptEN" class="box cm-hide"></div>
+</article>
+<article class="result">
+<h3>② 캐릭터가 달라졌을 때 덧붙일 문장</h3>
+
+<div id="lockLine" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('lockLine')">복사하기</button>
+<span class="lang-tag lang-en cm-hide">🇺🇸 English</span>
+<div id="lockLineEN" class="box cm-hide"></div>
+</article>
+<article class="result cm-hide">
+<h3>④ 뒷표지 프롬프트</h3>
+<p class="help" style="margin:0 0 6px">작은 소품이나 주인공의 뒷모습 하나만 두고 넓은 여백을 남겨요. 작가의 말이나 한 문장은 캔바에서 글자로 얹어요.</p>
+
+<div id="backPrompt" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('backPrompt')">복사하기</button>
+<span class="lang-tag lang-en cm-hide">🇺🇸 English</span>
+<div id="backPromptEN" class="box cm-hide"></div>
+</article>
+<article class="result cm-hide">
+<h3>⑤ 간지 프롬프트</h3>
+<p class="help" style="margin:0 0 6px">표지를 넘기면 나오는 페이지예요. 삽화 없이 배경만 채우고, 제목 글자는 넓은 여백에 캔바에서 얹어요.</p>
+
+<div id="halfTitlePrompt" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('halfTitlePrompt')">복사하기</button>
+<span class="lang-tag lang-en cm-hide">🇺🇸 English</span>
+<div id="halfTitlePromptEN" class="box cm-hide"></div>
+</article>
+</div>
+
+<div class="download-actions">
+  <button class="btn primary" type="button" onclick="ColorM.saveAsPDF('results','표지')">PDF 저장</button>
+  <button class="btn soft" type="button" onclick="downloadTXT()">TXT 저장</button>
+</div>
+<div class="note"><b>다음 할 일</b><br>① 요청문으로 표지 그림을 만들어요. ② 캔바 디자인 <b>맨 앞 페이지</b>에 그림을 넣고 <b>제목·지은이</b>를 글자로 얹어요. ③ 마지막 단계 <b>06 작가의 말</b>에서 책 맨 뒤에 넣을 글을 써요.</div>
+<div class="step-nav" id="cmStepNav"></div>
+</section>
+</main>
+
+<footer></footer>
+
+<script src="../shared/colorm.js"></script>
+<script src="../shared/presets.js"></script>
+<script src="../shared/mind.js"></script>
+<script src="../shared/recommend.js"></script>
+<script src="../shared/kr-en-prompt.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const COVER_LOCK_LINE = '첨부한 기준 캐릭터의 얼굴, 헤어, 의상, 소품, 신체 비율, 대표 색상은 변경하지 말고 유지해주세요.';
+const COVER_LOCK_LINE_EN = "Keep the reference character's face, hair, outfit, props, body proportions, and main colors unchanged.";
+const BG_STYLE_MAP = {
+  '단색 배경': { kr: '부드러운 단색 배경', en: 'a soft solid-color background' },
+  '은은한 그라데이션': { kr: '은은한 그라데이션 배경', en: 'a subtle gradient background' },
+  '작은 패턴 배경': { kr: '작고 은은하게 반복되는 패턴 배경 (예: 작은 별, 나뭇잎, 물방울 무늬)', en: 'a subtle small repeating pattern background (e.g. tiny stars, leaves, or dot motifs)' }
+};
+function resolveBgColor(styleKey, custom, mindOn, mm, fallbackColor){
+  if (styleKey === '직접 입력' && custom) {
+    return { kr: custom, en: ColorMEN.translate(custom) };
+  }
+  const style = BG_STYLE_MAP[styleKey] || BG_STYLE_MAP['단색 배경'];
+  const colorPhrase = /톤$/.test(fallbackColor) ? fallbackColor : (fallbackColor+' 톤');
+  const kr = mindOn ? ("마음색 '"+mm.colorName+"'("+mm.color+") 톤의 "+style.kr) : (colorPhrase+'의 '+style.kr);
+  const en = mindOn ? (style.en+" in the heart color '"+ColorMMind.colorNameEN()+"' ("+mm.color+")") : (style.en+' in '+ColorMEN.translate(fallbackColor)+' tones');
+  return { kr, en };
+}
+ColorM.renderHeader('cmHeader','cover');
+ColorM.applyDrops(ColorMPresets.cover);
+ColorMRecommend.mount('cover');
+ColorMRecommend.mountTitles(document.getElementById('title').closest('.grid'));
+ColorM.renderStepNav('cmStepNav','cover');
+
+function buildCharacterFixedInfoKR(ch){
+  if(!ch || !ch.name) return '';
+  if(ch.fixedInfo) return ch.fixedInfo;
+  return [
+    `이름: ${ch.name}`,
+    `나이/연령: ${ch.age||ch.ageGroup||''}`,
+    `캐릭터 유형: ${ch.type}`,
+    `외형 특징: ${ch.appearance}`,
+    `의상 / 소품: ${ch.outfit}`,
+    `화풍: ${ch.artStyle}`,
+    '',
+    '※ 아래 요소는 모든 이미지에서 동일하게 유지되어야 합니다:',
+    '얼굴형 · 눈 크기 · 헤어스타일 · 몸 비율 · 의상 · 소품 · 대표 색상'
+  ].join('\n');
+}
+
+function buildCharacterFixedInfoEN(ch){
+  if(!ch || !ch.name) return '';
+  const t = function(l, x){ return x ? l+': '+ColorMEN.translate(x) : null; };
+  return [
+    `Name: ${ch.name}`,
+    t('Age', ch.age||ch.ageGroup),
+    `Character type: ${ColorMEN.fixed(ch.type)}`,
+    t('Appearance', ch.appearance),
+    t('Outfit & props', ch.outfit),
+    `Art style: ${ColorMEN.fixed(ch.artStyle)}`,
+    '',
+    'Keep these consistent across all images: face shape, eye size, hairstyle, body proportions, outfit, props, main colors.'
+  ].filter(function(x){ return x !== null; }).join('\n');
+}
+
+function loadPrevData(){
+  const project = ColorM.getProject();
+  const story = project.story, ch = project.character;
+  const lines = [];
+  if(story && story.titles && story.titles.length){
+    lines.push('제목 후보: '+story.titles.join(' / '));
+    if(!$('title').value) $('title').value = story.titles[0];
+  }
+  const chInfo = buildCharacterFixedInfoKR(ch);
+  if(chInfo){
+    lines.push('', '캐릭터 고정 정보:', chInfo);
+  }
+  $('prevPreview').textContent = lines.length ? lines.join('\n') : '아직 불러온 정보가 없습니다. 02 이야기와 03 캐릭터를 먼저 완료해주세요.';
+}
+loadPrevData();
+
+// 05 장면과 같이, 마음색을 정했다면 표지의 컬러 분위기·배경을 미리 채워 둡니다 (직접 고칠 수 있어요).
+function fillCoverDefaults(){
+  const pr = ColorM.getProject();
+  if(typeof ColorMMind !== 'undefined' && ColorMMind.hasColor() && !$('iColor').value.trim()){
+    $('iColor').value = ColorMMind.coverTone(ColorMMind.get());
+  }
+  if(!$('iBg').value.trim() && pr.plan && pr.plan.place){ $('iBg').value = pr.plan.place; }
+}
+fillCoverDefaults();
+
+$('backCoverStyle').addEventListener('change', function(){
+  $('backCoverCustomWrap').hidden = (this.value !== '직접 입력');
+});
+$('halfTitleStyle').addEventListener('change', function(){
+  $('halfTitleCustomWrap').hidden = (this.value !== '직접 입력');
+});
+
+$('coverForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const project = ColorM.getProject();
+  const ch = project.character || {};
+  const d = {
+    title: $('title').value.trim()||'제목 미정',
+    subtitle: $('subtitle').value.trim(),
+    sceneDesc: $('sceneDesc').value.trim()||'표지 장면 미정',
+    ratio: $('ratio').value, bg: $('iBg').value.trim()||'배경 미정',
+    light: $('iLight').value, color: $('iColor').value.trim()||'컬러 분위기 미정',
+    distance: $('iDistance').value, angle: $('iAngle').value,
+    textInImage: $('textInImage').value
+  };
+
+  const coverDesc = `『${d.title}』${d.subtitle?' - '+d.subtitle:''}의 표지. ${d.sceneDesc}. 전체적으로 ${d.color} 분위기를 담고 있다.`;
+  const charFixedInfoKR = buildCharacterFixedInfoKR(ch);
+  const charFixedInfoEN = buildCharacterFixedInfoEN(ch);
+
+  const coverPrompt = [
+    COVER_LOCK_LINE,
+    '',
+    `그림책 표지 삽화를 그려줘. 제목: ${d.title}${d.subtitle?' / 부제: '+d.subtitle:''}`,
+    `표지 장면: ${d.sceneDesc}`,
+    `배경: ${d.bg} / 조명: ${d.light} / 컬러 분위기: ${d.color}`,
+    `카메라 거리: ${d.distance} / 시점: ${d.angle}`,
+    `이미지 비율: ${d.ratio} / 이미지 안 글자: ${d.textInImage}`,
+    charFixedInfoKR ? ('\n[캐릭터 고정 정보]\n'+charFixedInfoKR) : '',
+    ColorM.castBlock('kr') ? ('\n[함께 나오는 캐릭터]\n'+ColorM.castBlock('kr')) : ''
+  ].filter(Boolean).join('\n');
+
+  const coverPromptEN = [
+    COVER_LOCK_LINE_EN,
+    '',
+    `Create a children's picture book cover illustration. Title: ${d.title}${d.subtitle?' / Subtitle: '+d.subtitle:''}`,
+    `Cover scene: ${ColorMEN.translate(d.sceneDesc)}`,
+    `Background: ${ColorMEN.translate(d.bg)} / Lighting: ${ColorMEN.fixed(d.light)} / Color palette: ${ColorMEN.translate(d.color)}`,
+    `Camera distance: ${ColorMEN.fixed(d.distance)} / Angle: ${ColorMEN.fixed(d.angle)}`,
+    `Aspect ratio: ${d.ratio} / Text in image: ${ColorMEN.fixed(d.textInImage)}`,
+    charFixedInfoEN ? ('\n[Character fixed info]\n'+charFixedInfoEN) : '',
+    ColorM.castBlock('en') ? ('\n[Other characters]\n'+ColorM.castBlock('en')) : ''
+  ].filter(Boolean).join('\n');
+
+  const mindOn = typeof ColorMMind !== 'undefined' && ColorMMind.hasColor();
+  const mm = mindOn ? ColorMMind.get() : null;
+  const backArt = (ch && ch.artStyle) ? ch.artStyle : '그림책 일러스트';
+  const bcStyleKey = $('backCoverStyle').value;
+  const bcCustom = $('backCoverStyleCustom').value.trim();
+  const bcColor = resolveBgColor(bcStyleKey, bcCustom, mindOn, mm, d.color);
+  const backPrompt = [
+    `그림책 뒷표지 그림을 그려줘. 제목: ${d.title}`,
+    '구성: 이야기 속 작은 소품이나 주인공의 뒷모습 하나만 화면 가운데에 작게 두고, 나머지는 글자를 넣을 수 있게 넓은 여백으로 남겨줘.',
+    `색감: ${bcColor.kr}`,
+    `화풍: ${backArt}, 앞표지와 같은 화풍`,
+    `이미지 비율: ${d.ratio} / 이미지 안 글자: 없음 (작가의 말은 캔바에서 글자로 얹어요)`
+  ].join('\n');
+  const backPromptEN = [
+    `Create a children's picture book back cover illustration. Title: ${d.title}`,
+    'Composition: only one small story prop or the main character seen from behind, placed small in the center, leaving wide empty space for text.',
+    `Color: ${bcColor.en}`,
+    `Art style: ${ColorMEN.fixed(backArt)}, the same style as the front cover`,
+    `Aspect ratio: ${d.ratio} / Text in image: none`
+  ].join('\n');
+  const htStyleKey = $('halfTitleStyle').value;
+  const htCustom = $('halfTitleStyleCustom').value.trim();
+  const htColor = resolveBgColor(htStyleKey, htCustom, mindOn, mm, d.color);
+  const halfTitlePrompt = [
+    `그림책 간지(속표지) 이미지를 그려줘. 제목: ${d.title}${d.subtitle?' / 부제: '+d.subtitle:''}`,
+    '구성: 삽화나 캐릭터 없이 배경만 채우고, 중앙에 제목 글자를 넣을 수 있도록 아주 넓은 여백을 남겨줘.',
+    `배경: ${htColor.kr}`,
+    `화풍: ${backArt}, 표지와 같은 분위기`,
+    `이미지 비율: ${d.ratio} / 이미지 안 글자: 없음 (제목은 캔바에서 글자로 얹어요)`
+  ].join('\n');
+  const halfTitlePromptEN = [
+    `Create a picture book half-title page image. Title: ${d.title}${d.subtitle?' / Subtitle: '+d.subtitle:''}`,
+    'Composition: no illustration or characters — just a background, with very wide empty space in the center reserved for the title text.',
+    `Background: ${htColor.en}`,
+    `Art style: ${ColorMEN.fixed(backArt)}, matching the cover's mood`,
+    `Aspect ratio: ${d.ratio} / Text in image: none`
+  ].join('\n');
+  $('halfTitlePrompt').textContent = halfTitlePrompt;
+  $('halfTitlePromptEN').textContent = halfTitlePromptEN;
+  $('backPrompt').textContent = backPrompt;
+  $('backPromptEN').textContent = backPromptEN;
+  $('coverDesc').textContent = coverDesc;
+  $('coverPrompt').textContent = coverPrompt;
+  $('coverPromptEN').textContent = coverPromptEN;
+  $('lockLine').textContent = COVER_LOCK_LINE;
+  $('lockLineEN').textContent = COVER_LOCK_LINE_EN;
+  $('results').classList.remove('hidden');
+
+  if($('title').value.trim()) ColorM.setBookTitle($('title').value.trim());
+  ColorM.saveStep('cover', Object.assign({}, d, {coverDesc, coverPrompt, coverPromptEN, lockLine: COVER_LOCK_LINE, lockLineEN: COVER_LOCK_LINE_EN, backPrompt, backPromptEN, backCoverStyle: bcStyleKey, backCoverStyleCustom: bcCustom, halfTitleStyle: htStyleKey, halfTitleStyleCustom: htCustom, halfTitlePrompt, halfTitlePromptEN}));
+
+  setTimeout(()=>$('results').scrollIntoView({behavior:'smooth',block:'start'}),50);
+});
+
+function buildDownloadText(){
+  return ['COLOR.M 마음색 그림책 메이커 · 06 표지','================================','',
+    '[표지 설명]', $('coverDesc').textContent.trim(),'',
+    '[표지 그림 요청문]', $('coverPrompt').textContent.trim(),'',
+    '[캐릭터 유지 문장]', $('lockLine').textContent.trim(),'',
+  ].join('\n');
+}
+function downloadTXT(){
+  if($('results').classList.contains('hidden')){ alert('먼저 표지 프롬프트를 만들어주세요.'); return; }
+  const project = ColorM.getProject();
+  ColorM.downloadTXT('COLOR.M_'+project.projectName+'_표지.txt', buildDownloadText());
+}
+
+// 작성하던 내용 자동 저장/복원 + 이미 만든 표지 결과 다시 보여주기
+const draft = ColorM.autoSaveForm('coverForm', 'cover');
+fillCoverDefaults();
+ColorM.restoreSilently(function(){
+  const cv = ColorM.getProject().cover || {};
+  if(draft.restored && cv.coverPrompt && $('title').value.trim()) $('coverForm').dispatchEvent(new Event('submit', {cancelable:true, bubbles:true}));
+});</script>
+</body>
+</html>

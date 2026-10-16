@@ -47,6 +47,10 @@
 
 <div id="sessions"></div>
 
+<h2 style="margin:34px 0 4px;font-size:20px">2시간 특강용</h2>
+<p class="help" style="margin:0 0 6px">4회 수업과 따로 쓰는 메이커예요. 한 번에 5~6장면 그림책을 만들고, 표지와 작가의 말까지 넣어요. (작업파일 주고받기 없음)</p>
+<div id="special"></div>
+
 <section class="card">
 <h2 style="margin:0 0 6px;font-size:20px">자주 생기는 일</h2>
 <dl class="faq">
@@ -75,12 +79,12 @@ const esc = ColorM.escapeHTML;
 const baseUrl = location.href.replace(/[#?].*$/, '').replace(/index\.html$/, '');
 const urlOf = se => baseUrl + se.path + '/';
 
-document.getElementById('flow').innerHTML = ColorM.SESSIONS.map(function(se){
+document.getElementById('flow').innerHTML = ColorM.SESSIONS.filter(se => !se.single).map(function(se){
   return '<li data-s="'+se.no+'"><span class="chip">'+se.no+'회</span>'+esc(se.name)+
     (se.no < 4 ? '<span class="file">→ 작업파일 저장 (…_'+se.no+'회.json)</span>' : '<span class="file">→ 작가와 유통 신청</span>')+'</li>';
 }).join('');
 
-document.getElementById('sessions').innerHTML = ColorM.SESSIONS.map(function(se){
+document.getElementById('sessions').innerHTML = ColorM.SESSIONS.filter(se => !se.single).map(function(se){
   const info = ColorMSession.INFO[se.no];
   const steps = ColorM.STEPS.filter(s => s.session === se.no);
   const url = urlOf(se);
@@ -104,6 +108,35 @@ document.getElementById('sessions').innerHTML = ColorM.SESSIONS.map(function(se)
       '<div class="box2">'+esc(handout)+'</div><button type="button" class="copy" data-copy="'+esc(handout)+'">안내 문구 복사</button></div>'+
   '</section>';
 }).join('');
+
+// 2시간 특강 카드: 단계마다 걸리는 시간 안내 + 학생 안내 문구
+(function(){
+  const se = ColorM.SESSIONS.find(s => s.single);
+  if (!se) return;
+  const info = ColorMSession.INFO[se.no];
+  const steps = ColorM.STEPS.filter(s => s.session === se.no);
+  const url = urlOf(se);
+  const handout = [
+    '[마음색 그림책 2시간 특강]',
+    '오늘 쓸 메이커: ' + url,
+    '1. 메이커를 열고 「시작하기」를 눌러요.',
+    '2. 순서: ' + steps.map(s => s.num + ' ' + s.name).join(' → '),
+    '3. 끝나면 캔바에서 그림책을 PDF로 내려받고, 메이커 첫 화면 아래 「마무리」에서 작업파일도 저장해요.',
+    '준비물: ' + info.bring.join(', ')
+  ].join('\n');
+  document.getElementById('special').innerHTML =
+    '<section class="card session" data-s="' + se.no + '">' +
+    '<div class="step"><span>특강</span><h2>' + esc(se.title) + '</h2></div>' +
+    '<p class="help" style="margin:0">' + esc(info.goal) + '</p>' +
+    '<div class="url-row"><code>' + esc(url) + '</code>' +
+      '<button type="button" class="btn soft" data-copy="' + esc(url) + '">주소 복사</button>' +
+      '<a class="btn ghost" href="' + se.path + '/index.html" target="_blank" rel="noopener">열어 보기 ↗</a></div>' +
+    '<div class="s-grid"><div><h3>진행 순서 (2시간)</h3><ul>' + steps.map(s => '<li>' + esc(s.num + ' ' + s.name) + ' — ' + esc(info.steps[s.key] || '') + '</li>').join('') + '</ul></div>' +
+      '<div><h3>준비물</h3><ul>' + info.bring.map(b => '<li>' + esc(b) + '</li>').join('') + '</ul></div></div>' +
+    '<div class="handout"><h3 style="margin:0;font-size:14px">학생 안내 문구 <small style="color:var(--muted);font-weight:600">(단톡방·칠판에 붙여넣기)</small></h3>' +
+      '<div class="box2">' + esc(handout) + '</div><button type="button" class="copy" data-copy="' + esc(handout) + '">안내 문구 복사</button></div>' +
+    '</section>';
+})();
 
 document.addEventListener('click', function(e){
   const b = e.target.closest('[data-copy]');

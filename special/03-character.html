@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ko" data-session="5">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 캐릭터 — 마음색 그림책 2시간 특강</title>
+<link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-5.svg">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="../shared/colorm.css">
+<style>
+.prev-box{background:var(--tint);border:1px solid var(--ab);border-radius:14px;padding:14px 16px;font-size:13px;line-height:1.7;color:#5e575b;white-space:pre-wrap}
+.checks{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.checks label{flex-direction:row;align-items:center;gap:8px;font-weight:700;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-top:0}
+.checks input{width:auto}
+.upload-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.thumb{width:96px;height:96px;border-radius:14px;border:1px dashed var(--line);object-fit:cover;background:#fff}
+.stage-lock{opacity:.5;pointer-events:none}
+.lang-tag{display:inline-block;font-size:11px;font-weight:900;padding:3px 8px;border-radius:999px;margin:10px 0 6px}
+.lang-kr{background:var(--soft);color:var(--m)}
+.lang-en{background:#eef3ff;color:#3a5bd9}
+</style>
+</head>
+<body>
+<div id="cmHeader"></div>
+<header class="hero hero-sub">
+<p class="sub">주인공의 모습을 정하고, 그림을 그려 줄 AI에 넣을 <b>요청문</b>을 만들어요. 마음에 드는 그림이 나오면 같은 모습으로 계속 그릴 수 있게 <b>캐릭터 시트</b>도 만들 수 있어요.</p>
+</header>
+
+<main class="wrap">
+<section class="card">
+<div class="step"><span>이 단계는</span><h2>이렇게 진행해요</h2></div>
+<ol class="flow-mini">
+<li><b>① 주인공 정하기</b><small>아래 칸을 채워요. 어렵다면 「추천 한 번에 적용」부터 눌러 보세요.</small></li>
+<li><b>② 요청문 복사</b><small>만들어진 요청문을 ChatGPT·캔바 같은 AI에 넣어 캐릭터 그림을 만들어요.</small></li>
+<li><b>③ 마음에 드는 그림 저장</b><small>이 그림을 04 그림책·05 표지에서 AI에 함께 첨부해요.</small></li>
+<li><b>④ 캐릭터 시트 만들기</b><small>정면·옆모습·표정을 한 장에 모아 둬요. 모든 장면에서 같은 모습으로 그리는 데 꼭 필요해요.</small></li>
+</ol>
+<details class="paste-det"><summary>03 스토리보드에서 정한 등장인물 보기</summary>
+<p class="help" style="margin-top:8px">자동으로 불러왔어요. 바뀐 게 있다면 아래 버튼으로 다시 불러오세요.</p>
+<div class="actions"><button class="btn ghost" type="button" onclick="loadPrevData()">등장인물 다시 불러오기</button></div>
+<div id="prevPreview" class="prev-box" style="margin-top:10px">아직 불러온 정보가 없습니다.</div>
+</details>
+</section>
+
+<form id="baseForm">
+<section class="card">
+<div class="step"><span>STEP 01</span><h2>캐릭터 기본 설정</h2></div>
+<div class="grid">
+<label>이름 <small>(없으면 종류 이름도 괜찮아요)</small><input id="name" placeholder="예: 루나"></label>
+<label>나이 / 연령<input id="age" placeholder="예: 8세 정도의 어린이"></label>
+<label>캐릭터 유형<select id="type">
+<option>한국 여성</option><option>한국 남성</option><option>동물</option>
+<option selected>판타지 캐릭터</option><option>로봇</option><option>사물 캐릭터</option><option>기타</option>
+</select></label>
+<label class="cm-hide">대표색 <small>(마음색을 골랐다면 자동으로 채워져요)</small><input id="mainColor" placeholder="예: 핑크"></label>
+<div class="pal-box" id="palBox" hidden></div>
+</div>
+<label>외형 특징<textarea id="appearance" rows="2" placeholder="예: 동그란 얼굴에 커다란 눈, 부드러운 하늘색 머리카락"></textarea></label>
+<label>의상 / 소품<textarea id="outfit" rows="2" placeholder="예: 연보라색 원피스와 작은 별 모양 목걸이"></textarea></label>
+<details class="paste-det cm-hide" id="moreDet"><summary>성격·표정·행동·분위기도 정하기 (선택 — 비워 두면 요청문에서 빠져요)</summary>
+<div class="grid" style="margin-top:10px">
+<label>성격<input id="personality" placeholder="예: 여리지만 호기심이 많고 다정한 성격"></label>
+<label>주요 표정 / 감정<input id="emotion" placeholder="예: 처음엔 시무룩하지만 점점 밝아지는 표정"></label>
+<label>자주 하는 행동<input id="habit" placeholder="예: 손끝으로 마음을 톡톡 두드리는 버릇"></label>
+<label>전체 분위기<input id="mood" placeholder="예: 따뜻하고 몽환적인 동화 느낌"></label>
+</div>
+</details>
+</section>
+
+<section class="card">
+<div class="step"><span>STEP 02</span><h2>화풍 고르기</h2></div>
+<p class="help">어떤 그림체로 그릴지 골라요. 책 전체가 이 그림체로 통일돼요.</p>
+<label>화풍<select id="artStyle">
+<option selected>부드러운 파스텔 톤의 수채화 그림책 스타일</option>
+<option>따뜻한 선과 포근한 색감의 동화책 일러스트 스타일</option>
+<option>선명한 색감의 디지털 일러스트 스타일</option>
+<option>손그림 느낌의 색연필 스타일</option>
+<option>귀여운 플랫 벡터 스타일</option>
+<option>따뜻한 톤의 동화책 유화 스타일</option>
+</select></label>
+</section>
+
+<section class="card">
+<div class="step"><span>선택</span><h2>함께 나오는 캐릭터</h2></div>
+<p class="help">친구·가족·반려동물처럼 이야기에 함께 나오는 캐릭터가 있다면 추가해요. (최대 4명 · 없으면 건너뛰어도 돼요) 추가한 캐릭터는 장면·표지 프롬프트에도 함께 들어가요.</p>
+<div id="castList" class="cast-list"></div>
+<div class="actions" style="margin-top:12px"><button type="button" class="btn soft" id="castAdd">+ 캐릭터 추가</button><button type="button" class="btn ghost" id="castFill" title="설명이 비어 있는 캐릭터에 역할에 맞는 기본 모습을 채워줘요">외형 추천 채우기</button></div>
+</section>
+<section class="card cm-hide">
+<div class="step"><span>STEP 03</span><h2>그림 설정</h2></div>
+<p class="help">캐릭터 그림을 어떻게 보여줄지 정해요. 잘 모르겠다면 그대로 두어도 돼요.</p>
+<div class="grid3">
+<label>화면 범위 <small>(어디까지 보이게)</small><select id="shot"><option>전신</option><option selected>반신</option><option>45도</option><option>얼굴 중심</option></select></label>
+<label>배경<select id="bg"><option selected>흰색 기본</option><option>단색</option><option>간단한 배경</option></select></label>
+<label>이미지 안 글자<select id="textInImage"><option selected>없음 (기본)</option><option>있음</option></select></label>
+</div>
+</section>
+
+<button class="btn primary big" type="submit">캐릭터 요청문 만들기</button>
+</form>
+
+<section id="results1" class="results hidden">
+<p class="eyebrow">RESULT</p>
+<h2>캐릭터 요청문이 완성되었습니다!</h2>
+<div class="result-grid">
+<article class="result cm-hide"><h3>① 한 줄 캐릭터</h3><div id="oneLine" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('oneLine')">복사하기</button></article>
+<article class="result cm-hide"><h3>② 캐릭터 고정 정보</h3><div id="fixedInfo" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('fixedInfo')">복사하기</button></article>
+<article class="result">
+<h3>① 캐릭터 그림 요청문 <small style="font-weight:600;color:var(--muted)">(이걸 AI에 붙여넣어요)</small></h3>
+<div id="basePrompt" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('basePrompt')">복사하기</button>
+<span class="lang-tag lang-en cm-hide">🇺🇸 English · Midjourney·캔바 Magic Media 등 이미지 전용 AI용</span>
+<div id="basePromptEN" class="box cm-hide"></div>
+</article>
+<article class="result hidden" id="castResult"><h3>함께 나오는 캐릭터 프롬프트</h3><p class="help" style="margin:0 0 6px">주인공과 같은 화풍으로 그려요. 기본 이미지를 각각 만든 뒤 라인업 이미지로 크기 차이를 확인해보세요.</p><div id="castPrompts"></div></article>
+</div>
+<div class="note"><b>다음 할 일</b><br>① 위 요청문을 ChatGPT·캔바에 붙여넣어 캐릭터 그림을 만들어요. ② 마음에 드는 그림을 저장해요 (장면·표지를 그릴 때마다 함께 첨부해요). ③ 아래 <b>캐릭터 시트</b>를 꼭 만들어 두세요. 모든 장면에서 같은 모습을 지켜 줘요.</div>
+</section>
+
+<form id="sheetForm">
+<section id="step4" class="card hidden">
+<div class="step"><span>STEP 03 · 꼭 해요</span><h2>캐릭터 시트</h2></div>
+<p class="help"><b>캐릭터 시트</b>는 한 캐릭터를 정면·옆모습·여러 표정으로 모아 그린 설정 그림이에요. 이게 있으면 장면마다 같은 모습으로 그리기 쉬워져요. 마음에 드는 캐릭터 그림을 AI에 <b>함께 첨부</b>하고, 아래에서 만든 요청문을 붙여넣으세요.</p>
+<label style="margin-top:6px">캐릭터 시트에 넣을 모습</label>
+<div class="checks" id="sheetOptions">
+<label><input type="checkbox" value="정면" checked>정면</label>
+<label><input type="checkbox" value="45도" checked>45도</label>
+<label><input type="checkbox" value="측면" checked>측면</label>
+<label><input type="checkbox" value="후면">후면</label>
+<label><input type="checkbox" value="다양한 표정" checked>다양한 표정</label>
+<label><input type="checkbox" value="다양한 포즈">다양한 포즈</label>
+</div>
+<button class="btn primary big" type="submit" style="margin-top:20px">캐릭터 시트 요청문 만들기</button>
+</section>
+</form>
+
+<section id="results2" class="results hidden">
+<div class="result-grid">
+<article class="result">
+<h3>② 캐릭터 시트 요청문</h3>
+<div id="sheetPrompt" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('sheetPrompt')">복사하기</button>
+<span class="lang-tag lang-en cm-hide">🇺🇸 English</span>
+<div id="sheetPromptEN" class="box cm-hide"></div>
+</article>
+<article class="result cm-hide"><h3>⑤ 05 장면으로 이어지는 정보</h3><div id="sceneHandoff" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('sceneHandoff')">복사하기</button></article>
+</div>
+
+<div class="download-actions">
+  <button class="btn primary" type="button" onclick="ColorM.saveAsPDF('results1,results2','캐릭터')">PDF 저장</button>
+  <button class="btn soft" type="button" onclick="downloadTXT()">TXT 저장</button>
+</div>
+<div class="step-nav" id="cmStepNav"></div>
+</section>
+</main>
+
+<footer></footer>
+
+<script src="../shared/colorm.js"></script>
+<script src="../shared/presets.js"></script>
+<script src="../shared/mind.js"></script>
+<script src="../shared/recommend.js"></script>
+<script src="../shared/kr-en-prompt.js"></script>
+<script src="../shared/styles.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+ColorM.renderHeader('cmHeader','character');
+ColorM.applyDrops(ColorMPresets.character);
+ColorMStyles.mount('artStyle');
+ColorMRecommend.mount('character');
+ColorM.renderStepNav('cmStepNav','character');
+
+function v(id){return ($(id).value||'').trim()}
+
+// 01에서 정한 팔레트 (없으면 빈 문자열)
+function palKR(){ return typeof ColorMMind!=='undefined' ? ColorMMind.paletteLine('kr') : ''; }
+function palEN(){ return typeof ColorMMind!=='undefined' ? ColorMMind.paletteLine('en') : ''; }
+(function(){
+  const box=$('palBox'), cols=typeof ColorMMind!=='undefined' ? ColorMMind.paletteColors() : null;
+  if(!cols) return;
+  box.hidden=false;
+  box.innerHTML='<span class="pal-bar">'+cols.map(c=>'<i style="background:'+c+'"></i>').join('')+'</span>'+
+    '<span>내 그림책 팔레트 <b>'+cols.join(' · ')+'</b> 가 프롬프트에 함께 들어가요. '+ColorM.stepRef('plan','01 기획')+'에서 바꿔요</span>';
+})();
+
+function loadPrevData(){
+  const project = ColorM.getProject();
+  const sb = project.storyboard;
+  const plan = project.plan || {};
+  if(sb && sb.characterInfo){
+    $('prevPreview').textContent = sb.characterInfo;
+    if(!v('name') && plan.hero) $('name').value = ColorM.heroName(plan) === '주인공' ? '' : ColorM.heroName(plan);
+    if(!v('mood')) $('mood').value = plan.mood || '';
+  }else{
+    $('prevPreview').textContent = '아직 불러온 정보가 없습니다. 03 스토리보드를 먼저 완료해주세요.';
+  }
+}
+loadPrevData();
+
+
+let charData = null;
+
+// ---- 대표색: 마음색을 골랐다면 자동으로 채움 ----
+if(!v('mainColor') && typeof ColorMMind !== 'undefined' && ColorMMind.hasColor()){
+  $('mainColor').value = ColorMMind.get().colorName;
+}
+
+// ---- 함께 나오는 캐릭터 (최대 4명) ----
+const CAST_ROLES = ['친구','가족','반려동물','도와주는 존재','라이벌','낯선 존재'];
+const ROLE_EN = {'친구':'friend','가족':'family member','반려동물':'pet','도와주는 존재':'helper','라이벌':'rival','낯선 존재':'mysterious stranger'};
+let castRows = (ColorM.getProject().cast || []).slice(0,4).map(function(c){ return {role:c.role||CAST_ROLES[0], name:c.name||'', desc:c.desc||''}; }).filter(function(c){ return c.name.trim() || c.desc.trim(); });
+function saveCast(){ ColorM.saveStep('cast', castRows); }
+function drawCast(){
+  const esc = ColorM.escapeHTML;
+  $('castList').innerHTML = castRows.map(function(c,i){
+    return '<div class="cast-row" data-i="'+i+'"><b class="cast-no">'+(i+2)+'</b>'+
+      '<select class="cast-role">'+CAST_ROLES.map(function(r){ return '<option'+(r===c.role?' selected':'')+'>'+r+'</option>'; }).join('')+'</select>'+
+      '<input class="cast-name" placeholder="이름 (예: 토토)" value="'+esc(c.name)+'">'+
+      '<input class="cast-desc" placeholder="한 줄 설명 (종류·생김새·옷·대표색)" value="'+esc(c.desc)+'">'+
+      '<button type="button" class="btn ghost cast-del">삭제</button></div>';
+  }).join('');
+  $('castAdd').classList.toggle('hidden', castRows.length >= 4);
+}
+drawCast();
+$('castAdd').addEventListener('click', function(){
+  if(castRows.length >= 4) return;
+  castRows.push({role:CAST_ROLES[0], name:'', desc:''}); saveCast(); drawCast();
+});
+$('castList').addEventListener('input', function(e){
+  const row = e.target.closest('.cast-row'); if(!row) return;
+  const c = castRows[+row.dataset.i];
+  if(e.target.classList.contains('cast-name')) c.name = e.target.value;
+  else if(e.target.classList.contains('cast-desc')) c.desc = e.target.value;
+  saveCast();
+});
+$('castList').addEventListener('change', function(e){
+  const row = e.target.closest('.cast-row'); if(!row) return;
+  if(e.target.classList.contains('cast-role')){ castRows[+row.dataset.i].role = e.target.value; saveCast(); }
+});
+$('castList').addEventListener('click', function(e){
+  if(!e.target.classList.contains('cast-del')) return;
+  const row = e.target.closest('.cast-row');
+  castRows.splice(+row.dataset.i, 1); saveCast(); drawCast();
+});
+
+// 역할·이름별 기본 모습 (설명이 비어 있는 캐릭터에만 채웁니다)
+const CAST_LOOKS = [
+  [/엄마|어머니/, '따뜻한 인상의 50대 여성, 짧은 웨이브 머리, 부드러운 니트 카디건|a warm-looking woman in her fifties, short wavy hair, a soft knit cardigan'],
+  [/아빠|아버지/, '자상한 인상의 50대 남성, 단정한 짧은 머리, 편안한 셔츠와 조끼|a kind-looking man in his fifties, neat short hair, a casual shirt and vest'],
+  [/할머니/, '온화한 인상의 70대 여성, 은빛 머리를 단정히 묶고 손뜨개 카디건|a gentle woman in her seventies, silver hair tied neatly, a hand-knit cardigan'],
+  [/할아버지/, '인자한 인상의 70대 남성, 흰 머리와 둥근 안경, 포근한 조끼|a benevolent man in his seventies, white hair and round glasses, a cozy vest'],
+  [/언니|누나/, '다정한 인상의 20대 여성, 긴 머리, 깔끔한 블라우스|a friendly woman in her twenties, long hair, a tidy blouse'],
+  [/오빠|형/, '든든한 인상의 20대 남성, 짧은 머리, 편안한 후드 셔츠|a reliable man in his twenties, short hair, a casual hooded shirt'],
+  [/동생|아이|아들|딸/, '장난기 있는 어린 아이, 동그란 얼굴, 편안한 티셔츠|a playful young child with a round face, a comfortable T-shirt']
+];
+const ROLE_LOOKS = {
+  '친구': '다정한 인상의 또래 친구, 단정한 머리, 편안한 캐주얼 옷|a friendly peer with neat hair, casual clothes',
+  '가족': '따뜻한 인상의 가족, 포근한 색의 편안한 옷|a warm-looking family member in cozy, soft-colored clothes',
+  '반려동물': '작고 복슬복슬한 강아지, 따뜻한 갈색 털, 작은 목줄|a small fluffy puppy with warm brown fur and a small collar',
+  '도와주는 존재': '신비롭고 따뜻한 안내자, 부드러운 색의 망토|a mysterious, warm guide in a soft-colored cloak',
+  '라이벌': '당당한 인상의 또래, 선명한 색의 옷|a confident peer in vivid-colored clothes',
+  '낯선 존재': '정체를 알 수 없는 신비로운 존재, 은은한 빛을 두른 모습|a mysterious being wrapped in a faint glow'
+};
+function lookFor(c){
+  const hit = CAST_LOOKS.find(function(x){ return x[0].test(c.name); });
+  const raw = hit ? hit[1] : (ROLE_LOOKS[c.role] || ROLE_LOOKS['친구']);
+  const i = raw.indexOf('|');
+  return {kr: raw.slice(0,i), en: raw.slice(i+1)};
+}
+$('castFill').addEventListener('click', function(){
+  let n = 0;
+  castRows.forEach(function(c){
+    if(c.desc.trim() || !c.name.trim()) return;
+    const l = lookFor(c);
+    ColorMEN.addPairs([[l.kr, l.en]]);
+    c.desc = l.kr; n++;
+  });
+  if(!n){ ColorM.toast('채울 빈 설명이 없어요.'); return; }
+  saveCast(); drawCast();
+  ColorM.toast('역할에 맞는 기본 모습을 채웠어요. 마음에 안 들면 고쳐주세요.');
+});
+function renderCastPrompts(d){
+  const rows = castRows.filter(function(c){ return c.name.trim() || c.desc.trim(); });
+  const wrap = $('castPrompts'), box = $('castResult');
+  if(!rows.length){ box.classList.add('hidden'); wrap.innerHTML = ''; return; }
+  const esc = ColorM.escapeHTML;
+  let html = '';
+  // 수업용: 한국어 요청문만 보여줘요 (영어는 만들지 않음)
+  const add = function(id, tag, cls, text, copyLabel){
+    if(cls === 'lang-en') return;
+    html += '<div id="'+id+'" class="box">'+esc(text)+'</div>'+
+      '<button class="copy" type="button" onclick="ColorM.copyBox(\''+id+'\')">'+copyLabel+'</button>';
+  };
+  rows.forEach(function(c,i){
+    const label = (c.name || c.role || ('캐릭터 '+(i+2))).trim();
+    const kr = [
+      d.artStyle+'로 캐릭터 원화를 그려줘. (주인공 '+d.name+'와 함께 나오는 '+(c.role||'캐릭터')+')',
+      '캐릭터: '+label+(c.desc ? ' / '+c.desc : ''),
+      '', '화면 범위: '+d.shot, '배경: '+d.bg, '이미지 안 글자: '+d.textInImage,
+      '주인공('+d.name+')과 같은 화풍으로, 캐릭터가 화면 중심에 오도록 구성해줘.'
+    ].join('\n');
+    const en = [
+      ColorMEN.fixed(d.artStyle)+" children's picture book character illustration. (a "+(ROLE_EN[c.role]||'character')+' who appears with the main character '+d.name+')',
+      'Character: '+label+(c.desc ? ' / '+ColorMEN.translate(c.desc) : ''),
+      '', 'Shot type: '+ColorMEN.fixed(d.shot), 'Background: '+ColorMEN.fixed(d.bg), 'Text in image: '+ColorMEN.fixed(d.textInImage),
+      'Keep the same art style as the main character '+d.name+'. Character centered in frame.'
+    ].join('\n');
+    html += '<h4 style="margin:14px 0 0">'+esc(label)+(c.role ? ' <small style="color:var(--muted)">('+esc(c.role)+')</small>' : '')+'</h4>';
+    add('castKR'+i, '🇰🇷 한국어', 'lang-kr', kr, '복사하기');
+    add('castEN'+i, '🇺🇸 English', 'lang-en', en, 'Copy');
+  });
+  const everyone = [[d.name].concat([[d.appearance, d.outfit].filter(Boolean).join(', ')].filter(Boolean)).join(' — ')].concat(rows.map(function(c,i){ return (c.name||c.role||('캐릭터 '+(i+2)))+' — '+(c.desc||c.role); }));
+  const lineKR = [
+    '앞에서 만든 캐릭터들이 한 화면에 나란히 선 전신 이미지를 그려줘. 각 캐릭터의 모습은 기본 이미지와 똑같이 유지해줘.',
+    '등장 캐릭터: '+everyone.join(' / '),
+    '배치: 흰색 배경, 모든 캐릭터가 나란히 서고 서로의 키와 크기 차이가 잘 보이게',
+    '화풍: '+d.artStyle
+  ].join('\n');
+  const lineEN = [
+    'A line-up illustration of all the characters made so far, standing side by side in full body. Keep each character exactly as in their base image.',
+    'Characters: '+everyone.map(function(x){ return ColorMEN.translate(x); }).join(' / '),
+    'Layout: plain white background, all characters standing next to each other so their height and size differences are clear',
+    'Art style: '+ColorMEN.fixed(d.artStyle)
+  ].join('\n');
+  html += '<h4 style="margin:14px 0 0">캐릭터 라인업</h4>';
+  add('castLineKR', '🇰🇷 한국어', 'lang-kr', lineKR, '복사하기');
+  add('castLineEN', '🇺🇸 English', 'lang-en', lineEN, 'Copy');
+  wrap.innerHTML = html;
+  box.classList.remove('hidden');
+}
+
+// 비어 있는 선택 칸은 요청문에서 뺍니다.
+const opt = function(label, val){ return val ? label+': '+val : null; };
+const optEN = function(label, val){ return val ? label+': '+ColorMEN.translate(val) : null; };
+
+function buildFixedInfo(d){
+  return [
+    `이름: ${d.name}`,
+    opt('나이/연령', d.age),
+    `캐릭터 유형: ${d.type}`,
+    opt('외형 특징', d.appearance),
+    opt('의상 / 소품', d.outfit),
+    d.mainColor ? `대표색: ${d.mainColor}` : null,
+    palKR() ? `색상 팔레트: ${palKR()}` : null,
+    opt('성격', d.personality),
+    opt('대표 표정/감정', d.emotion),
+    opt('자주 하는 행동', d.habit),
+    opt('전체 분위기', d.mood),
+    `화풍: ${d.artStyle}`,
+    '',
+    '※ 아래 요소는 모든 이미지에서 동일하게 유지되어야 합니다:',
+    '얼굴형 · 눈 크기 · 헤어스타일 · 몸 비율 · 의상 · 소품 · 대표 색상'
+  ].filter(function(x){ return x !== null; }).join('\n');
+}
+
+$('baseForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const d = {
+    name: v('name')||'주인공', age: v('age'), type: v('type'),
+    appearance: v('appearance'), outfit: v('outfit'),
+    personality: v('personality'), emotion: v('emotion'),
+    habit: v('habit'), mood: v('mood'), artStyle: v('artStyle'),
+    mainColor: v('mainColor'), shot: v('shot'), bg: v('bg'), textInImage: v('textInImage')
+  };
+  const sentences = [`${d.type} 캐릭터 ${d.name}${d.age ? '('+d.age+')' : ''}.`];
+  if(d.appearance) sentences.push(`${d.appearance}.`);
+  if(d.outfit) sentences.push(`${d.outfit}${ColorM.josa(d.outfit,['을','를'])} 하고 있다.`);
+  if(d.personality) sentences.push(`${d.personality}${ColorM.josa(d.personality,['이','가'])} 매력적이다.`);
+  if(d.mood){
+    const moodN = /(분위기|느낌|감성)$/.test(d.mood) ? d.mood : d.mood+' 분위기';
+    sentences.push(`전체적으로 ${moodN}${ColorM.josa(moodN,['이','가'])} 느껴진다.`);
+  }
+  const oneLine = sentences.join(' ');
+  const fixedInfo = buildFixedInfo(d);
+  const feelHabit = [d.emotion ? '표정: '+d.emotion : '', d.habit ? '자주 하는 행동: '+d.habit : ''].filter(Boolean).join(' / ');
+  const basePrompt = [
+    `${d.artStyle}로 캐릭터 원화를 그려줘.`,
+    `캐릭터: ${[d.name, d.age, d.type].filter(Boolean).join(' / ')}`,
+    opt('외형', d.appearance),
+    opt('의상·소품', d.outfit),
+    d.mainColor ? `대표색: ${d.mainColor}` : null,
+    palKR() ? `색상 팔레트: ${palKR()}` : null,
+    feelHabit || null,
+    opt('전체 분위기', d.mood),
+    '',
+    `화면 범위: ${d.shot}`,
+    `배경: ${d.bg}`,
+    `이미지 안 글자: ${d.textInImage}`,
+    '캐릭터가 화면 중심에 오도록 구성해줘.'
+  ].filter(function(x){ return x !== null; }).join('\n');
+
+  const basePromptEN = [
+    `${ColorMEN.fixed(d.artStyle)} children's picture book character illustration.`,
+    `Character: ${[d.name, d.age ? ColorMEN.translate(d.age) : '', ColorMEN.fixed(d.type)].filter(Boolean).join(' / ')}`,
+    optEN('Appearance', d.appearance),
+    optEN('Outfit & props', d.outfit),
+    d.mainColor ? `Main color: ${ColorMEN.translate(d.mainColor)}` : null,
+    palEN() ? `Color palette: ${palEN()}` : null,
+    [d.emotion ? 'Expression: '+ColorMEN.translate(d.emotion) : '', d.habit ? 'Habit: '+ColorMEN.translate(d.habit) : ''].filter(Boolean).join(' / ') || null,
+    optEN('Overall mood', d.mood),
+    '',
+    `Shot type: ${ColorMEN.fixed(d.shot)}`,
+    `Background: ${ColorMEN.fixed(d.bg)}`,
+    `Text in image: ${ColorMEN.fixed(d.textInImage)}`,
+    'Character centered in frame.'
+  ].filter(function(x){ return x !== null; }).join('\n');
+
+  $('oneLine').textContent = oneLine;
+  $('fixedInfo').textContent = fixedInfo;
+  $('basePrompt').textContent = basePrompt;
+  $('basePromptEN').textContent = basePromptEN;
+  renderCastPrompts(d);
+  $('results1').classList.remove('hidden');
+  $('step4').classList.remove('hidden');
+
+  charData = Object.assign({}, d, {oneLine, fixedInfo, basePrompt, basePromptEN});
+  ColorM.saveStep('character', charData);
+
+  setTimeout(()=>$('results1').scrollIntoView({behavior:'smooth',block:'start'}),50);
+});
+
+$('sheetForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  if(!charData){ alert('먼저 위에서 캐릭터 요청문을 만들어주세요.'); return; }
+  const options = [...document.querySelectorAll('#sheetOptions input:checked')].map(c=>c.value);
+  const lockLine = '첨부한 기준 캐릭터 이미지를 최우선 참고 이미지로 사용하고, 얼굴형, 눈 크기, 헤어스타일, 몸 비율, 의상, 소품, 대표 색상은 변경하지 말고 유지해주세요.';
+  const lockLineEN = 'Use the attached reference character image as the primary reference. Do not change the face shape, eye size, hairstyle, body proportions, outfit, props, or main colors.';
+
+  const sheetPrompt = [
+    lockLine,
+    '(이 요청문과 함께 마음에 드는 캐릭터 그림을 AI에 첨부해주세요.)',
+    '',
+    `캐릭터: ${charData.name} (${charData.type})`,
+    `다음 구성으로 캐릭터 시트를 만들어줘: ${options.join(', ')||'정면, 45도, 측면'}`,
+    `배경은 흰색 또는 단색으로 통일하고, 각 컷마다 동일한 화풍(${charData.artStyle})을 유지해줘.`
+  ].join('\n');
+
+  const sheetPromptEN = [
+    lockLineEN,
+    '(Attach your favorite character image together with this prompt.)',
+    '',
+    `Character: ${charData.name} (${ColorMEN.fixed(charData.type)})`,
+    `Create a character turnaround sheet with: ${options.map(o=>ColorMEN.fixed(o)).join(', ')||'front view, 3/4 angle view, side view'}`,
+    `Keep the background plain white or solid color, and maintain the same art style (${ColorMEN.fixed(charData.artStyle)}) across all panels.`
+  ].join('\n');
+
+  const sceneHandoff = [
+    '캐릭터 고정 정보:', charData.fixedInfo,
+    '', '캐릭터 일관성 유지 문장:', lockLine,
+    '', '※ 04 그림책·05 표지에서 그림을 만들 때도 마음에 드는 캐릭터 그림을 AI에 함께 첨부해주세요.'
+  ].join('\n');
+
+  $('sheetPrompt').textContent = sheetPrompt;
+  $('sheetPromptEN').textContent = sheetPromptEN;
+  $('sceneHandoff').textContent = sceneHandoff;
+  $('results2').classList.remove('hidden');
+
+  ColorM.saveStep('character', Object.assign({}, charData, {sheetOptions:options, sheetPrompt, sheetPromptEN, sceneHandoff, lockLine, lockLineEN}));
+
+  setTimeout(()=>$('results2').scrollIntoView({behavior:'smooth',block:'start'}),50);
+});
+
+function buildDownloadText(){
+  return ['COLOR.M 마음색 그림책 메이커 · 04 캐릭터','================================','',
+    '[한 줄 캐릭터]', $('oneLine').textContent.trim(),'',
+    '[캐릭터 고정 정보]', $('fixedInfo').textContent.trim(),'',
+    '[기본 캐릭터 프롬프트 · 한국어]', $('basePrompt').textContent.trim(),'',
+    '[캐릭터 시트 요청문 · 한국어]', $('sheetPrompt').textContent.trim(),'',
+    '[05 장면으로 이어지는 정보]', $('sceneHandoff').textContent.trim()
+  ].join('\n');
+}
+function downloadTXT(){
+  if($('results2').classList.contains('hidden')){ alert('먼저 캐릭터 시트 요청문을 만들어주세요.'); return; }
+  const project = ColorM.getProject();
+  ColorM.downloadTXT('COLOR.M_'+project.projectName+'_캐릭터.txt', buildDownloadText());
+}
+
+// 작성하던 내용 자동 저장/복원 + 이미 만든 결과 다시 보여주기
+const draft = ColorM.autoSaveForm('baseForm', 'character_base');
+const draft2 = ColorM.autoSaveForm('sheetForm', 'character_sheet');
+ColorM.restoreSilently(function(){
+  const ch = ColorM.getProject().character || {};
+  if(draft.restored && ch.basePrompt) $('baseForm').dispatchEvent(new Event('submit', {cancelable:true, bubbles:true}));
+  if(draft2.restored && ch.sheetPrompt) $('sheetForm').dispatchEvent(new Event('submit', {cancelable:true, bubbles:true}));
+});
+// 주인공 설명에서 캐릭터 종류를 짐작합니다 (못 찾으면 '').
+function guessType(text){
+  const t = String(text||'');
+  if(/로봇/.test(t)) return '로봇';
+  if(/곰|토끼|강아지|고양이|여우|새|거북|사슴|다람쥐|펭귄|호랑이|사자|코끼리|개구리|원숭이|동물/.test(t)) return '동물';
+  if(/요정|마법|용|드래곤|유령|마녀/.test(t)) return '판타지 캐릭터';
+  if(/소녀|여자|여성|엄마|언니|할머니/.test(t)) return '한국 여성';
+  if(/소년|남자|남성|아빠|형|할아버지/.test(t)) return '한국 남성';
+  return '';
+}
+// 선택 칸(성격·표정·행동·분위기)에 내용이 있으면 접힌 상자를 열어 둡니다.
+function syncMoreDet(){ if(['personality','emotion','habit','mood'].some(function(id){ return v(id); })) $('moreDet').open = true; }
+$('baseForm').addEventListener('input', syncMoreDet);
+setTimeout(syncMoreDet, 400);
+
+// 03 스토리보드에서 넘어온 인물 정보로 채웁니다.
+//  · ChatGPT 답변을 새로 채운 직후(fresh)에는 04 칸을 그 내용으로 바꾸고,
+//  · 그 외에는 빈 칸만 채웁니다. (주인공 줄이 없던 스토리보드는 장면 속 인물 이름으로 대신해요)
+(function(){
+  const pr = ColorM.getProject();
+  const hd = pr.heroDraft || {};
+  const scenes = (pr.storyboard && pr.storyboard.scenes) || [];
+  const d = scenes.length ? ColorM.deriveCharacters(scenes, hd.name) : {main:'', extras:[]};
+  const force = !!hd.fresh;
+  let filled = 0;
+  const fill = function(id, val){ if(val && (force || !v(id))){ $(id).value = val; filled++; } };
+  fill('name', hd.name || d.main);
+  fill('age', hd.age); fill('appearance', hd.appearance); fill('outfit', hd.outfit); fill('mainColor', hd.mainColor);
+  if(hd.type && (force || !draft.restored)){ $('type').value = hd.type; filled++; }
+  // 종류를 아직 안 골랐다면 기획의 주인공 설명에서 짐작해 둡니다.
+  else if(!hd.type && !draft.restored){
+    const g = guessType((pr.plan && pr.plan.hero) || '');
+    if(g) $('type').value = g;
+  }
+
+  // 함께 나오는 캐릭터: 아직 한 명도 없으면 장면 속 인물로 채움
+  if(!castRows.length && d.extras.length){
+    d.extras.forEach(function(e){ castRows.push({role:e.role, name:e.name, desc:''}); });
+    saveCast(); drawCast(); filled++;
+  }
+  if(force){ hd.fresh = false; pr.heroDraft = hd; ColorM.storage.set(pr); }
+  if(filled){
+    const pvEl = $('prevPreview');
+    if(hd.raw && pvEl.textContent.indexOf('ChatGPT 주인공 설명') < 0){
+      pvEl.textContent += (pvEl.textContent ? '\n\n' : '') + 'ChatGPT 주인공 설명: ' + hd.raw;
+    }
+    ColorM.toast('03 스토리보드의 인물 정보를 가져왔어요. 확인하고 고쳐주세요.');
+  }
+})();</script>
+</body>
+</html>

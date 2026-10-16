@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ko" data-session="5">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 그림책 — 마음색 그림책 2시간 특강</title>
+<link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-5.svg">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="../shared/colorm.css">
+<style>
+.prev-box{background:var(--tint);border:1px solid var(--ab);border-radius:14px;padding:14px 16px;font-size:13px;line-height:1.7;color:#5e575b;white-space:pre-wrap}
+.count-options{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.count-options button{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;font-size:13px}
+.count-options button.on{background:var(--soft);border-color:var(--m);color:var(--m)}
+.upload-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.thumb{width:96px;height:96px;border-radius:14px;border:1px dashed var(--line);object-fit:cover;background:#fff}
+.lang-tag{display:inline-block;font-size:11px;font-weight:900;padding:3px 8px;border-radius:999px;margin:10px 0 6px}
+.lang-kr{background:var(--soft);color:var(--m)}
+.lang-en{background:#eef3ff;color:#3a5bd9}
+</style>
+</head>
+<body>
+<div id="cmHeader"></div>
+<header class="hero hero-sub">
+<p class="sub">스토리보드와 캐릭터를 바탕으로 <b>장면 그림 요청문</b>을 만들어요. 아래 <b>「모든 장면 한 번에 만들기」</b>를 누르면 모든 장면 요청문이 한 번에 나와요.<br>캔바를 쓴다면 맨 위 카드로 책 전체를 한 번에 넣을 수도 있어요.</p>
+</header>
+
+<main class="wrap">
+<form id="sceneForm">
+<section class="card">
+<div class="step"><span>STEP 01</span><h2>장면 선택</h2></div>
+<p class="help"><b>장면별로 이미지를 만들 때</b> 쓰는 부분이에요. 작업할 장면을 선택하세요. (03 스토리보드 기준)</p>
+<div class="count-options" id="sceneOptions"></div>
+<div class="all-box">
+<div><b>⚡ 장면이 여러 개라면 한 번에 만들 수 있어요</b>
+<span class="help" style="display:block;margin:4px 0 0">03 스토리보드의 모든 장면을 한꺼번에 프롬프트로 만들어요. 한 장면만 더 다듬고 싶다면 위에서 장면을 골라 아래 칸을 고치세요.</span></div>
+<button type="button" class="btn primary" id="makeAll">모든 장면 한 번에 만들기</button>
+</div>
+</section>
+
+<section class="card cm-hide">
+<div class="step"><span>STEP 02</span><h2>캐릭터</h2></div>
+<p class="help">03 캐릭터에서 정한 정보가 요청문에 <b>자동으로 들어가요.</b> 이미지 AI에 요청문을 넣을 때, <b>03에서 만든 마음에 드는 캐릭터 그림을 함께 첨부</b>하면 모든 장면에서 같은 모습으로 그려져요.</p>
+<div class="actions" style="margin-top:14px"><button class="btn ghost" type="button" onclick="loadCharacterInfo()">캐릭터 정보 다시 불러오기</button></div>
+<div id="characterPreview" class="prev-box" style="margin-top:14px">아직 불러온 캐릭터 정보가 없습니다.</div>
+</section>
+
+<section class="card">
+<div class="step"><span>STEP 02</span><h2>장면 하나만 다듬기 <small style="font-size:13px;color:var(--muted)">(선택)</small></h2></div>
+<p class="help">스토리보드에서 자동으로 불러오며, 필요하면 자유롭게 수정할 수 있습니다.</p>
+<div class="grid">
+<label>등장인물<input id="sChars"></label>
+<label>장소<input id="sPlace"></label>
+<label class="cm-hide">시간<input id="sTime"></label>
+<label class="cm-hide">분위기<input id="sMood"></label>
+</div>
+<label>행동 / 내용<textarea id="sAction" rows="2"></textarea></label>
+<label>표정 / 감정 (인물별 표정·포즈)<textarea id="sEmotion" rows="2"></textarea></label>
+<label>화면 구도 / 그림콘티<textarea id="sComposition" rows="2"></textarea></label>
+</section>
+
+<section class="card">
+<div class="step"><span>STEP 03</span><h2>그림 비율</h2></div>
+<p class="help">캔바에서 쓸 <b>책 크기와 같은 비율</b>로 골라요. (정사각형 1:1 · 가로형 4:3 · 세로형 3:4)</p>
+<div class="grid3">
+<label>이미지 비율<select id="ratio"><option>1:1</option><option selected>3:4</option><option>4:3</option><option>16:9</option><option>9:16</option></select></label>
+<label class="cm-hide">배경<input id="iBg" placeholder="예: 색색의 꽃이 핀 마을 풍경"></label>
+<label class="cm-hide">조명<select id="iLight"><option selected>부드러운 자연광</option><option>따뜻한 노을빛</option><option>은은한 달빛</option><option>맑고 화사한 낮빛</option><option>신비로운 역광</option></select></label>
+</div>
+<div class="grid3">
+<label class="cm-hide">컬러 분위기<input id="iColor" placeholder="예: 파스텔 라벤더와 핑크 톤"></label>
+<label class="cm-hide">카메라 거리<select id="iDistance"><option>클로즈업</option><option selected>미디엄 샷</option><option>풀 샷</option><option>와이드 샷</option></select></label>
+<label class="cm-hide">시점<select id="iAngle"><option selected>정면 시점</option><option>측면 시점</option><option>위에서 내려다본 시점</option><option>아래에서 올려다본 시점</option></select></label>
+</div>
+</section>
+
+<button class="btn primary big" type="submit">장면 프롬프트 만들기</button>
+</form>
+
+<section id="allResults" class="results hidden">
+<p class="eyebrow">ALL SCENES</p>
+<h2 id="allTitle">모든 장면 프롬프트가 완성되었습니다!</h2>
+<div class="download-actions">
+  <button class="btn primary" type="button" id="copyAllKR">한국어 전체 복사</button>
+  <button class="btn soft" type="button" id="copyAllEN">English 전체 복사</button>
+  <button class="btn soft" type="button" id="saveAllTXT">TXT 전체 저장</button>
+</div>
+<div class="note" style="margin-top:12px"><b>쓰는 방법</b><br>장면 하나씩 아래 요청문을 복사해서 03에서 만든 캐릭터 그림과 함께 AI에 넣어주세요. 장면마다 배경과 색감이 달라서, 장면별로 따로 넣는 게 좋아요.</div>
+<div id="allList" class="all-list"></div>
+</section>
+
+<section id="results" class="results hidden">
+<p class="eyebrow">RESULT</p>
+<h2>장면 프롬프트가 완성되었습니다!</h2>
+<div class="result-grid">
+<article class="result cm-hide"><h3>① 장면 설명</h3><div id="sceneDesc" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('sceneDesc')">복사하기</button></article>
+<article class="result">
+<h3>② AI 이미지 생성용 상세 프롬프트</h3>
+<span class="lang-tag lang-kr">🇰🇷 한국어 · 챗GPT·제미나이 등 대화형 AI용</span>
+<div id="scenePrompt" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('scenePrompt')">복사하기</button>
+<span class="lang-tag lang-en">🇺🇸 English · Midjourney·캔바 Magic Media 등 이미지 전용 AI용</span>
+<div id="scenePromptEN" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('scenePromptEN')">Copy</button>
+</article>
+<article class="result">
+<h3>③ 캐릭터 일관성 유지 문장</h3>
+<span class="lang-tag lang-kr">🇰🇷 한국어</span>
+<div id="lockLine" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('lockLine')">복사하기</button>
+<span class="lang-tag lang-en">🇺🇸 English</span>
+<div id="lockLineEN" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('lockLineEN')">Copy</button>
+</article>
+</div>
+
+<div class="download-actions">
+  <button class="btn primary" type="button" onclick="ColorM.saveAsPDF('results','장면')">PDF 저장</button>
+  <button class="btn soft" type="button" onclick="downloadTXT()">TXT 저장</button>
+</div>
+<div class="note"><b>완료!</b><br>이 요청문을 <b>캐릭터 그림·캐릭터 시트와 함께</b> ChatGPT·캔바에 넣어 장면 그림을 만들어요. 다른 장면은 위에서 번호를 바꿔 이어서 만들 수 있어요.</div>
+<div class="step-nav" id="cmStepNav"></div>
+</section>
+</main>
+
+<footer></footer>
+
+<script src="../shared/colorm.js"></script>
+<script src="../shared/presets.js"></script>
+<script src="../shared/mind.js"></script>
+<script src="../shared/recommend.js"></script>
+<script src="../shared/kr-en-prompt.js"></script>
+<script src="../shared/canva.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const SCENE_LOCK_LINE = '첨부한 기준 캐릭터의 얼굴, 헤어, 의상, 소품, 신체 비율, 대표 색상은 변경하지 말고 유지해주세요.';
+const SCENE_LOCK_LINE_EN = "Keep the reference character's face, hair, outfit, props, body proportions, and main colors unchanged.";
+
+function buildCharacterFixedInfoEN(ch){
+  if(!ch || !ch.name) return '';
+  const t = function(l, x){ return x ? l+': '+ColorMEN.translate(x) : null; };
+  return [
+    `Name: ${ch.name}`,
+    t('Age', ch.age),
+    `Character type: ${ColorMEN.fixed(ch.type)}`,
+    t('Appearance', ch.appearance),
+    t('Outfit & props', ch.outfit),
+    t('Personality', ch.personality),
+    t('Expression', ch.emotion),
+    t('Habit', ch.habit),
+    t('Mood', ch.mood),
+    `Art style: ${ColorMEN.fixed(ch.artStyle)}`,
+    '',
+    'Keep these consistent across all images: face shape, eye size, hairstyle, body proportions, outfit, props, main colors.'
+  ].filter(function(x){ return x !== null; }).join('\n');
+}
+ColorM.renderHeader('cmHeader','scene');
+ColorM.applyDrops(ColorMPresets.scene);
+ColorMRecommend.mount('scene');
+ColorMMind.mountFlowSummary(document.getElementById('iBg').closest('section'));
+ColorM.renderStepNav('cmStepNav','scene');
+ColorMCanva.mount($('sceneForm'));
+
+let boardScenes = [];
+let selectedIdx = 0;
+
+function renderSceneOptions(){
+  const project = ColorM.getProject();
+  boardScenes = (project.storyboard && project.storyboard.scenes) ? project.storyboard.scenes : [];
+  const wrap = $('sceneOptions');
+  if(boardScenes.length===0){
+    wrap.innerHTML = '<span class="help" style="margin:0">아직 불러올 스토리보드가 없습니다. 03 스토리보드를 먼저 완료해주세요. (기본 장면으로 진행합니다)</span>';
+    boardScenes = [{no:1,title:'',cast:'',content:'',dialogue:'',conti:''}];
+  }else{
+    wrap.innerHTML = boardScenes.map((s,i)=>`<button type="button" data-i="${i}" class="${i===0?'on':''}">장면 ${String(s.no).padStart(2,'0')}</button>`).join('');
+  }
+  selectedIdx = 0;
+  fillSceneFields(0);
+}
+
+wireSceneOptionClicks();
+function wireSceneOptionClicks(){
+  $('sceneOptions').addEventListener('click', function(e){
+    const btn = e.target.closest('button[data-i]');
+    if(!btn) return;
+    [...document.querySelectorAll('#sceneOptions button')].forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    selectedIdx = parseInt(btn.dataset.i,10);
+    fillSceneFields(selectedIdx);
+  });
+}
+
+// "루루: 호기심 어린 눈, ...\n토토: 놀란 표정, ..." 형태에서 이름만 뽑아 "루루, 토토"로 만듭니다.
+function extractCastNames(castText){
+  if(!castText) return '';
+  return castText.split('\n').map(line=>line.split(':')[0].trim()).filter(Boolean).join(', ');
+}
+
+function fillSceneFields(i){
+  const project = ColorM.getProject();
+  const plan = project.plan || {};
+  const s = boardScenes[i] || {};
+  $('sChars').value = extractCastNames(s.cast) || heroName(plan);
+  $('sPlace').value = plan.place || '';
+  $('sTime').value = plan.time || '';
+  $('sAction').value = s.memo || s.content || '';
+  $('sEmotion').value = s.cast || '';
+  $('sMood').value = plan.mood || '';
+  $('sComposition').value = s.conti || '';
+  fillSceneColor(i);
+}
+
+// 01에서 정한 색 흐름에 맞는 이 장면의 색감을 자동으로 채웁니다.
+function fillSceneColor(i){
+  if(typeof ColorMMind !== 'undefined' && ColorMMind.hasColor()){
+    const n = Math.max(boardScenes.length, 1);
+    $('iColor').value = ColorMMind.toneForScene(Math.min(i, n-1), n);
+  }
+}
+
+function heroName(plan){
+  return ColorM.heroName(plan);
+}
+
+function loadCharacterInfo(){
+  const project = ColorM.getProject();
+  const ch = project.character;
+  if(ch && ch.fixedInfo){
+    $('characterPreview').textContent = ch.fixedInfo;
+  }else{
+    $('characterPreview').textContent = '아직 불러온 캐릭터 정보가 없습니다. 04 CHARACTER를 먼저 완료해주세요.';
+  }
+}
+
+renderSceneOptions();
+loadCharacterInfo();
+
+
+// 장면 한 개의 설명·프롬프트(한/영)를 만듭니다. (한 장면씩 / 전체 한 번에 모두 이 함수를 씁니다)
+function composeScene(d){
+  const ch = ColorM.getProject().character || {};
+
+  const sceneDesc = `${d.chars}${ColorM.josa(d.chars,['이','가'])} ${d.time}, ${d.place}에서 ${d.action}. ${d.emotion}${ColorM.josa(d.emotion,['이','가'])} 드러나는 장면이며, 전체적으로 ${d.mood} 분위기를 담고 있다.`;
+
+  const scenePrompt = [
+    SCENE_LOCK_LINE,
+    '',
+    `장면: ${d.chars}가(이) ${d.place}에서 ${d.action}`,
+    `표정/감정: ${d.emotion}`,
+    `시간: ${d.time} / 분위기: ${d.mood}`,
+    `화면 구도: ${d.composition} / 카메라 거리: ${d.distance} / 시점: ${d.angle}`,
+    `배경: ${d.bg} / 조명: ${d.light} / 컬러 분위기: ${d.color}`,
+    `이미지 비율: ${d.ratio}`,
+    ch.fixedInfo ? ('\n[캐릭터 고정 정보]\n'+ch.fixedInfo) : '',
+    ColorM.castBlock('kr') ? ('\n[함께 나오는 캐릭터 — 이 장면에 나오는 캐릭터만 그려줘]\n'+ColorM.castBlock('kr')) : ''
+  ].filter(Boolean).join('\n');
+
+  const charFixedInfoEN = buildCharacterFixedInfoEN(ch);
+  const scenePromptEN = [
+    SCENE_LOCK_LINE_EN,
+    '',
+    `Scene: ${d.chars} ${ColorMEN.translate(d.action)} at ${ColorMEN.translate(d.place)}`,
+    `Expression: ${ColorMEN.translate(d.emotion)}`,
+    `Time: ${ColorMEN.translate(d.time)} / Mood: ${ColorMEN.translate(d.mood)}`,
+    `Composition: ${ColorMEN.fixed(d.composition)} / Camera distance: ${ColorMEN.fixed(d.distance)} / Angle: ${ColorMEN.fixed(d.angle)}`,
+    `Background: ${ColorMEN.translate(d.bg)} / Lighting: ${ColorMEN.fixed(d.light)} / Color palette: ${ColorMEN.translate(d.color)}`,
+    `Aspect ratio: ${d.ratio}`,
+    charFixedInfoEN ? ('\n[Character fixed info]\n'+charFixedInfoEN) : '',
+    ColorM.castBlock('en') ? ('\n[Other characters — draw only those who appear in this scene]\n'+ColorM.castBlock('en')) : ''
+  ].filter(Boolean).join('\n');
+
+  return {sceneDesc, scenePrompt, scenePromptEN};
+}
+
+// 지금 화면의 입력칸 값 → 장면 데이터
+function readForm(){
+  return {
+    chars: $('sChars').value.trim()||'등장인물 미정',
+    place: $('sPlace').value.trim()||'장소 미정',
+    time: $('sTime').value.trim()||'시간 미정',
+    action: $('sAction').value.trim()||'행동 미정',
+    emotion: $('sEmotion').value.trim()||'표정 미정',
+    mood: $('sMood').value.trim()||'분위기 미정',
+    composition: $('sComposition').value.trim()||'구도 미정',
+    ratio: $('ratio').value, bg: $('iBg').value.trim()||'배경 미정',
+    light: $('iLight').value, color: $('iColor').value.trim()||'컬러 분위기 미정',
+    distance: $('iDistance').value, angle: $('iAngle').value
+  };
+}
+
+$('sceneForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const d = readForm();
+  const {sceneDesc, scenePrompt, scenePromptEN} = composeScene(d);
+
+  $('sceneDesc').textContent = sceneDesc;
+  $('scenePrompt').textContent = scenePrompt;
+  $('scenePromptEN').textContent = scenePromptEN;
+  $('lockLine').textContent = SCENE_LOCK_LINE;
+  $('lockLineEN').textContent = SCENE_LOCK_LINE_EN;
+  $('results').classList.remove('hidden');
+
+  const project2 = ColorM.getProject();
+  if(!Array.isArray(project2.scenes)) project2.scenes = [];
+  project2.scenes[selectedIdx] = Object.assign({no: boardScenes[selectedIdx].no}, d, {sceneDesc, scenePrompt, scenePromptEN, lockLine: SCENE_LOCK_LINE, lockLineEN: SCENE_LOCK_LINE_EN});
+  ColorM.storage.set(project2);
+
+  setTimeout(()=>$('results').scrollIntoView({behavior:'smooth',block:'start'}),50);
+});
+
+// ---------- 모든 장면 한 번에 ----------
+let allCache = [];
+function makeAllScenes(){
+  const project = ColorM.getProject();
+  const plan = project.plan || {};
+  const common = readForm();
+  const n = boardScenes.length;
+  const mindOn = typeof ColorMMind !== 'undefined' && ColorMMind.hasColor();
+  allCache = boardScenes.map(function(s, i){
+    const d = {
+      chars: extractCastNames(s.cast) || heroName(plan) || '등장인물 미정',
+      place: plan.place || '장소 미정', time: plan.time || '시간 미정',
+      action: s.memo || s.content || '행동 미정', emotion: s.cast || '표정 미정',
+      mood: plan.mood || '분위기 미정', composition: s.conti || '구도 미정',
+      ratio: common.ratio, bg: plan.place || common.bg, light: common.light,
+      color: (mindOn && ColorMMind.toneForScene(i, n)) || common.color,
+      distance: common.distance, angle: common.angle
+    };
+    return {no: s.no, title: s.title || '', d: d, out: composeScene(d)};
+  });
+  const p2 = ColorM.getProject();
+  p2.scenes = allCache.map(function(c){
+    return Object.assign({no: c.no}, c.d, c.out, {lockLine: SCENE_LOCK_LINE, lockLineEN: SCENE_LOCK_LINE_EN});
+  });
+  ColorM.storage.set(p2);
+
+  $('allTitle').textContent = '장면 ' + n + '개의 프롬프트가 완성되었습니다!';
+  $('allList').innerHTML = allCache.map(function(c, i){
+    const no = String(c.no || i + 1).padStart(2, '0');
+    return '<article class="result"><h3>장면 ' + no + (c.title ? ' · ' + ColorM.escapeHTML(c.title) : '') + '</h3>' +
+      '<span class="lang-tag lang-kr">🇰🇷 한국어</span><div id="allKR' + i + '" class="box"></div>' +
+      '<button class="copy" type="button" onclick="ColorM.copyBox(\'allKR' + i + '\')">복사하기</button>' +
+      '<span class="lang-tag lang-en">🇺🇸 English</span><div id="allEN' + i + '" class="box"></div>' +
+      '<button class="copy" type="button" onclick="ColorM.copyBox(\'allEN' + i + '\')">Copy</button></article>';
+  }).join('');
+  allCache.forEach(function(c, i){ $('allKR' + i).textContent = c.out.scenePrompt; $('allEN' + i).textContent = c.out.scenePromptEN; });
+  $('allResults').classList.remove('hidden');
+  setTimeout(function(){ $('allResults').scrollIntoView({behavior: 'smooth', block: 'start'}); }, 50);
+}
+function allText(lang){
+  return allCache.map(function(c, i){
+    return '===== 장면 ' + String(c.no || i + 1).padStart(2, '0') + (c.title ? ' · ' + c.title : '') + ' =====\n' + (lang === 'en' ? c.out.scenePromptEN : c.out.scenePrompt);
+  }).join('\n\n');
+}
+$('makeAll').addEventListener('click', makeAllScenes);
+$('copyAllKR').addEventListener('click', function(){ ColorM.copyText(allText('kr')); });
+$('copyAllEN').addEventListener('click', function(){ ColorM.copyText(allText('en')); });
+$('saveAllTXT').addEventListener('click', function(){
+  const project = ColorM.getProject();
+  ColorM.downloadTXT('COLOR.M_' + project.projectName + '_전체장면.txt',
+    ['COLOR.M 마음색 그림책 메이커 — 전체 장면', '================================', '', allText('kr')].join('\n'));
+});
+
+function buildDownloadText(){
+  return ['COLOR.M 마음색 그림책 메이커 · 05 장면','================================','',
+    '[장면 설명]', $('sceneDesc').textContent.trim(),'',
+    '[AI 이미지 생성용 상세 프롬프트 · 한국어]', $('scenePrompt').textContent.trim(),'',
+    '[캐릭터 일관성 유지 문장 · 한국어]', $('lockLine').textContent.trim(),'',
+  ].join('\n');
+}
+function downloadTXT(){
+  if($('results').classList.contains('hidden')){ alert('먼저 장면 프롬프트를 만들어주세요.'); return; }
+  const project = ColorM.getProject();
+  const no = boardScenes[selectedIdx] ? boardScenes[selectedIdx].no : 1;
+  ColorM.downloadTXT('COLOR.M_'+project.projectName+'_장면'+String(no).padStart(2,'0')+'.txt', buildDownloadText());
+}
+
+// 작성하던 내용 자동 저장/복원 + 이미 만든 장면 결과 다시 보여주기
+const draft = ColorM.autoSaveForm('sceneForm', 'scene', {extra:{
+  collect: function(){ return {idx: selectedIdx}; },
+  apply: function(v){
+    if(!v || !v.idx) return;
+    const btn = document.querySelector('#sceneOptions button[data-i="'+v.idx+'"]');
+    if(btn) btn.click();
+  }
+}});
+if(!$('iColor').value.trim()) fillSceneColor(selectedIdx);
+ColorM.restoreSilently(function(){
+  const sc = (ColorM.getProject().scenes || [])[selectedIdx];
+  if(draft.restored && sc && sc.scenePrompt) $('sceneForm').dispatchEvent(new Event('submit', {cancelable:true, bubbles:true}));
+});</script>
+</body>
+</html>

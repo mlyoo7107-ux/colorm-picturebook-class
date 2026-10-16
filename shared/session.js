@@ -48,6 +48,20 @@ const ColorMSession = (function () {
       },
       wrap: ['표지를 JPG로, 본문을 PDF로 내려받았어요', '작가와에 책 정보를 넣고 파일을 올렸어요', '유통 신청까지 마치고 신청 메일을 받았어요'],
       next: ''
+    },
+    5: {
+      goal: '2시간 동안 마음색에서 출발해 5~6장면 그림책 한 권을 만들어요. 표지와 작가의 말까지 넣어 캔바로 완성해요.',
+      bring: ['ChatGPT 계정', '캔바 계정', '만든 그림을 모아 둘 폴더'],
+      steps: {
+        plan: '마음색을 고르고, 주인공·원하는 것·문제·전하고 싶은 말을 정해요. (15분)',
+        storyboard: '장면 수(5·6)를 고르고, ChatGPT로 책에 실릴 글을 한 번에 받아요. (25분)',
+        character: '주인공 그림과 캐릭터 시트를 만들어요. (25분)',
+        scene: '캔바에 전체를 한 번에 넣어 그림과 글을 만들어요. (35분)',
+        cover: '책 제목을 정하고 표지 그림을 만들어요. (10분)',
+        author: '책 맨 뒤에 넣을 작가의 말을 써요. (10분)'
+      },
+      wrap: ['캔바에 표지 · 본문 · 작가의 말 페이지를 넣었어요', '그림책을 PDF로 내려받았어요', '작업파일(.json)을 저장했어요'],
+      next: ''
     }
   };
 
@@ -61,13 +75,15 @@ const ColorMSession = (function () {
     const status = ColorM.stepStatus();
     const done = steps.filter(function (s) { return status[s.key]; }).length;
     const next = steps.find(function (s) { return !status[s.key]; });
-    const prevSteps = ColorM.STEPS.filter(function (s) { return s.session < no; });
+    const L = ColorM.sessionLabel(no), single = !!se.single;
+    // 특강은 혼자 끝나는 메이커라 지난 회차가 없어요
+    const prevSteps = single ? [] : ColorM.STEPS.filter(function (s) { return s.session < no; });
     const prevMissing = prevSteps.filter(function (s) { return !status[s.key]; });
     const checks = (ColorM.getProject().wrapChecks || {})[no] || {};
 
-    document.title = se.name + ' — 마음색 그림책 ' + no + '회 메이커';
+    document.title = se.title || (se.name + ' — 마음색 그림책 ' + no + '회 메이커');
     root.innerHTML =
-      '<header class="hero"><p class="eyebrow">' + no + '회차 메이커</p><h1><b>' + esc(se.name) + '</b></h1><p class="sub">' + esc(info.goal) + '</p></header>' +
+      '<header class="hero"><p class="eyebrow">' + (single ? '한 번에 끝나는 메이커' : no + '회차 메이커') + '</p><h1><b>' + esc(se.name) + '</b></h1><p class="sub">' + esc(info.goal) + '</p></header>' +
       loadCard(no, prevSteps, prevMissing) +
       '<section class="card"><div class="step"><span>오늘 할 일</span><h2>' + steps.length + '단계로 진행해요</h2></div>' +
         '<nav class="makers">' + steps.map(function (s) {
@@ -79,28 +95,28 @@ const ColorMSession = (function () {
       '</section>' +
       '<section class="card"><div class="step"><span>준비물</span><h2>이번 시간에 필요한 것</h2></div><ul class="help hub-list">' +
         info.bring.map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('') + '</ul></section>' +
-      '<section class="card" id="results"><div class="step"><span>결과</span><h2>' + no + '회에 만든 것</h2></div>' +
+      '<section class="card" id="results"><div class="step"><span>결과</span><h2>' + (single ? '오늘' : L + '에') + ' 만든 것</h2></div>' +
         '<p class="help">이번 회차에서 만든 내용을 모았어요. 아래 마무리에서 PDF·TXT로 저장하거나 한 번에 복사할 수 있어요.</p>' +
         resultsHTML(no) + '</section>' +
-      '<section class="card" id="wrapup"><div class="step"><span>마무리</span><h2>' + no + '회 마무리 체크</h2></div>' +
+      '<section class="card" id="wrapup"><div class="step"><span>마무리</span><h2>' + L + ' 마무리 체크</h2></div>' +
         '<ul class="wrap-checks">' + info.wrap.map(function (w, i) {
           return '<li><label><input type="checkbox" data-i="' + i + '"' + (checks[i] ? ' checked' : '') + '> ' + esc(w) + '</label></li>';
         }).join('') + '</ul>' +
         '<h3 class="finish-title" style="margin-top:18px">저장하기</h3>' +
         '<div class="finish-btns"><button type="button" class="btn primary big" data-act="save">💾 ' + (no < 4 ? (no + 1) + '회에 쓸 작업파일(.json) 저장' : '완성한 작업파일(.json) 저장') + '</button></div>' +
         '<div class="finish-btns">' +
-          '<button type="button" class="btn soft" data-act="pdf">📕 ' + no + '회 결과 PDF</button>' +
-          '<button type="button" class="btn soft" data-act="txt">📝 ' + no + '회 결과 TXT</button>' +
-          '<button type="button" class="btn soft" data-act="copy">📋 ' + no + '회 결과 전체 복사</button>' +
+          '<button type="button" class="btn soft" data-act="pdf">📕 ' + L + ' 결과 PDF</button>' +
+          '<button type="button" class="btn soft" data-act="txt">📝 ' + L + ' 결과 TXT</button>' +
+          '<button type="button" class="btn soft" data-act="copy">📋 ' + L + ' 결과 전체 복사</button>' +
           (no === 4 ? '<a class="btn soft" href="summary.html">📚 그림책 전체 결과 (PDF·TXT)</a>' : '') +
         '</div>' +
         '<p class="help">· <b>작업파일(.json)</b>: 다음 메이커에서 불러와 이어서 만들 때 써요. · <b>PDF</b>: 출력·제출용 · <b>TXT</b>: 글만 모은 파일 · <b>전체 복사</b>: 메모장·한글·구글 문서 등에 붙여넣기</p>' +
         (no < 4
           ? '<p class="help"><b>꼭 저장해 주세요!</b> 메이커마다 저장이 따로라서, 다음 시간 <b>' + (no + 1) + '회 메이커</b>에서는 이 작업파일(.json)을 <b>불러오기</b>해야 오늘 작업이 이어져요. 받은 파일은 USB·메일·클라우드 등 잃어버리지 않을 곳에 보관해요.</p>'
-          : '<p class="help">작업파일(.json)을 보관해 두면 나중에 4회 메이커에서 <b>불러오기</b>로 다시 고칠 수 있어요.</p>') +
+          : '<p class="help">작업파일(.json)을 보관해 두면 나중에 이 메이커에서 <b>불러오기</b>로 다시 고칠 수 있어요.</p>') +
         '<p class="help">학교·도서관 같은 <b>공용 컴퓨터</b>라면 작업파일을 저장한 뒤 메뉴의 <b>「처음부터 다시 만들기」</b>로 지워 주세요.</p>' +
         (info.next ? '<div class="note"><b>다음 시간 예고</b><br>' + esc(info.next) + ' 다음 시간에는 <b>' + (no + 1) + '회 메이커</b>를 열어요.</div>'
-          : '<div class="note"><b>🎉 그림책 완성을 축하해요!</b><br>4회 수업을 모두 마쳤어요. 전체 결과에서 PDF·TXT로 한 번에 저장할 수 있어요.</div>') +
+          : '<div class="note"><b>🎉 그림책 완성을 축하해요!</b><br>' + (single ? '오늘 그림책 한 권을 완성했어요. 캔바에서 표지·본문·작가의 말까지 넘겨 보고 PDF로 저장해요. 위 저장하기에서 오늘 만든 글도 PDF·TXT로 저장할 수 있어요.' : '4회 수업을 모두 마쳤어요. 전체 결과에서 PDF·TXT로 한 번에 저장할 수 있어요.') + '</div>') +
       '</section>';
 
     root.addEventListener('change', function (e) {
@@ -115,8 +131,8 @@ const ColorMSession = (function () {
       const act = (e.target.closest('[data-act]') || {}).dataset;
       if (!act) return;
       if (act.act === 'save') ColorM.exportProject();
-      else if (act.act === 'pdf') ColorM.saveAsPDF('results', no + '회결과');
-      else if (act.act === 'txt') ColorM.downloadTXT('COLOR.M_' + ColorM.getProject().projectName + '_' + no + '회결과.txt', resultsText(no));
+      else if (act.act === 'pdf') ColorM.saveAsPDF('results', ColorM.sessionLabel(no) + '결과');
+      else if (act.act === 'txt') ColorM.downloadTXT('COLOR.M_' + ColorM.getProject().projectName + '_' + ColorM.sessionLabel(no) + '결과.txt', resultsText(no));
       else if (act.act === 'copy') ColorM.copyText(resultsText(no));
       // 헤더 메뉴의 「불러오기」와 같은 파일 선택창을 열어요.
       if (e.target.closest('[data-act="load"]')) document.getElementById('cmLoadFile').click();
@@ -149,6 +165,15 @@ const ColorMSession = (function () {
         return ['[페이지 ' + pad(i + 1) + '] ' + pg.title, (pg.text || '').trim() || '(본문 글 미작성)'].concat((pg.dialogue || '').trim() ? [pg.dialogue.trim()] : []).join('\n');
       }).join('\n\n')]]);
       add('canva', '편집 2 캔바 편집', [['캔바 디자인 링크', cv.link], ['진행', Object.keys(cv.checks || {}).filter(function (k) { return cv.checks[k]; }).length + '단계 완료 표시']]);
+    } else if (no === 5) {
+      const pl = p.plan || {}, sb = p.storyboard || {}, c = p.character || {}, cv = p.cover || {}, au = p.author || {};
+      const mind = (typeof ColorMMind !== 'undefined') ? ColorMMind.summaryLines() : [];
+      add('plan', '01 기획', [['마음색', mind.join('\n')], ['한 줄 기획', pl.oneLine]]);
+      add('storyboard', '02 이야기', [['그림책 문장 모음', sb.bookManuscript]]);
+      add('character', '03 캐릭터', [['캐릭터 그림 요청문', c.basePrompt], ['캐릭터 시트 요청문', c.sheetPrompt]]);
+      add('scene', '04 그림책', [['장면 수', ((sb.scenes || []).length || '') + (sb.scenes ? '장면' : '')]]);
+      add('cover', '05 표지', [['책 제목', cv.title], ['표지 그림 요청문', cv.coverPrompt]]);
+      add('author', '06 작가의 말', [['작가의 말', au.text]]);
     } else {
       const cv = p.cover || {}, o = (p.publish && p.publish.outputs) || {};
       add('cover', '06 표지', [['책 제목', cv.title], ['표지 그림 요청문', cv.coverPrompt]]);
@@ -165,7 +190,7 @@ const ColorMSession = (function () {
   }
   function resultsText(no) {
     const p = ColorM.getProject();
-    return ['COLOR.M 마음색 그림책 ' + no + '회 메이커 — ' + ColorM.SESSIONS[no - 1].name, '프로젝트명: ' + p.projectName, '================================', ''].concat(
+    return [(ColorM.SESSIONS[no - 1].title || 'COLOR.M 마음색 그림책 ' + no + '회 메이커') + ' — ' + ColorM.SESSIONS[no - 1].name, '프로젝트명: ' + p.projectName, '================================', ''].concat(
       results(no).map(function (sec) {
         return '[' + sec.title + ']\n' + (sec.items.length ? sec.items.map(function (it) { return '· ' + it[0] + '\n' + it[1]; }).join('\n\n') : '아직 완료하지 않았어요.');
       }).join('\n\n')).join('\n');
@@ -181,7 +206,7 @@ const ColorMSession = (function () {
 
   // 2~4회: 지난 회차 작업파일 불러오기 (메이커마다 저장이 따로라 이게 첫 단계예요)
   function loadCard(no, prevSteps, prevMissing) {
-    if (no === 1) return '';
+    if (no === 1 || ColorM.SESSIONS[no - 1].single) return ''; // 1회와 특강은 불러올 지난 회차가 없어요
     const loaded = prevMissing.length < prevSteps.length;
     const name = ColorM.getProject().projectName;
     if (loaded) {

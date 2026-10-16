@@ -387,7 +387,8 @@ const ColorMBridge = (function () {
   function mount(opts) {
     const anchor = opts.anchor;
     if (!anchor || !anchor.parentNode) return;
-    const T = KIND_TEXT[opts.kind] || KIND_TEXT.storyboard;
+    // opts.note: 페이지마다 다른 안내가 필요할 때 (예: 2시간 특강은 줄거리 단계가 없어요)
+    const T = Object.assign({}, KIND_TEXT[opts.kind] || KIND_TEXT.storyboard, opts.note ? { note: opts.note } : {});
     const sec = document.createElement('section');
     sec.className = 'card bridge-card';
     sec.innerHTML =
