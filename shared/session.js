@@ -119,6 +119,8 @@ const ColorMSession = (function () {
           : '<div class="note"><b>🎉 그림책 완성을 축하해요!</b><br>' + (single ? '오늘 그림책 한 권을 완성했어요. 캔바에서 표지·본문·작가의 말까지 넘겨 보고 PDF로 저장해요. 위 저장하기에서 오늘 만든 글도 PDF·TXT로 저장할 수 있어요.' : '4회 수업을 모두 마쳤어요. 전체 결과에서 PDF·TXT로 한 번에 저장할 수 있어요.') + '</div>') +
       '</section>';
 
+    // 그림책이 완성되는 4회와 특강만: 마무리 끝에 갤러리 자랑하기
+    if ((no === 4 || single) && typeof ColorMGallery !== 'undefined') ColorMGallery.mount(document.getElementById('wrapup'), 'inside');
     root.addEventListener('change', function (e) {
       if (e.target.dataset.i == null) return;
       const p = ColorM.getProject();

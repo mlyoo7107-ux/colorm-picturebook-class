@@ -55,6 +55,7 @@
 
 <script src="../shared/colorm.js"></script>
 <script src="../shared/mind.js"></script>
+<script src="../shared/gallery.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 ColorM.renderHeader('cmHeader','author');
@@ -102,6 +103,8 @@ function downloadTXT(){
 ColorM.autoSaveForm('authorForm', 'author');
 const saved = ColorM.getProject().author || {};
 if(saved.text){ $('authorText').value = saved.text; $('results').classList.remove('hidden'); }
+// 그림책 완성 → 갤러리에 작품 자랑하기 (원하는 사람만)
+ColorMGallery.mount($('cmStepNav'), 'before');
 </script>
 </body>
 </html>
