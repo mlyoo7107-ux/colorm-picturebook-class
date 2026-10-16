@@ -83,7 +83,7 @@ const ColorMSession = (function () {
 
     document.title = se.title || (se.name + ' — 마음색 그림책 ' + no + '회 메이커');
     root.innerHTML =
-      '<header class="hero"><p class="eyebrow">' + (single ? '한 번에 끝나는 메이커' : no + '회차 메이커') + '</p><h1><b>' + esc(se.name) + '</b></h1><p class="sub">' + esc(info.goal) + '</p></header>' +
+      '<header class="hero">' + (single ? '' : '<p class="eyebrow">' + no + '회차 메이커</p>') + '<h1><b>' + esc(single ? '마음색 그림책 특강' : se.name) + '</b></h1><p class="sub">' + esc(info.goal) + '</p></header>' +
       loadCard(no, prevSteps, prevMissing) +
       '<section class="card"><div class="step"><span>오늘 할 일</span><h2>' + steps.length + '단계로 진행해요</h2></div>' +
         '<nav class="makers">' + steps.map(function (s) {
