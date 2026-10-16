@@ -436,3 +436,6 @@ html[data-session="4"]{--bg:#f3effc}
 .prev-makers p b{color:var(--ink)}
 .prev-btns{display:flex;gap:8px;flex-wrap:wrap}
 .prev-btns .btn{padding:8px 14px;font-size:13.5px;color:var(--m);border-color:var(--ab)}
+/* 2시간 특강(special) — 핑크 */
+html[data-session="5"],[data-s="5"]{--m:#e2457f;--m-hover:#c93169;--ab:#f5b0c8;--soft:#fde4ee;--tint:#fff2f7;--tint2:#fff7fa;--lv:#e8689a;--lv-bg:#fff2f7;--line:#f6d6e3;--glow:rgba(226,69,127,.12)}
+html[data-session="5"]{--bg:#fff1f6}
