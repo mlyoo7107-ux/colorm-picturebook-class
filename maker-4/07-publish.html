@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko" data-session="4">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 출판 정보 — 마음색 그림책 4회 메이커</title>
+<link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-4.svg">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="../shared/colorm.css">
+<style>
+.count{font-size:12px;font-weight:700;color:var(--muted);text-align:right;margin-top:-4px}
+.count.over{color:#c43d3d}
+.warn{margin:6px 0 0;font-size:13px;font-weight:700;color:#c43d3d}
+.warn:empty{display:none}
+.checklist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.checklist label{flex-direction:row;align-items:flex-start;gap:10px;margin:0;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:14px;font-weight:600;line-height:1.55}
+.checklist input{width:18px;height:18px;flex:0 0 auto;margin-top:2px;accent-color:#22a55e}
+</style>
+</head>
+<body>
+<div id="cmHeader"></div>
+<header class="hero hero-sub">
+<p class="sub"><b>「작가와」</b>에 전자책으로 등록할 때 넣을 정보를 정리해요. 앞에서 만든 내용이 미리 채워져 있으니, <b>필명·가격</b>만 정하고 글을 다듬으면 돼요.</p>
+</header>
+
+<main class="wrap">
+<form id="publishForm" onsubmit="return false">
+<section class="card">
+<div class="step"><span>STEP 01</span><h2>책 정보</h2></div>
+<div class="grid">
+<label>도서명<input id="pTitle" placeholder="예: 빨간 숲의 전설"></label>
+<label>부제 <small>(선택)</small><input id="pSubtitle" placeholder="예: 루루와 토토의 용서 여행"></label>
+</div>
+<p class="warn" id="titleWarn"></p>
+<label>저자명 <small>(본명 또는 필명 — 서점에 이 이름으로 나와요)</small><input id="pAuthor" placeholder="예: 유미란"></label>
+</section>
+
+<section class="card">
+<div class="step"><span>STEP 02</span><h2>판매 정보</h2></div>
+<div class="grid">
+<label>카테고리<select id="pCategory"><option>어린이 그림책</option><option>유아 그림책</option><option>어른을 위한 그림책</option><option>에세이</option></select></label>
+<label>가격<select id="pPrice"><option value="1000">1,000원</option><option value="2000">2,000원</option><option value="2900">2,900원</option><option value="3000">3,000원</option><option value="3900">3,900원</option><option value="4900">4,900원</option><option value="5000">5,000원</option></select></label>
+</div>
+<p class="help" style="margin-top:10px">카테고리는 작가와 화면의 목록에서 <b>가장 가까운 것</b>을 골라요. 가격은 수업에서 정한 금액으로 맞춰요.</p>
+</section>
+
+<section class="card">
+<div class="step"><span>STEP 03</span><h2>소개 글</h2></div>
+<label>책 소개 <small>(300자 안팎 · 서점 상세 화면에 그대로 나와요)</small><textarea id="pIntro" rows="6"></textarea></label>
+<p class="count" id="introCount"></p>
+<label>저자 소개 <small>(300자 안팎)</small><textarea id="pAuthorBio" rows="4" placeholder="예: 색으로 마음을 들여다보는 일을 좋아합니다. 이 책은 저의 첫 그림책입니다."></textarea></label>
+<p class="count" id="bioCount"></p>
+<label>목차 <small>(한 줄에 하나 · 페이지 제목에서 자동으로 만들어요)</small><textarea id="pToc" rows="6"></textarea></label>
+<p class="help">목차에는 <b>- : 같은 기호를 쓰지 않아요.</b> 서점마다 모양이 달라질 수 있어서 줄바꿈으로만 나눠요.</p>
+</section>
+
+<section class="card">
+<div class="step"><span>STEP 04</span><h2>AI 활용 알리기</h2></div>
+<div class="grid">
+<label>글(이야기)<select id="pAiText"><option value="assist">AI의 도움을 받아 내가 구성·편집</option><option value="self">내가 직접 씀 (AI 안 씀)</option></select></label>
+<label>그림<select id="pAiImage"><option value="ai">AI로 만든 그림을 내가 구성·편집</option><option value="mixed">AI 그림 + 내가 직접 보정</option><option value="hand">내가 직접 그림 (AI 안 씀)</option></select></label>
+</div>
+<label>사용한 AI 도구 <small>(선택)</small><input id="pAiTools" placeholder="예: ChatGPT, 캔바"></label>
+<p class="help">AI를 썼다면 <b>책 소개 첫 줄</b>과 판권면에 알리는 문장이 자동으로 들어가요.</p>
+</section>
+
+<section class="card">
+<div class="step"><span>STEP 05</span><h2>작가의 말 <small style="font-size:13px;color:var(--muted)">(선택)</small></h2></div>
+<p class="help">책 맨 뒤에 넣는 짧은 글이에요. 「초안 만들기」를 누르면 마음색 내용으로 뼈대를 만들어 드려요.</p>
+<label style="margin-top:0">작가의 말<textarea id="pAuthorNote" rows="6"></textarea></label>
+<div class="actions" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+<button type="button" class="btn soft" id="authorDraft">초안 만들기</button>
+<button type="button" class="btn ghost" id="authorPolish">ChatGPT로 다듬기 요청문 복사</button>
+</div>
+</section>
+
+<button class="btn primary big" type="button" id="buildBtn">작가와 등록 정보 만들기</button>
+</form>
+
+<section id="results" class="results hidden">
+<p class="eyebrow">RESULT</p>
+<h2>작가와 등록 준비 끝!</h2>
+<div class="result-grid">
+<article class="result"><h3>① 작가와 등록 입력표</h3><p class="help" style="margin-top:0">작가와 「책 만들기」 화면을 열어 놓고, 위에서부터 항목 순서대로 복사해 넣어요.</p><div id="outForm" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('outForm')">복사하기</button></article>
+<article class="result"><h3>② 판권면 (책 맨 마지막 페이지)</h3><p class="help" style="margin-top:0">캔바 디자인 맨 뒤에 페이지를 하나 더 만들어 이 글을 넣은 뒤 PDF로 내려받아요.</p><div id="outColophon" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('outColophon')">복사하기</button></article>
+<article class="result"><h3>③ 작가의 말</h3><div id="outAuthor" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('outAuthor')">복사하기</button></article>
+<article class="result"><h3>④ 등록 전 마지막 확인</h3>
+<ul class="checklist" id="checklist"></ul>
+</article>
+</div>
+<div class="note"><b>💡 참고</b> 위 항목과 순서는 작가와 이용 안내를 바탕으로 정리했어요. 화면이나 정책은 바뀔 수 있으니, 다른 부분이 있으면 작가와 화면의 안내를 따라 주세요.</div>
+<div id="finishAnchor"></div>
+<div class="step-nav" id="cmStepNav"></div>
+</section>
+</main>
+
+<footer></footer>
+
+<script src="../shared/colorm.js"></script>
+<script src="../shared/mind.js"></script>
+<script src="../shared/finish.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+ColorM.renderHeader('cmHeader','publish');
+ColorM.renderStepNav('cmStepNav','publish');
+
+const FIELD_IDS=['pTitle','pSubtitle','pAuthor','pCategory','pPrice','pIntro','pAuthorBio','pToc','pAiText','pAiImage','pAiTools','pAuthorNote'];
+const CHECKS=[
+  '표지 그림을 <b>JPG</b>로 준비했어요 (캔바 → 공유 → 다운로드 → JPG, 표지 페이지만)',
+  '본문을 <b>PDF</b>로 준비했어요 (그림이 많은 책은 PDF로 올려요)',
+  'PDF 맨 뒤에 <b>판권면</b>과 작가의 말을 넣었어요',
+  '도서명에 <b>특수문자(! ? 쉼표 따옴표)나 겹친 띄어쓰기</b>가 없어요',
+  '책 정보를 다 넣고 <b>「도서정보 저장하기」</b>를 눌렀어요 (안 누르면 다시 입력해야 해요)',
+  '유통 신청 뒤에는 고치기 어려워서, 신청 전에 <b>제목·소개·파일을 한 번 더</b> 확인했어요',
+  '맨 아래 <b>「유통 신청」</b>까지 누르고, 신청 메일을 받았어요'
+];
+
+function keyOf(id){ const k=id.slice(1); return k.charAt(0).toLowerCase()+k.slice(1); }
+function getFields(){ const f={}; FIELD_IDS.forEach(id=>{ f[keyOf(id)]=$(id).value.trim(); }); return f; }
+function setFields(obj){
+  FIELD_IDS.forEach(id=>{
+    const k=keyOf(id); if(obj[k]===undefined) return;
+    const el=$(id); el.value=obj[k];
+    if(el.tagName==='SELECT' && el.value!==String(obj[k])) el.selectedIndex=0;
+  });
+}
+const won=n=>Number(n||0).toLocaleString('ko-KR')+'원';
+// 출판 예정일: 오늘부터 영업일 3일 뒤 (작가와 안내: 신청 후 2~3 영업일)
+function pubDate(){
+  const d=new Date(); let n=0;
+  while(n<3){ d.setDate(d.getDate()+1); if(d.getDay()!==0 && d.getDay()!==6) n++; }
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+// 목차: 3회 정리 순서 → 없으면 스토리보드 장면 제목. 서점에서 깨지는 기호는 뺍니다.
+function deriveToc(p){
+  const pages=((p.edit||{}).pages||[]).length ? p.edit.pages : (((p.storyboard||{}).scenes)||[]);
+  return pages.map(s=>String(s.title||'').replace(/[-:：·•]/g,' ').replace(/\s+/g,' ').trim()).filter(Boolean).join('\n');
+}
+function deriveDefaults(p){
+  const plan=p.plan||{}, story=p.story||{}, cover=p.cover||{};
+  const title=p.bookTitle||(cover.title&&cover.title!=='제목 미정'?cover.title:'')||(story.titles&&story.titles[0])||'';
+  const summary=(story.summary||'').trim();
+  const intro=[summary || [plan.problem,plan.goal].filter(Boolean).join(' '), plan.message?('이 책이 전하는 마음: '+plan.message):''].filter(Boolean).join('\n\n');
+  const cat={'유아 5~7세':'유아 그림책','청소년':'어른을 위한 그림책','전체 연령':'어른을 위한 그림책'}[plan.audience]||'어린이 그림책';
+  return { title, subtitle:cover.subtitle||'', category:cat, price:'3000', intro, toc:deriveToc(p), aiText:'assist', aiImage:'ai' };
+}
+function aiLine(f){
+  if(f.aiText!=='assist' && f.aiImage==='hand') return '';
+  const parts=[];
+  if(f.aiText==='assist') parts.push('글은 생성형 AI의 도움을 받아 작가가 구성·편집했고');
+  else parts.push('글은 작가가 직접 썼고');
+  parts.push({ai:'그림은 생성형 AI로 만든 이미지를 작가가 구성·편집했습니다.',mixed:'그림은 생성형 AI로 만든 이미지에 작가가 직접 보정을 더했습니다.',hand:'그림은 작가가 직접 그렸습니다.'}[f.aiImage]);
+  return '※ 이 책의 '+parts.join(', ')+(f.aiTools?' (사용한 도구: '+f.aiTools+')':'');
+}
+function titleProblems(t){
+  const w=[];
+  if(/[!?,'"‘’“”]/.test(t)) w.push('특수문자(! ? 쉼표 따옴표)');
+  if(/\s{2,}/.test(t)) w.push('겹친 띄어쓰기');
+  if(t!==t.trim()) w.push('앞뒤 띄어쓰기');
+  return w;
+}
+
+function build(f){
+  const title=f.title||'(도서명)', author=f.author||'(저자명)';
+  const ai=aiLine(f);
+  const intro=[ai, f.intro||'(책 소개)'].filter(Boolean).join('\n\n');
+  const form=[
+    '[작가와 등록 입력표]','',
+    '도서명: '+title,
+    '도서 부제: '+(f.subtitle||'(없으면 비워 둬요)'),
+    '출판예정일: '+pubDate()+' (신청일부터 2~3 영업일 뒤로)',
+    '카테고리: '+f.category+' (화면 목록에서 가장 가까운 것)',
+    '전자책 파일 종류: PDF (그림이 많은 책)',
+    '저자유형: 개인',
+    '저자명(필명): '+author,
+    '가격: '+won(f.price),
+    'ISBN: 비워 두기 (작가와가 무료로 자동 발급)',
+    '출판사: 작가와 (비워 둬도 돼요)',
+    '연령제한: 없음','',
+    '[저자소개]', f.authorBio||'(저자 소개)','',
+    '[목차]', f.toc||'(목차)','',
+    '[책 소개]', intro
+  ].join('\n');
+  const colophon=[
+    title+(f.subtitle?'\n'+f.subtitle:''),'',
+    '출판일  '+pubDate().replace(/-/g,'. ')+'.',
+    '지은이  '+author,
+    '펴낸곳  작가와',
+    'ISBN  (작가와에서 발급)',
+    '정가  '+won(f.price),'',
+    'ⓒ '+new Date().getFullYear()+' '+author+'. All rights reserved.',
+    '이 책의 내용을 저작권자의 허락 없이 복제·전재하는 것을 금합니다.',
+    ai?'\n'+ai.replace(/^※ /,''):''
+  ].join('\n').trim();
+  // 다른 화면(회차 결과·전체 결과)이 읽는 이름은 그대로 둡니다: bib · colophon · intro · back
+  return { form, colophon, intro, author:f.authorNote||'', bib:form, back:intro };
+}
+
+function counters(){
+  [['pIntro','introCount'],['pAuthorBio','bioCount']].forEach(([id,out])=>{
+    const n=$(id).value.trim().length; $(out).textContent=n+'자'+(n>400?' · 조금 길어요 (300자 안팎 권장)':'');
+    $(out).classList.toggle('over', n>400);
+  });
+  const w=titleProblems($('pTitle').value);
+  $('titleWarn').textContent = w.length ? '⚠ 도서명에 '+w.join(', ')+'가 있어요. 작가와 등록에서 문제가 될 수 있어요.' : '';
+}
+
+function render(save){
+  counters();
+  const f=getFields();
+  if(!f.title){ $('results').classList.add('hidden'); return; }
+  const o=build(f);
+  $('outForm').textContent=o.form;
+  $('outColophon').textContent=o.colophon;
+  $('outAuthor').textContent=o.author||'(작가의 말을 쓰면 여기에 나와요)';
+  $('results').classList.remove('hidden');
+  if(save) ColorM.saveStep('publish', {fields:f, outputs:o, checks:checkState()});
+}
+function checkState(){ return [].slice.call(document.querySelectorAll('#checklist input')).map(i=>i.checked); }
+function drawChecks(saved){
+  $('checklist').innerHTML=CHECKS.map((c,i)=>'<li><label><input type="checkbox" data-i="'+i+'"'+(saved&&saved[i]?' checked':'')+'><span>'+c+'</span></label></li>').join('');
+}
+$('checklist').addEventListener('change', function(){ render(true); });
+
+function init(){
+  const p=ColorM.getProject();
+  const saved=p.publish && p.publish.fields;
+  setFields(saved ? Object.assign({}, deriveDefaults(p), saved) : deriveDefaults(p));
+  drawChecks(p.publish && p.publish.checks);
+  render(false);
+}
+let liveTimer=null;
+['input','change'].forEach(ev=>$('publishForm').addEventListener(ev, function(){ clearTimeout(liveTimer); liveTimer=setTimeout(function(){ render(true); },300); }));
+$('buildBtn').addEventListener('click', function(){
+  if(!$('pTitle').value.trim()){ alert('도서명을 입력해주세요.'); $('pTitle').focus(); return; }
+  if(!$('pAuthor').value.trim()){ alert('저자명(필명)을 입력해주세요.'); $('pAuthor').focus(); return; }
+  render(true);
+  setTimeout(()=>$('results').scrollIntoView({behavior:'smooth',block:'start'}),50);
+});
+
+function buildDownloadText(){
+  const f=getFields(), o=build(f);
+  return ['COLOR.M 마음색 그림책 4회 메이커 · 07 작가와 출판 정보','================================','',
+    o.form,'','[판권면]',o.colophon,'','[작가의 말]',o.author||'(없음)','','[등록 전 마지막 확인]'].concat(CHECKS.map((c,i)=>(checkState()[i]?'☑ ':'□ ')+c.replace(/<[^>]+>/g,''))).join('\n');
+}
+function downloadTXT(){
+  if($('results').classList.contains('hidden')){ alert('먼저 도서명을 입력해 주세요.'); return; }
+  ColorM.downloadTXT('COLOR.M_'+ColorM.getProject().projectName+'_작가와출판정보.txt', buildDownloadText());
+}
+
+// 작가의 말: 초안 / ChatGPT로 다듬기
+$('authorDraft').addEventListener('click', function(){
+  if($('pAuthorNote').value.trim() && !confirm('지금 쓴 작가의 말을 지우고 초안으로 바꿀까요?')) return;
+  const m=(typeof ColorMMind!=='undefined') ? ColorMMind.get() : null;
+  const author=$('pAuthor').value.trim()||'지은이';
+  let text;
+  if(m && m.color){
+    const mem=(m.memory||'').trim().split(/[.!?\n]/)[0].trim().slice(0,40)||'○○';
+    text='내 마음의 색은 '+(m.colorLabel||m.colorName)+'입니다.\n그 색은 나에게 '+mem+ColorM.josa(mem,['을','를'])+' 떠올리게 합니다.\n\n(이야기를 만들면서 알게 된 내 마음을 적어 보세요.)\n\n(읽는 사람에게 건네고 싶은 말을 적어 보세요.)\n\n— '+author;
+  }else{
+    const msg=((ColorM.getProject().plan||{}).message||'').trim()||'○○○';
+    text='이 그림책은 「'+msg+'」라는 마음을 담아 만들었습니다.\n\n(이야기를 만들면서 새롭게 알게 된 것을 적어 보세요.)\n\n(읽는 사람에게 건네고 싶은 말을 적어 보세요.)\n\n— '+author;
+  }
+  $('pAuthorNote').value=text;
+  $('pAuthorNote').dispatchEvent(new Event('input',{bubbles:true}));
+});
+$('authorPolish').addEventListener('click', function(){
+  const t=$('pAuthorNote').value.trim();
+  if(!t){ alert('먼저 작가의 말을 적거나 「초안 만들기」를 눌러주세요.'); return; }
+  ColorM.copyText("아래는 내가 쓴 그림책 '작가의 말'이야. 내 표현과 내용은 그대로 살리고, 맞춤법과 어색한 문장만 자연스럽게 다듬어줘. 새로운 내용은 더하지 마.\n\n"+t);
+});
+
+init();
+ColorMFinish.mount($('finishAnchor'), {
+  pdfLabel:'출판 정보 PDF 저장',
+  pdf:function(){ ColorM.saveAsPDF('results','작가와출판정보'); },
+  txt:downloadTXT,
+  copyAll:buildDownloadText
+});
+</script>
+</body>
+</html>

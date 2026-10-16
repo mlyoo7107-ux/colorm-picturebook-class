@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ko" data-session="1">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 스토리보드 — 마음색 그림책 1회 메이커</title>
+<link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-1.svg">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="../shared/colorm.css">
+<style>
+.prev-box{background:var(--tint);border:1px solid var(--ab);border-radius:14px;padding:14px 16px;font-size:13px;line-height:1.7;color:#5e575b;white-space:pre-wrap}
+.scene-card{border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:14px;background:#fffdfb}
+.scene-card .step span{background:#f3f6ff;color:var(--lv)}
+.scene-card .sc-title{font-weight:900;font-size:16px;margin-bottom:4px}
+.sc-dialogue{font-family:inherit;background:var(--tint)!important;border-color:var(--ab)!important}
+</style>
+</head>
+<body>
+<div id="cmHeader"></div>
+<header class="hero hero-sub">
+<p class="sub">장면마다 <b>등장인물·본문 글·대화·그림 구성</b>을 정리해 스토리보드를 완성해요. 본문 글과 대화는 ChatGPT에게 맡겨 한 번에 채울 수 있어요.</p>
+</header>
+
+<main class="wrap">
+<section class="card">
+<div class="step"><span>STEP 01</span><h2>장면 구성</h2></div>
+<p class="help">02 이야기에서 정한 장면 수와 줄거리를 <b>자동으로 불러왔어요.</b> 바뀐 게 있다면 아래 버튼으로 다시 불러오세요. (불러오면 아래에 쓴 내용이 줄거리로 바뀌어요)</p>
+<div class="actions">
+<button class="btn ghost" type="button" onclick="loadStoryData()">줄거리 다시 불러오기</button>
+</div>
+<div id="storyPreview" class="prev-box" style="margin-top:14px">아직 불러온 이야기 정보가 없습니다.</div>
+</section>
+
+<form id="boardForm">
+<section class="card">
+<div class="step"><span>STEP 02</span><h2>장면별 정리</h2></div>
+<p class="help">장면마다 아래 칸을 채워요. <b>장면 설명</b>은 02의 줄거리로 미리 채워지고, <b>본문 글(책에 실릴 문장)과 대화</b>는 직접 쓰거나 위 ChatGPT 방법으로 채워요. <b>그림 구성</b>은 그림을 어떻게 그릴지(장소·구도)를 적어요.</p>
+<div id="sceneCards"></div>
+</section>
+
+<button class="btn primary big" type="submit">스토리보드 만들기</button>
+</form>
+
+<section id="results" class="results hidden">
+<p class="eyebrow">RESULT</p>
+<h2>스토리보드가 완성되었습니다!</h2>
+<div class="canva-warn" id="boardWarn" hidden></div>
+<div class="result-grid">
+<article class="result"><h3>① 전체 스토리보드</h3><div id="fullBoard" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('fullBoard')">복사하기</button></article>
+<article class="result"><h3>② 장면별 요약</h3><div id="sceneSummary" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('sceneSummary')">복사하기</button></article>
+<article class="result cm-hide"><h3>③ 캐릭터 전달 정보</h3><div id="characterInfo" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('characterInfo')">복사하기</button></article>
+<article class="result cm-hide"><h3>④ 장면 제작 전달 정보</h3><div id="sceneHandoff" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('sceneHandoff')">복사하기</button></article>
+<article class="result"><h3>③ 그림책 문장 모음 (본문+대화)</h3><div id="bookManuscript" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('bookManuscript')">복사하기</button></article>
+</div>
+
+<div class="download-actions">
+  <button class="btn primary" type="button" onclick="ColorM.saveAsPDF('results','스토리보드')">PDF 저장</button>
+  <button class="btn soft" type="button" onclick="downloadTXT()">TXT 저장</button>
+</div>
+
+<div class="note"><b>다음 단계</b><br>장면·등장인물 정보는 작업파일에 함께 담겨요. 1회 마무리 때 <b>작업파일</b>을 저장해 두면, 2회 메이커에서 불러왔을 때 <b>04 캐릭터</b>·<b>05 장면</b>으로 이어져요. ①번 전체 스토리보드는 그대로 복사해 캔바 등 AI에 붙여넣어 써도 돼요.</div>
+<div class="step-nav" id="cmStepNav"></div>
+</section>
+</main>
+
+<footer></footer>
+
+<script src="../shared/colorm.js"></script>
+<script src="../shared/presets.js"></script>
+<script src="../shared/mind.js"></script>
+<script src="../shared/recommend.js"></script>
+<script src="../shared/bridge.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+ColorM.renderHeader('cmHeader','storyboard');
+ColorM.applyDrops(ColorMPresets.storyboard);
+ColorMRecommend.mount('storyboard');
+ColorM.renderStepNav('cmStepNav','storyboard');
+
+function heroName(plan){
+  return ColorM.heroName(plan);
+}
+
+const BODY_PH = '예: 곰은 오늘도 느릿느릿 숲길을 걸었어요. 따뜻한 햇살이 등 위로 내려앉았지요.';
+
+function renderSceneCards(n, storyScenes, plan){
+  const hero = heroName(plan);
+  const place = (plan && plan.place) || '';
+  let html='';
+  for(let i=0;i<n;i++){
+    const no = String(i+1).padStart(2,'0');
+    // 02에서 붙은 작성 힌트 괄호는 장면 설명에서 뺍니다.
+    const draft = (storyScenes && storyScenes[i]) ? storyScenes[i].replace(/^장면\s*\d+\s*:\s*/,'').replace(/\s*\((?:반복 문장 후보|이 장면에서|첫 장면의)[^)]*\)\s*$/,'') : '';
+    html += `
+    <div class="scene-card" data-idx="${i}">
+      <div class="step"><span>장면 ${no}</span></div>
+      <label>장면 제목<input class="sc-title" placeholder="예: ${no}장. 장면 제목"></label>
+      <label>등장인물 및 표정, 행동<textarea class="sc-cast" rows="2" placeholder="예: ${ColorM.escapeHTML(hero)}: 놀란 표정, 앞으로 손을 뻗는 포즈">${ColorM.escapeHTML(hero)}</textarea></label>
+      <label>장면 설명 <small>(이 장면에서 일어나는 일 · 그림에 그려져요)</small><textarea class="sc-memo" rows="2">${ColorM.escapeHTML(draft)}</textarea></label>
+      <label>본문 글 <small>(책에 실릴 문장)</small><textarea class="sc-content" rows="2" placeholder="${BODY_PH}"></textarea></label>
+      <label>대화<textarea class="sc-dialogue" rows="3" placeholder="예: ${ColorM.escapeHTML(hero)}: &quot;대사를 적어보세요.&quot;"></textarea></label>
+      <label>그림 구성 <small>(장소·인물 위치·구도 — 그림콘티)</small><textarea class="sc-conti" rows="2" placeholder="예: ${ColorM.escapeHTML(place)}, 인물의 위치와 배경 구도 설명">${ColorM.escapeHTML(place)}</textarea></label>
+    </div>`;
+  }
+  $('sceneCards').innerHTML = html;
+  decorateSceneCards();
+}
+
+// 실제 완성된 대본(제목·등장인물표정행동·내용·대화·그림콘티)을 그대로 카드에 채웁니다.
+function renderSceneCardsFromData(scenes){
+  const html = scenes.map((s,i)=>{
+    const no = String(i+1).padStart(2,'0');
+    return `
+    <div class="scene-card" data-idx="${i}">
+      <div class="step"><span>장면 ${no}</span></div>
+      <label>장면 제목<input class="sc-title" value="${ColorM.escapeHTML(s.title||'')}"></label>
+      <label>등장인물 및 표정, 행동<textarea class="sc-cast" rows="2">${ColorM.escapeHTML(s.cast||'')}</textarea></label>
+      <label>장면 설명 <small>(이 장면에서 일어나는 일 · 그림에 그려져요)</small><textarea class="sc-memo" rows="2">${ColorM.escapeHTML(s.memo||'')}</textarea></label>
+      <label>본문 글 <small>(책에 실릴 문장)</small><textarea class="sc-content" rows="2" placeholder="${BODY_PH}">${ColorM.escapeHTML(s.content||'')}</textarea></label>
+      <label>대화<textarea class="sc-dialogue" rows="3">${ColorM.escapeHTML(s.dialogue||'')}</textarea></label>
+      <label>그림 구성 <small>(장소·인물 위치·구도 — 그림콘티)</small><textarea class="sc-conti" rows="2">${ColorM.escapeHTML(s.conti||'')}</textarea></label>
+    </div>`;
+  }).join('');
+  $('sceneCards').innerHTML = html;
+  decorateSceneCards();
+}
+
+// 장면 카드의 등장인물·그림콘티 칸 위에 「목록에서 골라 추가」 선택창을 붙입니다 (직접 쓰기도 그대로 가능).
+const QUICK_ADD=[
+  ['sc-cast','표정·행동 골라서 추가 ▾',['환하게 웃는 표정','놀란 표정','슬픈 표정','걱정스러운 표정','호기심 어린 눈','두 팔을 벌린 포즈','손을 내미는 포즈','달려가는 포즈','고개를 갸웃하는 포즈','손을 꼭 잡는 포즈']],
+  ['sc-conti','구도 골라서 추가 ▾',['클로즈업','미디엄 샷','풀 샷','와이드 샷','인물을 화면 가운데 배치','배경을 넓게 보여주는 구도','위에서 내려다본 구도','아래에서 올려다본 구도']]
+];
+function decorateSceneCards(){
+  document.querySelectorAll('.scene-card').forEach(card=>{
+    QUICK_ADD.forEach(([cls,ph,list])=>{
+      const ta=card.querySelector('.'+cls);
+      if(!ta || (ta.previousElementSibling && ta.previousElementSibling.classList.contains('cm-quick'))) return;
+      const sel=document.createElement('select');
+      sel.className='cm-quick';
+      sel.innerHTML='<option value="">'+ph+'</option>'+list.map(x=>'<option>'+x+'</option>').join('');
+      sel.addEventListener('change',()=>{
+        if(!sel.value) return;
+        const cur=ta.value.replace(/\s+$/,'');
+        ta.value = cur ? cur+(/[:：]$/.test(cur)?' ':', ')+sel.value : sel.value;
+        sel.value='';
+        ta.dispatchEvent(new Event('input',{bubbles:true}));
+      });
+      ta.parentNode.insertBefore(sel,ta);
+    });
+  });
+}
+
+let currentPlan = {};
+
+function loadStoryData(){
+  const project = ColorM.getProject();
+  currentPlan = project.plan || {};
+  const story = project.story;
+  if(story && story.sceneCount){
+    $('storyPreview').textContent = `장면 수: ${story.sceneCount}개 · 스타일: ${story.style} · 장치: ${story.device}\n\n${(story.titles||[]).join(' / ')}`;
+    renderSceneCards(story.sceneCount, story.scenes || [], currentPlan);
+  }else{
+    $('storyPreview').textContent = '아직 불러온 이야기 정보가 없습니다. 02 STORY를 먼저 완료해주세요. (기본 8장면으로 진행합니다)';
+    renderSceneCards(8, [], currentPlan);
+  }
+}
+loadStoryData();
+
+
+$('boardForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const cards = [...document.querySelectorAll('.scene-card')];
+  const scenes = cards.map((card,i)=>({
+    no: i+1,
+    title: card.querySelector('.sc-title').value.trim() || `장면 ${String(i+1).padStart(2,'0')}`,
+    cast: card.querySelector('.sc-cast').value.trim(),
+    memo: card.querySelector('.sc-memo').value.trim(),
+    content: card.querySelector('.sc-content').value.trim(),
+    dialogue: card.querySelector('.sc-dialogue').value.trim(),
+    conti: card.querySelector('.sc-conti').value.trim()
+  }));
+
+  const fullBoard = scenes.map(s=>
+    `[장면 ${String(s.no).padStart(2,'0')}] ${s.title}\n`+
+    `등장인물 및 표정·행동: ${s.cast||'(미작성)'}\n`+
+    `장면 설명: ${s.memo||'(미작성)'}\n`+
+    `본문 글: ${s.content||'(미작성)'}\n`+
+    `대화:\n${s.dialogue||'(미작성)'}\n`+
+    `그림콘티: ${s.conti||'(미작성)'}`
+  ).join('\n\n');
+
+  const sceneSummary = scenes.map(s=>`장면 ${String(s.no).padStart(2,'0')} · ${s.title} — ${(s.memo||s.content||'내용 미정').slice(0,40)}`).join('\n');
+
+  const plan = currentPlan || {};
+  const characterInfo = [
+    `등장인물: ${heroName(plan)}`,
+    `기본 특징: ${plan.hero||''}`,
+    `성격/메시지 힌트: ${plan.message||''}`,
+    `전체 분위기: ${plan.mood||''}`
+  ].join('\n');
+
+  const sceneHandoff = scenes.map(s=>
+    `[장면 ${String(s.no).padStart(2,'0')}] ${s.title}\n등장인물/표정/행동: ${s.cast}\n그림콘티: ${s.conti}`
+  ).join('\n\n');
+
+  const bookManuscript = scenes.map(s=>{
+    const parts = [`[장면 ${String(s.no).padStart(2,'0')}] ${s.title}`];
+    parts.push(s.content || '(본문 글 미작성)');
+    if(s.dialogue) parts.push(s.dialogue);
+    return parts.join('\n');
+  }).join('\n\n');
+
+  // 본문 글이 비어 있는 장면을 알려줍니다 (막지는 않아요).
+  const emptyBody = scenes.filter(s=>!s.content).map(s=>String(s.no).padStart(2,'0'));
+  const warn = $('boardWarn');
+  if(emptyBody.length){
+    warn.hidden = false;
+    warn.innerHTML = '<b>본문 글이 비어 있는 장면: '+emptyBody.join(', ')+'</b><br>책에 실릴 문장이에요. 위 <b>「ChatGPT로 책에 실릴 글 받기」</b>로 한 번에 채우거나, 장면 카드에 직접 써주세요. 비워 두면 캔바 AI가 장면 설명을 바탕으로 문장을 만들어요.';
+  }else{ warn.hidden = true; }
+
+  $('fullBoard').textContent = fullBoard;
+  $('sceneSummary').textContent = sceneSummary;
+  $('characterInfo').textContent = characterInfo;
+  $('sceneHandoff').textContent = sceneHandoff;
+  $('bookManuscript').textContent = bookManuscript;
+  $('results').classList.remove('hidden');
+
+  ColorM.saveStep('storyboard', { scenes, fullBoard, sceneSummary, characterInfo, sceneHandoff, bookManuscript });
+
+  setTimeout(()=>$('results').scrollIntoView({behavior:'smooth',block:'start'}),50);
+});
+
+function buildDownloadText(){
+  return ['COLOR.M 마음색 그림책 메이커 · 03 스토리보드','================================','',
+    '[전체 스토리보드]', $('fullBoard').textContent.trim(),'',
+    '[장면별 요약]', $('sceneSummary').textContent.trim(),'',
+    '[캐릭터 전달 정보]', $('characterInfo').textContent.trim(),'',
+    '[장면 제작 전달 정보]', $('sceneHandoff').textContent.trim(),'',
+    '[그림책 문장 모음]', $('bookManuscript').textContent.trim()
+  ].join('\n');
+}
+function downloadTXT(){
+  if($('results').classList.contains('hidden')){ alert('먼저 스토리보드를 만들어주세요.'); return; }
+  const project = ColorM.getProject();
+  ColorM.downloadTXT('COLOR.M_'+project.projectName+'_스토리보드.txt', buildDownloadText());
+}
+
+// ChatGPT 왕복 연결: 요청문 복사 → 답변 붙여넣기 → 장면 카드 자동 채우기
+let lastCutScene = 0; // 바로 전 답변이 중간에 끊긴 장면 번호 (이어서 받을 때 덮어쓰기 확인을 건너뛰어요)
+ColorMBridge.mount({
+  kind: 'storyboard',
+  oneShot: true,
+  anchor: $('sceneCards'),
+  title: '⭐ ChatGPT로 책에 실릴 글 받기',
+  lead: '「추천 한 번에 적용」은 본문 글과 대화를 채우지 못해요. ChatGPT 같은 AI에게 장면별 제목·본문 글·대화·그림 구성을 한 번에 받아 아래 카드에 자동으로 채울 수 있어요. 채운 뒤에도 모두 직접 고칠 수 있어요.',
+  getOpts: function(){
+    const pr = ColorM.getProject();
+    const n = document.querySelectorAll('.scene-card').length || (pr.story||{}).sceneCount || 8;
+    return { n: n, plan: pr.plan || {} };
+  },
+  apply: function(parsed){
+    // 답변의 [장면 N]을 N번 카드에 채워요. 답변이 중간에 끊겨 「장면 7부터 이어서」 받은 답을 붙여넣어도 1~6은 그대로 남아요.
+    const FIELDS = ['sc-title','sc-cast','sc-memo','sc-content','sc-dialogue','sc-conti'];
+    const curCards = [].slice.call(document.querySelectorAll('.scene-card'));
+    const data = curCards.map(function(c){ const o = {}; FIELDS.forEach(function(f){ const el = c.querySelector('.'+f); o[f] = el ? el.value : ''; }); return o; });
+    const pr0 = ColorM.getProject();
+    const expected = Math.max(curCards.length, (pr0.story||{}).sceneCount || 0);
+    const sc = parsed.scenes.map(function(s, i){ return Object.assign({}, s, {no: s.no || i+1}); });
+    const nos = sc.map(function(s){ return s.no; });
+    // 이미 쓴 글을 바꾸게 될 때만 물어봐요 (바로 전에 끊겨서 다시 받는 장면은 묻지 않아요)
+    const overwrite = nos.filter(function(n){ const d = data[n-1]; return d && n !== lastCutScene && (d['sc-content'].trim() || d['sc-dialogue'].trim()); });
+    if(overwrite.length && !confirm('장면 ' + overwrite.join(', ') + '에 이미 쓴 글이 ChatGPT 답변으로 바뀝니다. 계속할까요?')) return '취소했어요. 입력한 내용은 그대로예요.';
+    const total = Math.max(expected, Math.max.apply(null, nos));
+    while(data.length < total){ const o = {}; FIELDS.forEach(function(f){ o[f] = ''; }); data.push(o); }
+    sc.forEach(function(s){
+      const d = data[s.no-1];
+      if(s.title) d['sc-title'] = s.title; if(s.cast) d['sc-cast'] = s.cast; if(s.content) d['sc-content'] = s.content;
+      if(s.dialogue) d['sc-dialogue'] = s.dialogue; if(s.conti) d['sc-conti'] = s.conti;
+    });
+    renderSceneCardsFromData(data.map(function(d){ return {title:d['sc-title'], cast:d['sc-cast'], memo:d['sc-memo'], content:d['sc-content'], dialogue:d['sc-dialogue'], conti:d['sc-conti']}; }));
+    const cards = [].slice.call(document.querySelectorAll('.scene-card'));
+    ColorM.toast('답변으로 장면 카드를 채웠어요.');
+    (cards[nos[0]-1] || cards[0]).scrollIntoView({behavior:'smooth', block:'start'});
+    // 끊김 확인: 받은 마지막 장면이 문장 중간에서 끝났거나, 아직 빈 장면이 남았는지
+    const last = sc[sc.length-1];
+    const tail = String(last.dialogue || last.content || last.conti || '').trim();
+    const looksCut = !!tail && (/[^.!?。…~"”’'\)]$/.test(tail) || ((tail.match(/["“”]/g) || []).length % 2 === 1));
+    const empty = data.map(function(d, i){ return d['sc-content'].trim() ? 0 : i+1; }).filter(Boolean);
+    let msg = '장면 ' + nos.join(', ') + ' 카드를 채웠어요.';
+    if(looksCut || empty.length){
+      const from = looksCut ? last.no : empty[0];
+      lastCutScene = looksCut ? last.no : 0;
+      const ask = '앞의 답변이 중간에 끊겼어. [장면 ' + from + ']부터 [장면 ' + total + ']까지 앞에서 정한 [출력 형식] 그대로 이어서 써 줘. 앞 장면과 인물·말투는 그대로 이어 가 줘.';
+      ColorM.copyText(ask);
+      msg = '⚠ 답변이 ' + (looksCut ? '장면 ' + last.no + '에서 중간에 끊겼어요.' : '장면 ' + empty.join(', ') + ' 카드가 비어 있어요.') +
+        ' 「장면 ' + from + '부터 이어서 써 줘」 요청문을 복사해 뒀어요. ChatGPT 같은 대화창에 붙여넣고, 받은 답을 위 칸에 다시 붙여넣은 뒤 「장면 카드 채우기」를 누르면 장면 ' + from + '~' + total + ' 카드가 채워져요.';
+    }else{
+      lastCutScene = 0;
+      msg += ' 아래 장면 카드에서 마음에 안 드는 부분을 고쳐보세요.';
+    }
+    const bookTitle = parsed.meta && parsed.meta.title;
+    if(bookTitle){
+      const pr = ColorM.getProject();
+      pr.story = pr.story || {};
+      if(!(pr.story.titles && pr.story.titles.length)){ pr.story.titles = [bookTitle]; ColorM.storage.set(pr); }
+      msg += ' (제목 「' + bookTitle + '」도 가져왔어요.)';
+    }
+    const ch = ColorMBridge.saveCharacters(parsed);
+    if(ch.main || ch.extras.length){
+      msg += ' 주인공' + (ch.main ? ' 「'+ch.main+'」' : '') + (ch.extras.length ? (ch.main ? ColorM.josa(ch.main, ['과','와']) : '와') + ' 함께 나오는 캐릭터('+ch.extras.join(', ')+')' : '') + ' 정보도 04 캐릭터로 넘겨뒀어요.';
+    }
+    return msg;
+  }
+});
+// 작성하던 내용 자동 저장/복원 + 이미 만든 스토리보드 결과 다시 보여주기
+const draft = ColorM.autoSaveForm('boardForm', 'storyboard');
+ColorM.restoreSilently(function(){
+  const sb = ColorM.getProject().storyboard || {};
+  if(draft.restored && sb.scenes && sb.scenes.length) $('boardForm').dispatchEvent(new Event('submit', {cancelable:true, bubbles:true}));
+});</script>
+</body>
+</html>

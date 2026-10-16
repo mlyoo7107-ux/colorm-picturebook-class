@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko" data-session="4">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>전체 결과 한눈에 보기 — 마음색 그림책 4회 메이커</title>
+<link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-4.svg">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="../shared/colorm.css">
+<style>
+.sec-title{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sec-title .num{background:var(--soft);color:var(--m);padding:7px 11px;border-radius:999px;font-size:12px;font-weight:900}
+.sec-title h2{margin:0;font-size:20px}
+.box2{background:var(--tint);border-radius:12px;padding:14px;margin-top:10px;white-space:pre-wrap;line-height:1.7;font-size:14px}
+.scene-block{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px}
+.scene-block b{color:var(--m)}
+.empty{margin-top:10px}
+</style>
+</head>
+<body>
+<div id="cmHeader"></div>
+<header class="hero">
+<p class="eyebrow">SUMMARY</p>
+<h1><b>COLOR.M</b> 전체 결과 한눈에 보기</h1>
+<p class="sub">지금까지 완성한 기획·스토리·스토리보드·캐릭터·장면·표지·출판 정보 결과를 한 페이지에 모아봅니다.</p>
+</header>
+
+<main class="wrap">
+<div id="results">
+<section class="card" id="mindCard" hidden>
+<div class="sec-title"><span class="num">색</span><h2>마음색 · 책 전체 색</h2></div>
+<div id="secMind"></div>
+</section>
+
+<section class="card">
+<div class="sec-title"><span class="num">01</span><h2>기획</h2></div>
+<div id="secPlan"></div>
+</section>
+
+<section class="card">
+<div class="sec-title"><span class="num">02</span><h2>스토리</h2></div>
+<div id="secStory"></div>
+</section>
+
+<section class="card">
+<div class="sec-title"><span class="num">03</span><h2>스토리보드</h2></div>
+<div id="secStoryboard"></div>
+</section>
+
+<section class="card">
+<div class="sec-title"><span class="num">04</span><h2>캐릭터</h2></div>
+<div id="secCharacter"></div>
+</section>
+
+<section class="card">
+<div class="sec-title"><span class="num">05</span><h2>장면</h2></div>
+<div id="secScene"></div>
+</section>
+
+<section class="card">
+<div class="sec-title"><span class="num">편집</span><h2>그림책 정리 · 캔바 편집</h2></div>
+<div id="secEdit"></div>
+</section>
+
+<section class="card">
+<div class="sec-title"><span class="num">06</span><h2>표지</h2></div>
+<div id="secCover"></div>
+</section>
+
+<section class="card">
+<div class="sec-title"><span class="num">07</span><h2>출판 정보</h2></div>
+<div id="secPublish"></div>
+</section>
+</div>
+
+<div class="download-actions">
+  <a class="btn ghost" href="index.html">← 4회 처음 화면</a>
+</div>
+</main>
+
+<footer></footer>
+
+<script src="../shared/colorm.js"></script>
+<script src="../shared/kr-en-prompt.js"></script>
+<script src="../shared/mind.js"></script>
+<script src="../shared/canva.js"></script>
+<script src="../shared/finish.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+ColorM.renderHeader('cmHeader','summary',{session:4});
+ColorMCanva.mount(document.getElementById('results'));
+ColorMFinish.mount(document.querySelector('.download-actions'), {
+  pdfLabel:'전체 PDF 저장',
+  pdf:function(){ ColorM.saveAsPDF('results','전체보기'); },
+  txt:function(){ downloadTXT(); },
+  copyAll:function(){ return buildDownloadText(); }
+}, 'after');
+
+// 3회 편집에서 정한 페이지 순서대로 본문 글 + 대화
+function editManuscript(project){
+  return ((project.edit||{}).pages||[]).map(function(pg,i){
+    return ['[페이지 '+String(i+1).padStart(2,'0')+'] '+pg.title, (pg.text||'').trim()||'(본문 글 미작성)'].concat((pg.dialogue||'').trim()?[pg.dialogue.trim()]:[]).join('\n');
+  }).join('\n\n');
+}
+// 아직 안 한 단계: 이 메이커(4회) 단계면 링크, 다른 회차면 어느 메이커에서 하는지 글자로 알려줘요.
+const STEP_KEY = {'기획':'plan','스토리':'story','스토리보드':'storyboard','캐릭터':'character','장면':'scene','그림책 정리':'edit','표지':'cover','출판 정보':'publish'};
+function emptyState(label){
+  return '<p class="note empty">아직 완료되지 않았습니다. '+ColorM.stepRef(STEP_KEY[label], label)+'에서 만들어요.</p>';
+}
+
+function renderMind(){
+  const lines = (typeof ColorMMind !== 'undefined') ? ColorMMind.summaryLines() : [];
+  $('mindCard').hidden = !lines.length;
+  if(!lines.length) return;
+  const pal = ColorMMind.paletteColors();
+  const m = ColorMMind.get();
+  const flow = ColorMMind.flowColors();
+  const sw = function(c){ return '<i style="display:inline-block;width:34px;height:34px;border-radius:50%;background:'+c+';border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.12)"></i>'; };
+  $('secMind').innerHTML =
+    '<div style="display:flex;flex-wrap:wrap;gap:18px;align-items:center;margin-bottom:12px">' +
+      '<div style="display:flex;gap:6px;align-items:center"><span class="help" style="margin:0">마음색</span>'+sw(m.color)+'</div>' +
+      (pal ? '<div style="display:flex;gap:6px;align-items:center"><span class="help" style="margin:0">대표 색 3가지</span>'+pal.map(sw).join('')+'</div>' : '') +
+      (flow ? '<div style="display:flex;gap:6px;align-items:center"><span class="help" style="margin:0">색 흐름</span>'+flow.map(sw).join('')+'</div>' : '') +
+    '</div><div class="box2">'+ColorM.escapeHTML(lines.join('\n'))+'</div>';
+}
+
+function render(){
+  const project = ColorM.getProject();
+  const status = ColorM.stepStatus(project);
+  renderMind();
+
+  $('secPlan').innerHTML = status.plan
+    ? '<div class="box2">'+ColorM.escapeHTML(project.plan.oneLine||'')+'</div><div class="box2">'+ColorM.escapeHTML(project.plan.planSheet||'')+'</div>'
+    : emptyState('기획');
+
+  $('secStory').innerHTML = status.story
+    ? '<div class="box2">'+ColorM.escapeHTML((project.story.titles||[]).join(' / '))+'</div><div class="box2">'+ColorM.escapeHTML(project.story.summary||'')+'</div>'
+    : emptyState('스토리');
+
+  $('secStoryboard').innerHTML = status.storyboard
+    ? '<div class="box2">'+ColorM.escapeHTML(project.storyboard.sceneSummary||'')+'</div>'
+      +(project.storyboard.bookManuscript ? '<p class="help" style="margin:14px 0 0">📖 그림책 문장 모음</p><div class="box2">'+ColorM.escapeHTML(project.storyboard.bookManuscript)+'</div>' : '')
+    : emptyState('스토리보드');
+
+  $('secCharacter').innerHTML = status.character
+    ? '<div class="box2">'+ColorM.escapeHTML(project.character.oneLine||'')+'</div><div class="box2">'+ColorM.escapeHTML(project.character.fixedInfo||'')+'</div>'
+    : emptyState('캐릭터');
+
+  if(status.scene){
+    const items = (project.scenes||[]).map(function(s,i){
+      if(!s) return '';
+      return '<div class="scene-block"><b>장면 '+String(s.no||i+1).padStart(2,'0')+'</b><br>'+ColorM.escapeHTML(s.sceneDesc||'')+'</div>';
+    }).join('');
+    $('secScene').innerHTML = items || emptyState('장면');
+  }else{
+    $('secScene').innerHTML = emptyState('장면');
+  }
+
+  $('secEdit').innerHTML = status.edit
+    ? '<div class="box2">'+ColorM.escapeHTML(editManuscript(project))+'</div>'
+      +(project.canva && project.canva.link ? '<p class="help" style="margin:14px 0 0">🎨 캔바 디자인: <a href="'+ColorM.escapeHTML(project.canva.link)+'" target="_blank" rel="noopener">'+ColorM.escapeHTML(project.canva.link)+'</a></p>' : '')
+    : emptyState('그림책 정리');
+
+  $('secCover').innerHTML = status.cover
+    ? '<div class="box2">'+ColorM.escapeHTML(project.cover.coverDesc||'')+'</div>'
+    : emptyState('표지');
+
+  $('secPublish').innerHTML = status.publish
+    ? '<div class="box2">'+ColorM.escapeHTML((project.publish.outputs||{}).form||(project.publish.outputs||{}).bib||'')+'</div>'
+      +'<p class="help" style="margin:14px 0 0">📖 판권면</p><div class="box2">'+ColorM.escapeHTML((project.publish.outputs||{}).colophon||'')+'</div>'
+    : emptyState('출판 정보');
+}
+render();
+
+function buildDownloadText(){
+  const project = ColorM.getProject();
+  const status = ColorM.stepStatus(project);
+  const lines = ['COLOR.M 마음색 그림책 교실 — 전체 결과', '프로젝트명: '+project.projectName, '================================', ''];
+
+  const mindLines = (typeof ColorMMind !== 'undefined') ? ColorMMind.summaryLines() : [];
+  if(mindLines.length){ lines.push('[마음색 · 책 전체 색]'); lines.push(mindLines.join('\n')); lines.push(''); }
+
+  lines.push('[01 기획]');
+  lines.push(status.plan ? (project.plan.oneLine+'\n\n'+project.plan.planSheet) : '아직 완료되지 않았습니다.');
+  lines.push('');
+
+  lines.push('[02 스토리]');
+  lines.push(status.story ? ((project.story.titles||[]).join(' / ')+'\n\n'+project.story.summary) : '아직 완료되지 않았습니다.');
+  lines.push('');
+
+  lines.push('[03 스토리보드]');
+  if(status.storyboard){
+    lines.push(project.storyboard.sceneSummary);
+    if(project.storyboard.bookManuscript){ lines.push(''); lines.push('[그림책 문장 모음]'); lines.push(project.storyboard.bookManuscript); }
+  }else{
+    lines.push('아직 완료되지 않았습니다.');
+  }
+  lines.push('');
+
+  lines.push('[04 캐릭터]');
+  lines.push(status.character ? (project.character.oneLine+'\n\n'+project.character.fixedInfo) : '아직 완료되지 않았습니다.');
+  lines.push('');
+
+  lines.push('[05 장면]');
+  if(status.scene){
+    (project.scenes||[]).forEach(function(s,i){
+      if(!s) return;
+      lines.push('장면 '+String(s.no||i+1).padStart(2,'0')+': '+s.sceneDesc);
+    });
+  }else{
+    lines.push('아직 완료되지 않았습니다.');
+  }
+  lines.push('');
+
+  lines.push('[편집 · 최종 원고]');
+  lines.push(status.edit ? editManuscript(project) : '아직 완료되지 않았습니다.');
+  if(project.canva && project.canva.link) lines.push('캔바 디자인: '+project.canva.link);
+  lines.push('');
+
+  lines.push('[06 표지]');
+  lines.push(status.cover ? project.cover.coverDesc : '아직 완료되지 않았습니다.');
+  lines.push('');
+
+  lines.push('[07 출판 정보]');
+  if(status.publish){
+    const o = project.publish.outputs || {};
+    lines.push(o.form || o.bib || '');
+    lines.push('');
+    lines.push('[판권면 문구]'); lines.push(o.colophon || '');
+    lines.push('');
+    if(o.author){ lines.push(''); lines.push('[작가의 말]'); lines.push(o.author); }
+  }else{
+    lines.push('아직 완료되지 않았습니다.');
+  }
+
+  return lines.join('\n');
+}
+function downloadTXT(){
+  const project = ColorM.getProject();
+  ColorM.downloadTXT('COLOR.M_'+project.projectName+'_전체결과.txt', buildDownloadText());
+}
+</script>
+</body>
+</html>

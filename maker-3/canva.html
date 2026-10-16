@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko" data-session="3">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>편집 2 캔바 편집 — 마음색 그림책 3회 메이커</title>
+<link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-3.svg">
+<link rel="apple-touch-icon" href="../shared/assets/apple-touch-icon.jpg">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="../shared/colorm.css">
+<style>
+.guide{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:10px}
+.guide li{border:1px solid var(--line);border-radius:16px;background:#fff;padding:14px 16px}
+.guide li.done{background:#f3fbf6;border-color:#bfe8d0}
+.g-head{display:flex;flex-direction:row;font-weight:400;align-items:flex-start;gap:12px;cursor:pointer;margin:0}
+.g-head input{width:22px;height:22px;flex:0 0 auto;margin-top:2px;accent-color:#22a55e}
+.g-head b{font-size:15.5px}
+.g-head small{display:block;margin-top:3px;font-size:13px;line-height:1.6;color:var(--muted);font-weight:600}
+.g-tip{margin:10px 0 0 34px;padding:10px 12px;border-radius:10px;background:var(--tint);font-size:13px;line-height:1.7}
+.g-tip ol,.g-tip ul{margin:0;padding-left:18px}
+.size-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:8px}
+.size-card{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px;cursor:pointer;text-align:left}
+.size-card.on{border-color:var(--m);background:var(--soft)}
+.size-card b{display:block;font-size:13.5px}
+.size-card small{font-size:12px;color:var(--muted)}
+.copy-pages{display:grid;gap:8px;margin-top:8px}
+.copy-page{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px}
+.copy-page .cp-no{font-weight:900;color:var(--m);font-size:12px;white-space:nowrap;padding-top:2px}
+.copy-page .cp-text{flex:1;min-width:0;font-size:13px;line-height:1.6;white-space:pre-wrap}
+.copy-page .copy{width:auto;margin:0;flex:0 0 auto;padding:7px 16px;font-size:13px;white-space:nowrap}
+.progress{height:10px;border-radius:999px;background:var(--soft);overflow:hidden;margin-top:12px}
+.progress i{display:block;height:100%;background:#22a55e;width:0;transition:width .2s}
+</style>
+</head>
+<body>
+<div id="cmHeader"></div>
+<header class="hero hero-sub">
+<p class="sub">만든 그림과 정리한 글을 <b>캔바</b>에 올려 그림책 페이지를 완성해요.<br>한 단계씩 따라 하고, 끝난 단계는 ✓ 표시해 두세요. 표시는 자동으로 저장돼요.</p>
+</header>
+
+<main class="wrap">
+<div class="note" id="noEdit" hidden><b>먼저 「편집 1 그림책 정리」를 해 주세요.</b><br>정리한 원고가 있어야 페이지마다 글을 바로 복사할 수 있어요. <a href="edit.html">편집 1로 가기 →</a></div>
+
+<section class="card">
+<div class="step"><span>CANVA</span><h2>캔바에서 그림책 페이지 만들기</h2></div>
+<p class="help" id="countHelp"></p>
+<div class="progress"><i id="bar"></i></div>
+<ol class="guide" id="guide"></ol>
+</section>
+
+<section class="card">
+<div class="step"><span>LINK</span><h2>내 캔바 디자인 주소 적어 두기</h2></div>
+<p class="help">캔바 오른쪽 위 <b>공유 → 링크 복사</b>로 주소를 붙여 두면, 4회 표지 시간에 바로 이어서 열 수 있어요.</p>
+<label>캔바 디자인 링크<input id="canvaLink" type="url" placeholder="https://www.canva.com/design/..."></label>
+<p class="help" id="openLink" hidden><a target="_blank" rel="noopener" id="openLinkA">내 캔바 디자인 열기 ↗</a></p>
+</section>
+
+<button class="btn primary big" type="button" id="doneBtn">캔바 편집 완료!</button>
+
+<section id="results" class="results hidden">
+<p class="eyebrow">DONE</p>
+<h2>3회 편집을 마쳤어요!</h2>
+<div class="note">다음 시간(4회)에는 <b>표지</b>를 만들고 <b>출판 정보</b>를 정리해요. 아래 <b>「4회에 쓸 작업파일 저장」</b>을 꼭 눌러 두세요. 4회 메이커에서 그 파일을 <b>불러오기</b>해야 이어져요.</div>
+</section>
+<div class="step-nav" id="cmStepNav"></div>
+</main>
+
+<footer></footer>
+
+<script src="../shared/colorm.js"></script>
+<script src="../shared/mind.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const esc=ColorM.escapeHTML;
+const pad=n=>String(n).padStart(2,'0');
+ColorM.renderHeader('cmHeader','canva');
+ColorM.renderStepNav('cmStepNav','canva');
+
+const project = ColorM.getProject();
+const pages = (project.edit && Array.isArray(project.edit.pages) && project.edit.pages.length) ? project.edit.pages
+  : (((project.storyboard||{}).scenes)||[]).map((s,i)=>({title:s.title||('장면 '+pad(i+1)), text:s.content||s.memo||'', dialogue:s.dialogue||''}));
+const n = pages.length;
+const audience = (project.plan||{}).audience || '';
+const fontTip = /유아/.test(audience) ? '유아 독자라면 본문 글자 크기 <b>28pt 이상</b>, 한 페이지 1~2문장이 좋아요.'
+  : /저학년/.test(audience) ? '초등 저학년 독자라면 본문 글자 크기 <b>22~26pt</b>가 읽기 좋아요.'
+  : '본문 글자 크기는 <b>18~24pt</b>가 읽기 좋아요.';
+const SIZES = [
+  ['square','정사각형 20×20cm','그림책에서 가장 많이 써요'],
+  ['land','가로형 A4 (297×210mm)','넓은 풍경 장면에 좋아요'],
+  ['port','세로형 A4 (210×297mm)','글이 많은 책에 좋아요']
+];
+let state = Object.assign({checks:{}, size:'', link:'', doneAt:null}, project.canva||{});
+function save(){ ColorM.saveStep('canva', state); }
+
+const STEPS = [
+  {k:'open', t:'캔바 열고 새 디자인 만들기', d:'canva.com에 로그인 → <b>디자인 만들기 → 사용자 지정 크기</b>',
+   tip:()=>'<b>책 크기를 골라요</b> (4회 표지도 같은 크기로 만들어요)<div class="size-cards">'+SIZES.map(s=>'<button type="button" class="size-card'+(state.size===s[0]?' on':'')+'" data-size="'+s[0]+'"><b>'+s[1]+'</b><small>'+s[2]+'</small></button>').join('')+'</div>'},
+  {k:'pages', t:'페이지 '+(n+2)+'장 만들기', d:'표지 1 + 본문 '+n+' + 마지막 페이지(작가의 말·판권면) 1 = <b>'+(n+2)+'페이지</b>. 아래쪽 <b>+ 페이지 추가</b>를 눌러 수를 맞춰요.',
+   tip:()=>'표지와 마지막 페이지는 비워 두고, 4회에 표지 그림과 작가의 말·판권면을 넣어요.'},
+  {k:'upload', t:'만든 그림 올리기', d:'왼쪽 <b>업로드 → 파일 업로드</b>로 장면 그림을 한꺼번에 올려요.',
+   tip:()=>'그림 파일 이름을 <b>장면01, 장면02 …</b> 처럼 바꿔 두면 순서대로 찾기 쉬워요. 고칠 그림은 <a href="edit.html">편집 1</a>의 수정 요청문으로 다시 만들어 올려요.'},
+  {k:'place', t:'페이지마다 그림 넣기', d:'그림을 페이지로 끌어다 놓고, 그림을 <b>오른쪽 클릭 → 배경으로 설정</b>하면 페이지에 꽉 차요.',
+   tip:()=>'정리한 순서대로 넣어요: '+pages.map((p,i)=>'<b>'+pad(i+1)+'</b> '+esc(p.title)).join(' · ')},
+  {k:'text', t:'본문 글 넣기', d:'<b>텍스트 → 텍스트 상자 추가</b> 후 아래에서 복사한 글을 붙여넣어요.',
+   tip:()=>'<div class="copy-pages">'+(pages.length ? pages.map((p,i)=>{
+      const t=(p.text||'').trim()+((p.dialogue||'').trim()?'\n'+p.dialogue.trim():'');
+      return '<div class="copy-page"><span class="cp-no">페이지 '+pad(i+1)+'</span><span class="cp-text">'+esc(t||'(본문 글 미작성)')+'</span><button class="copy" type="button" data-copy="'+i+'">복사</button></div>';
+    }).join('') : '<p class="help" style="margin:0">정리한 원고가 없어요.</p>')+'</div>'},
+  {k:'read', t:'글이 잘 보이게 다듬기', d:'그림 위 글자가 안 보이면 글상자에 <b>배경색</b>이나 <b>효과 → 그림자</b>를 넣어요.',
+   tip:()=>fontTip+' 책 전체에서 <b>글꼴은 1~2가지</b>만 쓰면 깔끔해요.'},
+  {k:'bubble', t:'대화는 말풍선으로', d:'<b>요소</b>에서 「말풍선」을 검색해 넣고, 그 위에 대화를 적어요.', tip:()=>'말풍선 꼬리가 말하는 인물 쪽을 향하게 해요.'},
+  {k:'check', t:'처음부터 끝까지 넘겨 보기', d:'오른쪽 위 <b>미리보기(▶)</b>로 순서·오타·빠진 페이지를 확인해요.', tip:()=>'친구에게 소리 내어 읽어 주면 어색한 문장을 쉽게 찾을 수 있어요.'},
+  {k:'save', t:'저장하기', d:'<b>공유 → 다운로드 → PDF 표준</b>으로 내려받고, 아래에 디자인 링크도 적어 둬요. (지금은 연습용 · 작가와에 올릴 최종 PDF는 4회에 만들어요)', tip:()=>'캔바는 자동 저장되지만, 디자인 이름을 책 제목으로 바꿔 두면 찾기 쉬워요.'}
+];
+
+function draw(){
+  $('noEdit').hidden = !!(project.edit && project.edit.confirmedAt);
+  $('countHelp').innerHTML = n ? '내 그림책: <b>본문 '+n+'장면 · 전체 '+(n+2)+'페이지</b>' : '아직 장면이 없어요. 1회 스토리보드부터 만들어 주세요.';
+  const done = STEPS.filter(s=>state.checks[s.k]).length;
+  $('bar').style.width = Math.round(done/STEPS.length*100)+'%';
+  $('guide').innerHTML = STEPS.map((s,i)=>'<li class="'+(state.checks[s.k]?'done':'')+'"><label class="g-head"><input type="checkbox" data-k="'+s.k+'"'+(state.checks[s.k]?' checked':'')+'><span><b>'+(i+1)+'. '+s.t+'</b><small>'+s.d+'</small></span></label><div class="g-tip">'+s.tip()+'</div></li>').join('');
+}
+$('guide').addEventListener('change', function(e){
+  if(e.target.dataset.k){ state.checks[e.target.dataset.k] = e.target.checked; save(); draw(); }
+});
+$('guide').addEventListener('click', function(e){
+  const b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.size){ state.size = b.dataset.size; save(); draw(); }
+  else if(b.dataset.copy!=null){ const p=pages[+b.dataset.copy]; ColorM.copyText(((p.text||'').trim()+((p.dialogue||'').trim()?'\n'+p.dialogue.trim():'')).trim()); }
+});
+function syncLink(){
+  const v = $('canvaLink').value.trim(), ok = /^https:\/\/(www\.)?canva\.(com|link)\//.test(v);
+  $('openLink').hidden = !ok; if(ok) $('openLinkA').href = v;
+}
+$('canvaLink').value = state.link || '';
+$('canvaLink').addEventListener('input', function(){ state.link = this.value.trim(); save(); syncLink(); });
+$('doneBtn').addEventListener('click', function(){
+  const left = STEPS.filter(s=>!state.checks[s.k]).length;
+  if(left && !confirm('아직 ✓ 표시하지 않은 단계가 '+left+'개 있어요. 그래도 완료할까요?')) return;
+  state.doneAt = new Date().toISOString(); save();
+  ColorM.renderHeader('cmHeader','canva');
+  $('results').classList.remove('hidden');
+  setTimeout(()=>$('results').scrollIntoView({behavior:'smooth',block:'start'}),50);
+});
+draw(); syncLink();
+if(state.doneAt) $('results').classList.remove('hidden');
+</script>
+</body>
+</html>

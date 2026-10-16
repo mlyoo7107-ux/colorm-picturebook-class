@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>선생님용 안내 — 마음색 그림책 교실</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="shared/assets/favicon.svg">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="shared/colorm.css">
+<style>
+.t-lead{margin:0;font-size:15px;line-height:1.75}
+.flow{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+.flow li{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px;font-weight:700}
+.flow .chip{padding:5px 12px;border-radius:999px;background:var(--m);color:#fff;font-weight:900;font-size:13px}
+.flow .file{padding:5px 10px;border-radius:8px;background:#fff;border:1px dashed var(--line);font-size:12.5px;color:var(--muted)}
+.session{border-top:5px solid var(--m)}
+.session h2{color:var(--m)}
+.url-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.url-row code{flex:1;min-width:220px;padding:10px 12px;border-radius:10px;background:var(--tint);border:1px solid var(--line);font-size:13.5px;word-break:break-all}
+.url-row .btn{padding:9px 14px}
+.s-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.s-grid h3{margin:0 0 4px;font-size:14px}
+.s-grid ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.75;color:var(--muted)}
+.handout{margin-top:12px}
+.handout .box2{font-size:13.5px}
+.faq dt{font-weight:800;margin-top:12px}
+.faq dd{margin:4px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
+@media(max-width:640px){.s-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="cmHeader"></div>
+<header class="hero">
+<p class="eyebrow">선생님용</p>
+<h1><b>마음색 그림책 교실</b> 운영 안내</h1>
+<p class="sub">이 페이지는 학생에게 보여주지 않는 <b>선생님용</b>이에요. 수업 시간마다 그 회차의 메이커 주소만 학생에게 알려 주세요.</p>
+</header>
+<main class="wrap">
+
+<section class="card">
+<h2 style="margin:0 0 6px;font-size:20px">이렇게 이어져요</h2>
+<p class="t-lead">4개 메이커는 <b>주소·화면·저장이 모두 따로</b>이고, 서로 오가는 링크가 없어요. 회차가 끝나면 학생이 <b>작업파일(.json)</b>을 저장하고, 다음 회차 메이커 첫 화면에서 그 파일을 <b>불러오기</b>해야 이어져요.</p>
+<ul class="flow" id="flow"></ul>
+</section>
+
+<div id="sessions"></div>
+
+<section class="card">
+<h2 style="margin:0 0 6px;font-size:20px">자주 생기는 일</h2>
+<dl class="faq">
+<dt>작업파일을 잃어버렸어요</dt>
+<dd>지난 시간과 <b>같은 컴퓨터·같은 브라우저</b>라면, 지난 회차 메이커를 열면 작업이 그대로 남아 있어요. 그 메이커 마무리 화면에서 작업파일을 다시 저장하면 돼요. 공용 컴퓨터에서 이미 지웠다면 그 회차부터 다시 해야 해요.</dd>
+<dt>지난 회차 내용을 고치고 싶어요</dt>
+<dd>지난 회차 메이커를 열어 고친 뒤 <b>작업파일을 다시 저장</b>하고, 지금 회차 메이커에서 <b>불러오기</b>로 그 파일을 열어요. (지금 회차에서 한 작업은 불러온 파일 내용으로 바뀌니, 회차를 시작할 때 하는 게 좋아요)</dd>
+<dt>다른 컴퓨터로 옮겨 앉았어요</dt>
+<dd>메이커 오른쪽 위 메뉴의 <b>저장</b>으로 작업파일을 받아 옮긴 뒤, 새 컴퓨터에서 <b>불러오기</b>로 열어요.</dd>
+<dt>수업이 끝났어요 (공용 컴퓨터)</dt>
+<dd>작업파일 저장을 확인한 뒤, 메뉴의 <b>「처음부터 다시 만들기」</b>로 그 메이커의 작업을 지우게 해 주세요. 메이커마다 따로 지워요.</dd>
+<dt>작가와 등록</dt>
+<dd>4회 <b>07 출판 정보</b>의 「작가와 등록 입력표」를 작가와 「책 만들기」 화면에 순서대로 옮겨요. 학생은 미리 <b>작가와 회원 가입</b>을 해 두면 좋아요. 유통 신청 뒤에는 고치기 어려우니 신청 전에 함께 확인해 주세요.</dd>
+</dl>
+</section>
+</main>
+
+<footer></footer>
+
+<script src="shared/colorm.js"></script>
+<script src="shared/session.js"></script>
+<script>
+ColorM.renderHeader('cmHeader', null, {base:'', tabs:false, home:false});
+const esc = ColorM.escapeHTML;
+// 이 페이지가 열린 주소를 기준으로 각 메이커의 전체 주소를 만들어요 (배포한 뒤에도 그대로 맞아요)
+const baseUrl = location.href.replace(/[#?].*$/, '').replace(/index\.html$/, '');
+const urlOf = se => baseUrl + se.path + '/';
+
+document.getElementById('flow').innerHTML = ColorM.SESSIONS.map(function(se){
+  return '<li data-s="'+se.no+'"><span class="chip">'+se.no+'회</span>'+esc(se.name)+
+    (se.no < 4 ? '<span class="file">→ 작업파일 저장 (…_'+se.no+'회.json)</span>' : '<span class="file">→ 작가와 유통 신청</span>')+'</li>';
+}).join('');
+
+document.getElementById('sessions').innerHTML = ColorM.SESSIONS.map(function(se){
+  const info = ColorMSession.INFO[se.no];
+  const steps = ColorM.STEPS.filter(s => s.session === se.no);
+  const url = urlOf(se);
+  const handout = [
+    '[마음색 그림책 '+se.no+'회 — '+se.name+']',
+    '오늘 쓸 메이커: '+url,
+    se.no > 1 ? '1. 메이커를 열고, 첫 화면에서 지난 시간에 저장한 「'+(se.no-1)+'회 작업파일(.json)」을 불러와요.' : '1. 메이커를 열고 「시작하기」를 눌러요.',
+    '2. 오늘 할 일: '+steps.map(s => s.num+' '+s.name).join(' → '),
+    '3. 끝나면 첫 화면 아래 「마무리」에서 '+(se.no < 4 ? '「'+(se.no+1)+'회에 쓸 작업파일」을 꼭 저장해요.' : '작업파일과 PDF를 저장해요.'),
+    '준비물: '+info.bring.join(', ')
+  ].join('\n');
+  return '<section class="card session" data-s="'+se.no+'">'+
+    '<div class="step"><span>'+se.no+'회</span><h2>'+esc(se.name)+'</h2></div>'+
+    '<p class="help" style="margin:0">'+esc(info.goal)+'</p>'+
+    '<div class="url-row"><code>'+esc(url)+'</code>'+
+      '<button type="button" class="btn soft" data-copy="'+esc(url)+'">주소 복사</button>'+
+      '<a class="btn ghost" href="'+se.path+'/index.html" target="_blank" rel="noopener">열어 보기 ↗</a></div>'+
+    '<div class="s-grid"><div><h3>진행 순서</h3><ul>'+steps.map(s => '<li>'+esc(s.num+' '+s.name)+' — '+esc(info.steps[s.key]||'')+'</li>').join('')+'</ul></div>'+
+      '<div><h3>준비물</h3><ul>'+info.bring.map(b => '<li>'+esc(b)+'</li>').join('')+'</ul></div></div>'+
+    '<div class="handout"><h3 style="margin:0;font-size:14px">학생 안내 문구 <small style="color:var(--muted);font-weight:600">(단톡방·칠판에 붙여넣기)</small></h3>'+
+      '<div class="box2">'+esc(handout)+'</div><button type="button" class="copy" data-copy="'+esc(handout)+'">안내 문구 복사</button></div>'+
+  '</section>';
+}).join('');
+
+document.addEventListener('click', function(e){
+  const b = e.target.closest('[data-copy]');
+  if (b) ColorM.copyText(b.dataset.copy);
+});
+</script>
+</body>
+</html>

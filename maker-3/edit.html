@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko" data-session="3">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>편집 1 그림책 정리 — 마음색 그림책 3회 메이커</title>
+<link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-3.svg">
+<link rel="apple-touch-icon" href="../shared/assets/apple-touch-icon.jpg">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="../shared/colorm.css">
+<style>
+.page-list{display:grid;gap:12px;margin-top:14px}
+.page-card{border:1px solid var(--line);border-radius:16px;padding:16px;background:#fff}
+.page-card.fixed{background:var(--tint2);border-style:dashed}
+.page-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.page-no{background:var(--m);color:#fff;font-weight:900;font-size:12px;padding:5px 11px;border-radius:999px;white-space:nowrap}
+.page-card.fixed .page-no{background:var(--muted)}
+.page-title{flex:1;min-width:160px;font-weight:800}
+.page-move{display:flex;gap:4px}
+.page-move button{width:34px;height:34px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;font-weight:900;color:var(--muted)}
+.page-move button:hover:not(:disabled){border-color:var(--m);color:var(--m)}
+.page-move button:disabled{opacity:.35;cursor:default}
+.memo-tag{margin:10px 0 0;padding:6px 10px;border-radius:8px;background:#fff8e6;border:1px solid #f0d9a0;color:#8a6400;font-size:12.5px;font-weight:700}
+.page-body{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.page-body label{margin:0;font-size:13.5px}
+.img-state{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.img-state>span{font-size:13px;font-weight:800;color:var(--muted);margin-right:4px}
+.pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
+.pill.on{border-color:var(--m);background:var(--soft);color:var(--m)}
+.pill.ok.on{border-color:#22a55e;background:#e9f9f0;color:#22a55e}
+.fix-box{margin-top:10px;padding:12px;border-radius:12px;background:var(--tint)}
+.fix-box[hidden]{display:none}
+.fix-chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px}
+.fix-prompt{white-space:pre-wrap;font-size:13px;line-height:1.6;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px}
+.sum-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.sum-row span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700}
+.book{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:10px}
+.book-page{aspect-ratio:1/1;border:1px solid var(--line);border-radius:12px;background:#fff;padding:14px;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.book-page small{font-weight:900;color:var(--m);font-size:11px}
+.book-page b{font-size:14px}
+.book-page p{margin:0;font-size:12.5px;line-height:1.55;white-space:pre-wrap;overflow:hidden}
+.book-page .st{margin-top:auto;font-size:11px;font-weight:800;color:var(--muted)}
+.book-page .st.ok{color:#22a55e}
+.book-page .st.fix{color:var(--m)}
+@media(max-width:640px){.page-body{grid-template-columns:1fr}}
+@media print{.book{grid-template-columns:repeat(2,1fr)}.book-page{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div id="cmHeader"></div>
+<header class="hero hero-sub">
+<p class="sub">지금까지 만든 장면을 <b>그림책 한 권</b>으로 모아요. 페이지 순서를 확인하고, 책에 실릴 글을 다듬고,<br>다시 그려야 할 그림은 <b>수정 요청문</b>으로 만들어요.</p>
+</header>
+
+<main class="wrap">
+<div class="note" id="emptyNote" hidden><b>아직 장면이 없어요.</b><br>2회 마무리 때 저장한 <b>작업파일(.json)</b>을 <a href="index.html">3회 처음 화면</a>이나 위쪽 메뉴의 <b>불러오기</b>로 열면 장면이 페이지로 들어와요. (장면은 1회 메이커의 03 스토리보드에서 만들어요)</div>
+
+<form id="editForm" onsubmit="return false">
+<section class="card">
+<div class="step"><span>STEP 01</span><h2>페이지 순서 확인하기</h2></div>
+<p class="help">표지 → 본문 장면 → 마지막 페이지(작가의 말·판권면) 순서예요. 본문 장면은 <b>↑ ↓</b> 버튼으로 순서를 바꿀 수 있어요. (표지와 마지막 페이지는 4회에 만들어요)</p>
+<div class="sum-row" id="sumRow"></div>
+<div class="page-list" id="pageList"></div>
+<div class="actions" style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn ghost" type="button" id="reloadBtn">↺ 스토리보드에서 다시 가져오기</button>
+</div>
+</section>
+
+<section class="card">
+<div class="step"><span>STEP 02</span><h2>글 다듬기 · 그림 확인하기</h2></div>
+<p class="help">위 페이지 카드에서 바로 고치면 돼요. 이렇게 확인해 보세요.</p>
+<ul class="help" style="margin:0;padding-left:20px;line-height:1.9">
+<li>소리 내어 읽었을 때 <b>자연스럽게</b> 이어지나요? 한 페이지 글은 <b>2~3문장</b>이 읽기 좋아요.</li>
+<li>그림을 보고 <b>완성 / 고칠 곳 있음 / 아직 안 만듦</b>을 골라요.</li>
+<li>「고칠 곳 있음」을 고르면 고칠 점을 골라 <b>수정 요청문</b>이 바로 만들어져요. 그림과 함께 AI에 넣어 주세요.</li>
+</ul>
+</section>
+
+<button class="btn primary big" type="button" id="confirmBtn">그림책 한 권으로 정리하기</button>
+</form>
+
+<section id="results" class="results hidden">
+<p class="eyebrow">RESULT</p>
+<h2>그림책 한 권이 정리되었어요!</h2>
+<div class="result-grid">
+<article class="result"><h3>① 그림책 미리보기</h3><div class="book" id="bookView"></div></article>
+<article class="result"><h3>② 최종 원고 (페이지 순서대로)</h3><div id="manuscript" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('manuscript')">복사하기</button></article>
+<article class="result"><h3>③ 그림 수정 요청문 모음</h3><div id="fixAll" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('fixAll')">복사하기</button></article>
+</div>
+
+<div class="download-actions">
+  <button class="btn primary" type="button" onclick="ColorM.saveAsPDF('results','그림책정리')">PDF 저장</button>
+  <button class="btn soft" type="button" onclick="downloadTXT()">TXT 저장</button>
+</div>
+
+<div class="note"><b>다음 단계</b><br>정리한 원고는 <b>편집 2 캔바 편집</b>에서 페이지마다 바로 복사해 쓸 수 있어요.</div>
+<div class="step-nav" id="cmStepNav"></div>
+</section>
+</main>
+
+<footer></footer>
+
+<script src="../shared/colorm.js"></script>
+<script src="../shared/mind.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const esc=ColorM.escapeHTML;
+const pad=n=>String(n).padStart(2,'0');
+ColorM.renderHeader('cmHeader','edit');
+ColorM.renderStepNav('cmStepNav','edit');
+
+const FIXES = [
+  {k:'face', t:'얼굴이 달라졌어요', p:()=>'주인공 얼굴(얼굴형·눈·헤어스타일)을 첨부한 기준 캐릭터 그림과 똑같이 맞춰줘.'},
+  {k:'cloth', t:'옷·색이 달라요', p:()=>'옷, 소품, 대표 색을 첨부한 기준 캐릭터 그림과 같게 바꿔줘.'},
+  {k:'body', t:'손·몸이 어색해요', p:()=>'손가락 개수와 팔다리 모양을 자연스럽게 고쳐줘.'},
+  {k:'text', t:'그림에 글자가 생겼어요', p:()=>'그림 안에 생긴 글자·문자·숫자를 모두 지워줘. (글은 나중에 따로 넣을 거야)'},
+  {k:'emotion', t:'표정·행동이 안 맞아요', p:s=>'이 장면의 표정과 행동에 맞게 고쳐줘' + (s.cast ? ': ' + s.cast.replace(/\n/g,' / ') : '.')},
+  {k:'bg', t:'배경이 이야기와 달라요', p:s=>'배경과 구도를 이 장면 설명에 맞게 고쳐줘' + (s.conti ? ': ' + s.conti.replace(/\n/g,' ') : '.')},
+  {k:'style', t:'화풍이 다른 장면과 달라요', p:()=>{ const a=(ColorM.getProject().character||{}).artStyle; return '다른 장면들과 같은 화풍·색감으로 맞춰줘' + (a ? ' (' + a + ')' : '') + '.'; }}
+];
+const STATES = [['ok','완성'],['fix','고칠 곳 있음'],['none','아직 안 만듦']];
+
+// 스토리보드 장면 → 편집용 페이지 (id는 스토리보드 장면 번호)
+function fromStoryboard(){
+  const sc = ((ColorM.getProject().storyboard||{}).scenes)||[];
+  return sc.map(function(s,i){
+    // 본문 글이 비어 있으면 「장면 설명」(02 줄거리에서 온 글)을 초안으로 가져와요. 2회 그림도 이 설명으로 만들어졌어요.
+    const memo = String(s.memo || '').trim(), body = String(s.content || '').trim();
+    return { id: s.no || i+1, title: s.title || ('장면 '+pad(i+1)), text: body || memo, fromMemo: !body && !!memo, dialogue: s.dialogue || '', cast: s.cast || '', conti: s.conti || '', state: '', fixes: [], fixNote: '' };
+  });
+}
+let pages = [];
+function load(){
+  const e = ColorM.getProject().edit || {};
+  pages = (Array.isArray(e.pages) && e.pages.length) ? e.pages : fromStoryboard();
+}
+function save(confirmed){
+  const prev = ColorM.getProject().edit || {};
+  ColorM.saveStep('edit', { pages: pages, confirmedAt: confirmed ? new Date().toISOString() : (prev.confirmedAt || null) });
+}
+
+function fixPrompt(pg, no){
+  const list = FIXES.filter(f=>pg.fixes.indexOf(f.k)>=0).map(f=>'- '+f.p(pg));
+  if((pg.fixNote||'').trim()) list.push('- '+pg.fixNote.trim());
+  if(!list.length) return '';
+  const lock = (ColorM.getProject().character||{}).lockLine;
+  return [
+    '[그림 수정 요청 · '+no+' 「'+pg.title+'」]',
+    '첨부한 그림을 바탕으로 아래 부분만 고쳐줘. 나머지 구도·배경·색감은 그대로 유지해줘.',
+    '', '고칠 점:'].concat(list).concat([
+    '', lock ? '캐릭터 유지: '+lock : '캐릭터 유지: 첨부한 기준 캐릭터 그림의 얼굴·헤어·옷·대표 색을 바꾸지 말아줘.',
+    '그림 안에는 글자를 넣지 말아줘.'
+  ]).join('\n');
+}
+
+function render(){
+  $('emptyNote').hidden = pages.length > 0;
+  $('editForm').hidden = !pages.length;
+  const cnt = {ok:0,fix:0,none:0};
+  pages.forEach(p=>{ if(cnt[p.state]!=null) cnt[p.state]++; });
+  $('sumRow').innerHTML = '<span>본문 '+pages.length+'장면</span><span>전체 '+(pages.length+2)+'페이지 (표지·마지막 페이지 포함)</span>'+
+    '<span style="color:#22a55e">완성 '+cnt.ok+'</span><span style="color:var(--m)">고칠 곳 '+cnt.fix+'</span>';
+  const fixed = (label, note)=>'<div class="page-card fixed"><div class="page-head"><span class="page-no">'+label+'</span><span class="page-title">'+note+'</span></div></div>';
+  $('pageList').innerHTML = fixed('표지','책 제목 · 표지 그림 — 4회에 만들어요') + pages.map(function(pg,i){
+    const no = '페이지 '+pad(i+1);
+    const fp = pg.state==='fix' ? fixPrompt(pg, no) : '';
+    return '<div class="page-card" data-i="'+i+'">'+
+      '<div class="page-head"><span class="page-no">'+no+'</span><span class="page-title">'+esc(pg.title)+(pg.id!==i+1?' <small class="help" style="margin:0">(스토리보드 장면 '+pad(pg.id)+')</small>':'')+'</span>'+
+      '<span class="page-move"><button type="button" data-act="up" aria-label="위로" '+(i===0?'disabled':'')+'>↑</button><button type="button" data-act="down" aria-label="아래로" '+(i===pages.length-1?'disabled':'')+'>↓</button></span></div>'+
+      (pg.fromMemo ? '<p class="memo-tag">✎ 1회 「장면 설명」에서 가져온 글이에요 · 책에 실릴 문장으로 다듬어 주세요</p>' : '')+
+      '<div class="page-body"><label>본문 글<textarea rows="4" data-f="text">'+esc(pg.text)+'</textarea></label>'+
+      '<label>대화 <small>(없으면 비워 둬요)</small><textarea rows="4" data-f="dialogue">'+esc(pg.dialogue)+'</textarea></label></div>'+
+      '<div class="img-state"><span>그림</span>'+STATES.map(s=>'<button type="button" class="pill '+s[0]+(pg.state===s[0]?' on':'')+'" data-state="'+s[0]+'">'+s[1]+'</button>').join('')+'</div>'+
+      '<div class="fix-box" '+(pg.state==='fix'?'':'hidden')+'><b style="font-size:13px">무엇을 고칠까요?</b>'+
+        '<div class="fix-chips">'+FIXES.map(f=>'<button type="button" class="pill'+(pg.fixes.indexOf(f.k)>=0?' on':'')+'" data-fix="'+f.k+'">'+f.t+'</button>').join('')+'</div>'+
+        '<input type="text" data-f="fixNote" placeholder="직접 쓰기 (예: 강아지를 조금 더 작게)" value="'+esc(pg.fixNote||'')+'">'+
+        (fp ? '<div class="fix-prompt">'+esc(fp)+'</div><button class="copy" type="button" data-act="copyfix">수정 요청문 복사</button>' : '<p class="help" style="margin:8px 0 0">고칠 점을 고르면 수정 요청문이 만들어져요.</p>')+
+      '</div></div>';
+  }).join('') + fixed('마지막','작가의 말 · 판권면 — 4회에 만들어요');
+}
+
+$('pageList').addEventListener('click', function(e){
+  const card = e.target.closest('.page-card[data-i]'); if(!card) return;
+  const i = +card.dataset.i, pg = pages[i], b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.act==='up' && i>0){ pages.splice(i-1,0,pages.splice(i,1)[0]); }
+  else if(b.dataset.act==='down' && i<pages.length-1){ pages.splice(i+1,0,pages.splice(i,1)[0]); }
+  else if(b.dataset.state){ pg.state = pg.state===b.dataset.state ? '' : b.dataset.state; }
+  else if(b.dataset.fix){ const k=b.dataset.fix, at=pg.fixes.indexOf(k); at>=0 ? pg.fixes.splice(at,1) : pg.fixes.push(k); }
+  else if(b.dataset.act==='copyfix'){ ColorM.copyText(fixPrompt(pg,'페이지 '+pad(i+1))); return; }
+  else return;
+  save(false); render();
+});
+// 글 입력은 다시 그리지 않고 저장만 (입력 중 커서가 튀지 않게). 직접 쓴 고칠 점은 칸을 벗어날 때 요청문을 새로 만들어요.
+$('pageList').addEventListener('input', function(e){
+  const card = e.target.closest('.page-card[data-i]'); if(!card || !e.target.dataset.f) return;
+  pages[+card.dataset.i][e.target.dataset.f] = e.target.value;
+  // 장면 설명에서 가져온 글을 고치기 시작하면 「다듬어 주세요」 표시를 내려요
+  if(e.target.dataset.f === 'text' && pages[+card.dataset.i].fromMemo){ pages[+card.dataset.i].fromMemo = false; const tag = card.querySelector('.memo-tag'); if(tag) tag.remove(); }
+  save(false);
+});
+$('pageList').addEventListener('change', function(e){ if(e.target.dataset.f==='fixNote') render(); });
+
+$('reloadBtn').addEventListener('click', function(){
+  if(!confirm('스토리보드의 장면 순서와 글로 다시 채워요. 여기서 고친 글·순서·그림 확인 표시는 지워져요. 계속할까요?')) return;
+  pages = fromStoryboard(); save(false); render(); $('results').classList.add('hidden');
+});
+
+function buildManuscript(){
+  const t = ColorM.getProject().bookTitle || '';
+  return (t ? '『'+t+'』\n\n' : '') + pages.map(function(pg,i){
+    return ['[페이지 '+pad(i+1)+'] '+pg.title, pg.text.trim() || '(본문 글 미작성)'].concat(pg.dialogue.trim() ? [pg.dialogue.trim()] : []).join('\n');
+  }).join('\n\n');
+}
+function buildFixAll(){
+  const all = pages.map((pg,i)=>pg.state==='fix' ? fixPrompt(pg,'페이지 '+pad(i+1)) : '').filter(Boolean);
+  return all.length ? all.join('\n\n────────\n\n') : '고칠 그림이 없어요. 모든 그림이 준비되었다면 캔바 편집으로 넘어가요!';
+}
+function showResults(scroll){
+  const stLabel = {ok:['ok','✓ 그림 완성'],fix:['fix','✎ 그림 고칠 곳 있음'],none:['','○ 그림 아직'],'':['','그림 확인 전']};
+  $('bookView').innerHTML = pages.map(function(pg,i){
+    const s = stLabel[pg.state||''];
+    return '<div class="book-page"><small>페이지 '+pad(i+1)+'</small><b>'+esc(pg.title)+'</b><p>'+esc((pg.text+(pg.dialogue?'\n'+pg.dialogue:'')).trim()||'(본문 글 미작성)')+'</p><span class="st '+s[0]+'">'+s[1]+'</span></div>';
+  }).join('');
+  $('manuscript').textContent = buildManuscript();
+  $('fixAll').textContent = buildFixAll();
+  $('results').classList.remove('hidden');
+  if(scroll) setTimeout(()=>$('results').scrollIntoView({behavior:'smooth',block:'start'}),50);
+}
+$('confirmBtn').addEventListener('click', function(){
+  const empty = pages.filter(p=>!p.text.trim()).length;
+  if(empty && !confirm('본문 글이 비어 있는 페이지가 '+empty+'개 있어요. 그래도 정리할까요?')) return;
+  save(true); showResults(true); ColorM.renderHeader('cmHeader','edit');
+});
+
+function downloadTXT(){
+  const p = ColorM.getProject();
+  ColorM.downloadTXT('COLOR.M_'+p.projectName+'_그림책정리.txt',
+    ['COLOR.M 마음색 그림책 교실 · 3회 편집 1 그림책 정리','================================','','[최종 원고]',buildManuscript(),'','[그림 수정 요청문]',buildFixAll()].join('\n'));
+}
+
+load(); render();
+if((ColorM.getProject().edit||{}).confirmedAt) ColorM.restoreSilently(function(){ showResults(false); });
+</script>
+</body>
+</html>

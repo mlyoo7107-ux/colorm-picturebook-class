@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko" data-session="1">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 이야기 — 마음색 그림책 1회 메이커</title>
+<link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-1.svg">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="../shared/colorm.css">
+<style>
+.prev-box{background:var(--tint);border:1px solid var(--ab);border-radius:14px;padding:14px 16px;font-size:13px;line-height:1.7;color:#5e575b;white-space:pre-wrap}
+.count-options{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.count-options button{border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px 18px;font-weight:800;cursor:pointer}
+.count-options button.on{background:var(--soft);border-color:var(--m);color:var(--m)}
+.scene-edit{margin-bottom:10px}
+.scene-edit b{display:block;color:var(--m);font-size:12px;margin-bottom:5px}
+.scene-edit textarea{width:100%}
+</style>
+</head>
+<body>
+<div id="cmHeader"></div>
+<header class="hero hero-sub">
+<p class="sub">기획을 바탕으로 이야기의 <b>줄거리 뼈대</b>를 잡아요. 책에 실릴 문장과 대화는 다음 단계(03)에서 ChatGPT에게 맡기거나 직접 쓸 수 있어요.</p>
+</header>
+
+<main class="wrap">
+<form id="storyForm">
+<section class="card">
+<div class="step"><span>STEP 01</span><h2>기획 내용</h2></div>
+<p class="help">01 기획에서 정한 내용을 <b>자동으로 불러왔어요.</b> 바뀐 게 있다면 아래 버튼으로 다시 불러오세요.</p>
+<div class="actions">
+<button class="btn ghost" type="button" onclick="refreshPlanPreview()">기획 내용 다시 불러오기</button>
+</div>
+<div id="planPreview" class="prev-box" style="margin-top:14px">아직 불러온 기획 정보가 없습니다. 01 기획을 먼저 만들어주세요.</div>
+<details class="paste-det"><summary>01 기획 없이 시작한다면 — 기획 내용을 직접 붙여넣기</summary>
+<label>기획 내용<textarea id="planPaste" rows="4" placeholder="기획서(주제·주인공·문제 등) 내용을 붙여넣어 주세요."></textarea></label></details>
+</section>
+
+<section class="card">
+<div class="step"><span>STEP 02</span><h2>이야기 길이</h2></div>
+<p class="help">그림책의 장면 수를 정해요. 전자책으로 출판하려면 <b>12장면</b>을 추천해요. (표지·판권면을 더하면 한 권 분량이 돼요)</p>
+<div class="count-options" id="countOptions">
+<button type="button" data-n="8">8장면</button>
+<button type="button" data-n="10">10장면</button>
+<button type="button" data-n="12" class="on">12장면 (추천)</button>
+<button type="button" data-n="custom" class="cm-hide">직접 설정</button>
+</div>
+<label id="customCountWrap" class="hidden">장면 수 직접 입력<input id="customCount" type="number" min="8" max="12" value="12"></label>
+</section>
+
+<section class="card cm-hide">
+<div class="step"><span>STEP 03</span><h2>이야기 스타일</h2></div>
+<p class="help">이야기 전체의 느낌을 정해보세요.</p>
+<label>스타일<select id="style">
+<option>대화 중심</option>
+<option>행동 중심</option>
+<option selected>감성 중심</option>
+<option>모험 중심</option>
+<option>균형 있게</option>
+</select></label>
+</section>
+
+<section class="card cm-hide">
+<div class="step"><span>STEP 04</span><h2>이야기 장치</h2></div>
+<p class="help">이야기를 더 특별하게 만들어줄 장치를 선택해보세요.</p>
+<label>이야기 장치<select id="device">
+<option selected>반복되는 행동 또는 문장</option>
+<option>반전 또는 새로운 발견</option>
+<option>처음과 끝 연결</option>
+<option>사용하지 않음</option>
+</select></label>
+</section>
+
+<div class="note" style="margin-bottom:12px"><b>줄거리를 만드는 두 가지 방법</b><br>① 아래 버튼으로 <b>줄거리 뼈대</b>를 바로 만들기 (빠르지만 문장이 단순해요) &nbsp;② <b>더 자연스러운 줄거리</b>는 버튼 아래 「ChatGPT로 줄거리 받기」를 이용하세요.<br><small>※ 여기서는 줄거리까지만 정해요. 책에 실릴 문장과 대화는 다음 단계 03에서 받아요.</small></div>
+<button class="btn primary big" type="submit">줄거리 뼈대 만들기</button>
+</form>
+
+<section id="results" class="results hidden">
+<p class="eyebrow">RESULT</p>
+<h2>줄거리 뼈대가 만들어졌어요!</h2>
+<p class="help">이야기가 어떤 순서로 흐르는지 잡아 둔 <b>뼈대</b>예요. 책에 실릴 문장은 03에서 ChatGPT에게 맡기거나 직접 써요. 마음에 들지 않는 부분은 아래에서 바로 고칠 수 있고, 수정 내용은 자동으로 저장돼요.</p>
+<div class="result-grid">
+<article class="result"><h3>① 제목 제안</h3><textarea id="titles" class="box" rows="3"></textarea><button class="copy" type="button" onclick="ColorM.copyBox('titles')">복사하기</button></article>
+<article class="result"><h3>② 전체 이야기 요약</h3><textarea id="summary" class="box" rows="6"></textarea><button class="copy" type="button" onclick="ColorM.copyBox('summary')">복사하기</button></article>
+<article class="result"><h3>③ 장면별 줄거리</h3><div id="scenesDraft"></div><button class="copy" type="button" onclick="copyScenesDraft()">복사하기</button></article>
+<article class="result cm-hide"><h3>④ 다음 단계 전달 정보</h3><textarea id="nextPrompt" class="box" rows="10"></textarea><button class="copy" type="button" onclick="ColorM.copyBox('nextPrompt')">복사하기</button></article>
+</div>
+
+<div class="download-actions">
+  <button class="btn primary" type="button" onclick="ColorM.saveAsPDF('results','스토리')">PDF 저장</button>
+  <button class="btn soft" type="button" onclick="downloadTXT()">TXT 저장</button>
+</div>
+
+<div class="note"><b>다음 단계</b><br>③번 결과는 다음 단계인 <b>03 스토리보드</b>에 자동으로 전달돼요. 03에서 장면마다 <b>본문 글과 대화</b>를 채우게 됩니다.</div>
+<div class="step-nav" id="cmStepNav"></div>
+</section>
+</main>
+
+<footer></footer>
+
+<script src="../shared/colorm.js"></script>
+<script src="../shared/presets.js"></script>
+<script src="../shared/mind.js"></script>
+<script src="../shared/recommend.js"></script>
+<script src="../shared/bridge.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+ColorM.renderHeader('cmHeader','story');
+ColorM.applyDrops(ColorMPresets.story);
+ColorMRecommend.mount('story');
+ColorM.renderStepNav('cmStepNav','story');
+
+let selectedCount = 12;
+
+document.getElementById('countOptions').addEventListener('click', function(e){
+  const btn = e.target.closest('button[data-n]');
+  if(!btn) return;
+  [...document.querySelectorAll('#countOptions button')].forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  if(btn.dataset.n === 'custom'){
+    $('customCountWrap').classList.remove('hidden');
+    selectedCount = parseInt($('customCount').value,10) || 10;
+  }else{
+    $('customCountWrap').classList.add('hidden');
+    selectedCount = parseInt(btn.dataset.n,10);
+  }
+});
+$('customCount').addEventListener('change', function(){
+  selectedCount = parseInt(this.value,10) || 10;
+});
+
+function refreshPlanPreview(){
+  const project = ColorM.getProject();
+  const plan = project.plan;
+  if(plan && plan.hero){
+    $('planPreview').textContent = plan.planSheet || ('주인공: '+plan.hero+'\n목표: '+plan.goal+'\n문제: '+plan.problem+'\n메시지: '+plan.message);
+  }else{
+    $('planPreview').textContent = '아직 불러온 기획 정보가 없습니다. 01 기획을 먼저 완료하거나, 아래 「직접 붙여넣기」에 기획 내용을 붙여넣어 주세요.';
+  }
+}
+refreshPlanPreview();
+
+
+function getPlanData(){
+  const project = ColorM.getProject();
+  if(project.plan && project.plan.hero) return project.plan;
+  const pasted = $('planPaste').value.trim();
+  if(pasted){
+    return {hero:'주인공',place:'이야기 속 장소',time:'어느 날',problem:'앞을 가로막는 문제',goal:'이루고 싶은 목표',message:'이야기가 전하는 메시지',planSheet:pasted,topic:'',genre:'',mood:'',audience:''};
+  }
+  return {hero:'주인공',place:'이야기 속 장소',time:'어느 날',problem:'앞을 가로막는 문제',goal:'이루고 싶은 목표',message:'이야기가 전하는 메시지',planSheet:'',topic:'',genre:'',mood:'',audience:''};
+}
+
+const MASTER_STAGES = [
+  d=>`${d.hero}${ColorM.josa(d.hero,['이','가'])} ${d.place}에서 이야기를 시작합니다. ${d.time||'어느 날'}의 풍경과 함께 주인공의 모습이 소개됩니다.`,
+  d=>`평범한 하루 속에서 ${d.hero}의 성격과 마음이 자연스럽게 드러납니다.`,
+  d=>`작은 사건을 계기로 ${d.hero}의 마음에 변화가 생기기 시작합니다.`,
+  d=>`마침내 이야기의 문제가 분명하게 드러납니다. (문제: ${d.problem})`,
+  d=>`${d.hero}${ColorM.josa(d.hero,['은','는'])} '${d.goal}'는 목표를 가지고 한 걸음을 내딛기로 결심합니다.`,
+  d=>`첫 번째 시도를 해보지만 뜻대로 되지 않아 ${d.hero}의 마음이 흔들립니다.`,
+  d=>`뜻밖의 존재를 만나거나 새로운 사실을 알게 되며 이야기가 새로운 국면을 맞습니다.`,
+  d=>`문제가 더 커지고, ${d.hero}${ColorM.josa(d.hero,['은','는'])} 지금까지와는 다른 어려움과 마주합니다.`,
+  d=>`작은 실마리 하나가 ${d.hero}의 마음을 흔듭니다 — '${d.message}'로 이어지는 단서입니다.`,
+  d=>`가장 큰 고비의 순간, ${d.hero}${ColorM.josa(d.hero,['은','는'])} 중요한 선택을 하게 됩니다.`,
+  d=>`그 선택 덕분에 문제가 서서히 풀려가고, ${d.hero}의 마음도 조금씩 편안해집니다.`,
+  d=>`이야기는 '${d.message}'라는 메시지를 전하며 ${d.place}에서 따뜻하게 마무리됩니다.`
+];
+
+function pickStageIndexes(n){
+  const total = MASTER_STAGES.length;
+  if(n<=1) return [total-1];
+  const idxs=[];
+  for(let i=0;i<n;i++){
+    idxs.push(Math.round(i*(total-1)/(n-1)));
+  }
+  return idxs;
+}
+
+function buildScenes(n, d, device){
+  const idxs = pickStageIndexes(n);
+  // 첫 장면에서는 주인공을 길게 소개하고, 이후에는 짧은 이름(예: 곰)으로 불러 같은 문구가 반복되지 않게 합니다.
+  const short = ColorM.heroName(d);
+  const dShort = Object.assign({}, d, {hero: (short && short !== '주인공') ? short : d.hero});
+  return idxs.map((stageIdx,i)=>{
+    let line = MASTER_STAGES[stageIdx](i===0 ? d : dShort);
+    if(device==='반복되는 행동 또는 문장' && (i===0 || i===n-1)){
+      line += ` (반복 문장 후보: "${d.message}")`;
+    }
+    if(device==='반전 또는 새로운 발견' && i===n-2){
+      line += ' (이 장면에서 예상 밖의 반전이나 발견이 드러나도록 구성해보세요.)';
+    }
+    if(device==='처음과 끝 연결' && i===n-1){
+      line += ' (첫 장면의 장소·이미지를 다시 등장시켜 이야기를 마무리해보세요.)';
+    }
+    return `장면 ${String(i+1).padStart(2,'0')}: ${line}`;
+  });
+}
+
+function buildTitles(d){
+  const base = (d.topic || d.message || '이야기').replace(/[.!?]$/,'').trim();
+  const place = (d.place || '').split(/[,，]/)[0].trim();
+  const msg = (d.message || '').replace(/[.!?]$/,'').trim();
+  const out = [];
+  const add = t => { t = String(t||'').trim(); if(t.length>=3 && t.length<=22 && out.indexOf(t)<0) out.push(t); };
+  add(base);
+  if(place && place.length<=10) add(place+'의 하루');
+  if(msg.length<=18) add(msg);
+  add(base+' 이야기');
+  add('마음에 번지는 '+base);
+  add('나의 '+base);
+  return out.slice(0,3);
+}
+function renderScenesEditable(scenes){
+  $('scenesDraft').innerHTML = scenes.map((line,i)=>{
+    const no = String(i+1).padStart(2,'0');
+    const clean = line.replace(/^장면\s*\d+\s*:\s*/,'');
+    return '<div class="scene-edit"><b>장면 '+no+'</b><textarea class="scene-line" data-idx="'+i+'" rows="2">'+ColorM.escapeHTML(clean)+'</textarea></div>';
+  }).join('');
+}
+
+function currentScenesArray(){
+  return [...document.querySelectorAll('.scene-line')].map((ta,i)=>`장면 ${String(i+1).padStart(2,'0')}: ${ta.value.trim()}`);
+}
+
+function buildNextPrompt(titles, summary, scenesText, style, device){
+  return [
+    '아래 이야기 초안을 바탕으로 그림책 스토리보드(장면별 인물·행동·구도)를 구체화해줘.',
+    `이야기 스타일은 ${style}, 이야기 장치는 ${device}${ColorM.josa(device,['을','를'])} 살려줘.`,
+    '각 장면마다 이야기 내용, 등장인물, 장소, 행동, 표정/감정, 화면 구도, 이미지 핵심 포인트를 정리해줘.',
+    '', '[제목 후보]', titles.join(' / '),
+    '', '[전체 이야기 요약]', summary,
+    '', '[장면별 이야기 초안]', scenesText
+  ].join('\n');
+}
+
+// 사용자가 결과를 직접 수정하면(제목/요약/장면별 초안) 다음 단계 전달 정보를 다시 조립하고 자동 저장합니다.
+let syncTimer = null;
+function scheduleSync(){ clearTimeout(syncTimer); syncTimer = setTimeout(syncAll, 400); }
+
+function syncAll(){
+  const titles = $('titles').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const summary = $('summary').value.trim();
+  const scenes = currentScenesArray();
+  const scenesText = scenes.join('\n\n');
+  const style = $('style').value, device = $('device').value;
+  const nextPrompt = buildNextPrompt(titles, summary, scenesText, style, device);
+  $('nextPrompt').value = nextPrompt;
+
+  ColorM.saveStep('story', {
+    sceneCount: scenes.length || selectedCount, style, device,
+    titles, summary, scenes, scenesText, nextPrompt
+  });
+}
+
+$('titles').addEventListener('input', scheduleSync);
+$('summary').addEventListener('input', scheduleSync);
+$('scenesDraft').addEventListener('input', function(e){
+  if(e.target.classList.contains('scene-line')) scheduleSync();
+});
+$('nextPrompt').addEventListener('input', function(){
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(function(){
+    const scenes = currentScenesArray();
+    ColorM.saveStep('story', {
+      sceneCount: scenes.length || selectedCount, style: $('style').value, device: $('device').value,
+      titles: $('titles').value.split('\n').map(s=>s.trim()).filter(Boolean),
+      summary: $('summary').value.trim(),
+      scenes, scenesText: scenes.join('\n\n'),
+      nextPrompt: $('nextPrompt').value
+    });
+  }, 400);
+});
+
+function copyScenesDraft(){
+  ColorM.copyText(currentScenesArray().join('\n\n'));
+}
+
+$('storyForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const d = getPlanData();
+  const style = $('style').value;
+  const device = $('device').value;
+  const n = selectedCount || 8;
+
+  const titles = buildTitles(d);
+  const summary = `${d.hero}${ColorM.josa(d.hero,['은','는'])} ${d.place}에서 '${d.problem}'라는 문제를 마주합니다. '${d.goal}'는 마음으로 여러 시도를 거듭하던 끝에, '${d.message}'라는 것을 깨닫게 됩니다. 이야기는 ${style} 스타일로 전개되며, 총 ${n}개의 장면으로 구성됩니다.`;
+  const scenes = buildScenes(n, d, device);
+  const scenesText = scenes.join('\n\n');
+  const nextPrompt = buildNextPrompt(titles, summary, scenesText, style, device);
+
+  $('titles').value = titles.join('\n');
+  $('summary').value = summary;
+  renderScenesEditable(scenes);
+  $('nextPrompt').value = nextPrompt;
+  $('results').classList.remove('hidden');
+
+  ColorM.saveStep('story', {
+    sceneCount:n, style, device,
+    titles, summary, scenes, scenesText, nextPrompt
+  });
+
+  setTimeout(()=>$('results').scrollIntoView({behavior:'smooth',block:'start'}),50);
+});
+
+function buildDownloadText(){
+  return ['COLOR.M 마음색 그림책 메이커 · 02 이야기','================================','',
+    '[제목 제안]', $('titles').value.trim(),'',
+    '[전체 이야기 요약]', $('summary').value.trim(),'',
+    '[장면별 이야기 초안]', currentScenesArray().join('\n\n'),'',
+    '[다음 단계 전달 정보]', $('nextPrompt').value.trim()
+  ].join('\n');
+}
+function downloadTXT(){
+  if($('results').classList.contains('hidden')){ alert('먼저 이야기를 만들어주세요.'); return; }
+  const project = ColorM.getProject();
+  ColorM.downloadTXT('COLOR.M_'+project.projectName+'_스토리.txt', buildDownloadText());
+}
+
+// ChatGPT 왕복 연결: 요청문 복사 → 답변 붙여넣기 → 제목·요약·장면별 이야기 자동 채우기
+ColorMBridge.mount({
+  kind: 'story',
+  anchor: $('results'),
+  title: '⭐ ChatGPT로 줄거리 받기',
+  lead: '위에서 정한 내용으로 요청문을 만들어 드려요. 바로 아래 「줄거리 뼈대 만들기」보다 더 자연스러운 줄거리를 받을 수 있어요. 채운 뒤에도 직접 고칠 수 있어요.',
+  getOpts: function(){
+    return { n: selectedCount || 8, style: $('style').value, device: $('device').value, plan: getPlanData() };
+  },
+  apply: function(r){
+    if(r.titles.length) $('titles').value = r.titles.join('\n');
+    if(r.summary) $('summary').value = r.summary;
+    if(r.scenes.length) renderScenesEditable(r.scenes.map(function(t,i){ return '장면 '+String(i+1).padStart(2,'0')+': '+t; }));
+    $('results').classList.remove('hidden');
+    syncAll();
+    setTimeout(function(){ $('results').scrollIntoView({behavior:'smooth',block:'start'}); }, 50);
+    // 답변이 중간에 끊겨 장면 수가 모자라면 알려줘요
+    const want = selectedCount || 12;
+    if(r.scenes.length && r.scenes.length < want){
+      return '⚠ 장면별 줄거리가 ' + r.scenes.length + '개뿐이에요 (' + want + '장면 중). ChatGPT 답변이 중간에 끊겼을 수 있어요. ChatGPT에 「장면 ' + (r.scenes.length + 1) + '부터 ' + want + '까지 이어서 써 줘」라고 보낸 뒤, 처음 답과 이어진 답을 모두 붙여넣고 다시 「줄거리 채우기」를 눌러 주세요.';
+    }
+    return '채웠어요. 아래 결과에서 제목·요약·장면별 줄거리를 확인하고 고쳐보세요.';
+  }
+});
+// 작성하던 내용 자동 저장/복원 + 이미 만든 이야기 결과 다시 보여주기
+const draft = ColorM.autoSaveForm('storyForm', 'story', {extra:{
+  collect: function(){ return {n: selectedCount, custom: $('customCount').value}; },
+  apply: function(v){
+    if(!v) return;
+    const preset = [8,10,12].indexOf(+v.n) >= 0;
+    const btn = document.querySelector('#countOptions button[data-n="'+(preset ? v.n : 'custom')+'"]');
+    if(btn) btn.click();
+    if(!preset && v.n){ $('customCount').value = v.n; $('customCount').dispatchEvent(new Event('change')); }
+  }
+}});
+(function(){
+  const st = ColorM.getProject().story || {};
+  if(!(st.scenes && st.scenes.length)) return;
+  $('titles').value = (st.titles || []).join('\n');
+  $('summary').value = st.summary || '';
+  renderScenesEditable(st.scenes);
+  $('nextPrompt').value = st.nextPrompt || '';
+  $('results').classList.remove('hidden');
+})();</script>
+</body>
+</html>
