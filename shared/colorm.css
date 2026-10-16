@@ -430,3 +430,9 @@ html[data-session="4"]{--bg:#f3effc}
 .session-save b{display:block;font-size:16px}
 .session-save small{display:block;margin-top:4px;color:var(--muted);font-size:13px;font-weight:600}
 @media print{.session-save{display:none!important}}
+/* 지난 시간에 빠진 학생용: 지난 회차 메이커 버튼 (각 버튼은 그 회차 색) */
+.prev-makers{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.prev-makers p{margin:0 0 8px;font-size:13.5px;color:var(--muted);line-height:1.6}
+.prev-makers p b{color:var(--ink)}
+.prev-btns{display:flex;gap:8px;flex-wrap:wrap}
+.prev-btns .btn{padding:8px 14px;font-size:13.5px;color:var(--m);border-color:var(--ab)}

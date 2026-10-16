@@ -330,9 +330,9 @@ const ColorM = (function () {
         '<button type="button" id="cmSaveBtn">저장</button>') +
         (curSession === 4 ? '<a href="' + base + 'maker-4/summary.html">전체 결과</a>' : '') +
         (!SESSION_NO ? '' : '<button type="button" id="cmNewBtn" class="menu-danger">처음부터 다시 만들기</button>') +
-        (!SESSION_NO ? '' : '<hr>') +
         // 메이커 처음 화면은 왼쪽 로고로 가요 (메뉴가 넘치지 않게 따로 두지 않음)
-        '<a href="https://colorm.net" target="_blank" rel="noopener">COLOR.M 홈페이지</a>' +
+        // 메이커 안에서는 메뉴가 넘치지 않게 빼요 (맨 아래 푸터에 colorm.net 링크가 있어요)
+        (SESSION_NO ? '' : '<a href="https://colorm.net" target="_blank" rel="noopener">COLOR.M 홈페이지</a>') +
         '<input type="file" id="cmLoadFile" accept=".json,application/json" hidden>' +
       '</div>' +
       '<button type="button" class="menu-toggle" id="cmMenuToggle" aria-haspopup="true" aria-expanded="false" aria-label="메뉴"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>' +

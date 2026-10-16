@@ -171,6 +171,14 @@ const ColorMSession = (function () {
       }).join('\n\n')).join('\n');
   }
 
+  // 지난 시간에 빠진 학생용: 지난 회차 메이커로 가는 버튼 (앞 회차로 가는 버튼은 두지 않아요)
+  function prevMakers(no) {
+    return '<div class="prev-makers"><p><b>지난 시간에 못 왔나요?</b> 지난 회차 메이커에서 먼저 만들고, 마무리 때 작업파일을 저장해 와요.</p><div class="prev-btns">' +
+      ColorM.SESSIONS.filter(function (se) { return se.no < no; }).map(function (se) {
+        return '<a class="btn ghost" data-s="' + se.no + '" href="../' + se.path + '/index.html">← ' + se.no + '회 메이커 · ' + esc(se.short) + '</a>';
+      }).join('') + '</div></div>';
+  }
+
   // 2~4회: 지난 회차 작업파일 불러오기 (메이커마다 저장이 따로라 이게 첫 단계예요)
   function loadCard(no, prevSteps, prevMissing) {
     if (no === 1) return '';
@@ -180,12 +188,14 @@ const ColorMSession = (function () {
       return '<div class="note load-ok"><b>✓ 지난 작업을 불러왔어요</b> — 「' + esc(name) + '」' +
         (prevMissing.length ? '<br>아직 비어 있는 단계: ' + prevMissing.map(function (s) { return s.session + '회 ' + s.num + ' ' + s.name; }).join(' · ') +
           ' (그 회차 메이커에서 마친 뒤 다시 저장한 파일이면 채워져요)' : '') +
-        ' <button type="button" class="btn ghost" data-act="load" style="margin-left:6px;padding:6px 12px;font-size:13px">다른 파일 불러오기</button></div>';
+        ' <button type="button" class="btn ghost" data-act="load" style="margin-left:6px;padding:6px 12px;font-size:13px">다른 파일 불러오기</button>' +
+        (prevMissing.length ? prevMakers(no) : '') + '</div>';
     }
     return '<section class="card load-card"><div class="step"><span>먼저 할 일</span><h2>' + (no - 1) + '회 작업파일 불러오기</h2></div>' +
       '<p class="help">메이커마다 저장이 따로라서, 지난 시간 마무리 때 저장한 <b>작업파일(.json)</b>을 불러와야 이야기·캐릭터 등이 이어져요. 파일 이름은 보통 <b>COLOR.M_프로젝트명_' + (no - 1) + '회.json</b>이에요.</p>' +
       '<button type="button" class="btn primary big" data-act="load">📂 작업파일 불러오기</button>' +
-      '<p class="help">작업파일이 없다면 선생님께 알려 주세요. 불러오지 않고 시작하면 지난 내용 없이 새로 만들게 돼요.</p></section>';
+      '<p class="help">작업파일이 없다면 선생님께 알려 주세요. 불러오지 않고 시작하면 지난 내용 없이 새로 만들게 돼요.</p>' +
+      prevMakers(no) + '</section>';
   }
 
   return { mount: mount, INFO: INFO };
