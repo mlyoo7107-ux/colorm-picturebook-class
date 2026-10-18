@@ -77,8 +77,39 @@ const ColorMShort = (function () {
     if (pl.goal) lines.push('원하는 것: ' + sentence(pl.goal, 60));
     if (pl.problem) lines.push('문제: ' + sentence(pl.problem, 60));
     if (pl.message) lines.push('전하고 싶은 말: ' + sentence(pl.message, 60));
-    lines.push('장면마다 아래 모양으로 써 줘.', '[장면 1]', '제목:', '본문: (2문장)', '대화: (1줄)');
+    // 맨 위 인물 설명은 03 캐릭터로, 장면마다 「그림:」 한 줄은 04 장면 그림 요청문으로 이어져요
+    lines.push(
+      '맨 위에 먼저 이렇게 써 줘.',
+      '제목:',
+      '주인공: 종류, 생김새, 옷, 대표 색, 이름 "○○"',
+      '다른 인물:',
+      '이름: 생김새',
+      '그다음 장면마다 이렇게 써 줘.',
+      '[장면 1]', '제목:', '본문: (2문장)', '대화: (1줄)', '그림: (누가 어디서 무엇을 하는지 한 줄)'
+    );
     return [{ label: '이야기 받기 (캔바 Magic Write · 글쓰기 AI)', text: lines.join('\n') }];
+  }
+  // 본문에서 그림으로 그릴 내용: 앞 두 문장까지 (첫 문장은 사연인 경우가 많아서)
+  function body(s, n) {
+    s = String(s || '').replace(/["“”'‘’「」『』]/g, '').replace(/\s+/g, ' ').trim();
+    if (!s) return '';
+    s = s.split(/(?<=[.!?。])\s+/).slice(0, 2).join(' ').replace(/[.!?。\s]+$/, '');
+    if (s.length > n) {
+      const cut = s.slice(0, n), k = cut.lastIndexOf(' ');
+      s = (k > n * 0.6 ? cut.slice(0, k) : cut).replace(/[,，\s]+$/, '') + '…';
+    }
+    return s;
+  }
+  // 장면 글에 이름이 나오는 다른 인물(03의 함께 나오는 캐릭터)의 모습도 같이 넣어요
+  function othersIn(p, text) {
+    const main = heroName(p);
+    return (Array.isArray(p.cast) ? p.cast : []).filter(function (c) {
+      const nm = String(c && c.name || '').trim();
+      return nm && nm !== main && text.indexOf(nm) >= 0;
+    }).slice(0, 2).map(function (c) {
+      const d = clip(String(c.desc || '').split(/와 |과 /)[0], 16);
+      return c.name.trim() + (d ? '(' + d + ')' : '');
+    });
   }
   function character(p) {
     const st = style(p), h = hero(p), nm = heroName(p);
@@ -90,12 +121,17 @@ const ColorMShort = (function () {
   function scene(p) {
     const st = style(p), h = hero(p), sc = scenesOf(p);
     if (!sc.length) return [];
+    const planPlace = String((p.plan || {}).place || '').trim();
     return sc.map(function (s, i) {
-      const act = sentence(s.memo || s.content || s.title, 45) || '이야기의 한 장면';
-      const place = clip(s.conti, 16);
+      // 그릴 모습: 「그림:」 줄(그림 구성 칸) → 없으면 본문 두 문장 → 장면 설명
+      // 그림 구성 칸이 기획 장소로 자동 채워진 것뿐이면 장면마다 같아져서 쓰지 않아요
+      const conti = String(s.conti || '').trim();
+      const ownConti = conti && conti !== planPlace;
+      const act = (ownConti ? sentence(conti, 70) : '') || body(s.content, 80) || sentence(s.memo || s.title, 60) || '이야기의 한 장면';
+      const others = othersIn(p, [s.content, s.dialogue, conti, s.cast].join(' '));
       return {
         label: '장면 ' + pad(s.no || i + 1) + (s.title && !/^장면\s*\d+$/.test(s.title) ? ' · ' + clip(s.title, 16) : ''),
-        text: st + ' 그림책 그림. 주인공 ' + h + '. 장면: ' + act + '.' + (place ? ' 장소: ' + place + '.' : '') + ' ' + tail(p)
+        text: st + ' 그림책 그림. 주인공 ' + h + '.' + (others.length ? ' 함께: ' + others.join(', ') + '.' : '') + ' 장면: ' + act + '. ' + tail(p)
       };
     });
   }
@@ -110,10 +146,17 @@ const ColorMShort = (function () {
   }
   const BUILD = { story: story, character: character, scene: scene, cover: cover };
   const HELP = {
-    story: '받은 답을 위 「ChatGPT로 책에 실릴 글 받기」의 붙여넣기 칸에 넣고 「장면 카드 채우기」를 눌러요.',
+    story: '받은 답을 위 「ChatGPT로 책에 실릴 글 받기」의 붙여넣기 칸에 넣고 「장면 카드 채우기」 → 맨 아래 「스토리보드 만들기」까지 눌러요. 그래야 03 캐릭터·04 그림책으로 이어져요.',
     character: '캔바에서 그림 만들기(Magic Media 등)에 넣어요. 마음에 드는 그림은 꼭 저장해 두세요.',
     scene: '장면마다 하나씩 캔바 그림 만들기에 넣어요. 스타일은 매번 같은 것으로 골라야 그림체가 맞아요.',
     cover: '캔바 디자인 맨 앞 페이지에 넣고, 제목·지은이는 글자로 얹어요.'
+  };
+  // 캔바에서 하는 순서 (메뉴 이름은 캔바 화면이 바뀌면 조금 다를 수 있어요)
+  const GUIDE = {
+    story: ['캔바 홈에서 「문서(Docs)」를 새로 만들어요', '「Magic Write」(글쓰기 AI)를 열어요', '아래 요청문을 그대로 쳐요(또는 붙여넣기)', '나온 글 전체를 복사해서 위 붙여넣기 칸에 넣어요'],
+    character: ['캔바 디자인을 열고 왼쪽 「앱」에서 「Magic Media」(이미지 만들기)를 열어요', '「이미지」에 아래 캐릭터 요청문을 쳐요', '스타일·비율을 고르고 「이미지 생성」을 눌러요', '마음에 드는 그림을 내려받아 두세요 (장면을 그릴 때 기준이 돼요)'],
+    scene: ['캔바 그림책 디자인에서 왼쪽 「앱」 → 「Magic Media」를 열어요', '장면 1 요청문을 쳐요 (주인공 설명은 매 장면 똑같이)', '스타일은 캐릭터를 만들 때와 같은 것, 비율은 책 크기와 같게', '「이미지 생성」 → 마음에 드는 그림을 그 장면 페이지에 넣고, 오른쪽 클릭 「배경으로 설정」', '02 이야기의 본문·대화를 텍스트로 넣어요', '장면 2부터 같은 방법으로 반복해요'],
+    cover: ['그림책 디자인의 맨 앞 페이지에서 「Magic Media」를 열어요', '아래 표지 요청문을 쳐요', '그림을 넣고 위쪽 여백에 제목·지은이를 글자로 얹어요']
   };
   const EMPTY = {
     story: '01 기획을 먼저 해 주세요.',
@@ -181,6 +224,7 @@ const ColorMShort = (function () {
       sec.innerHTML =
         '<div class="step"><span>⌨ 캔바용 · 따라 치기</span><h2>짧은 요청문</h2></div>' +
         '<p class="help">ChatGPT를 못 쓰거나 요청문을 보내기 어려울 때, 선생님 화면에 <b>크게 띄워</b> 보고 따라 쳐요. 순서: <b>화풍 → 주인공 → 장면 → 장소 → 분위기·색감 → 글자 없이</b></p>' +
+        '<details class="short-guide" open><summary>캔바에서 이렇게 해요</summary><ol>' + (GUIDE[kind] || []).map(function (g) { return '<li>' + esc(g) + '</li>'; }).join('') + '</ol><small>메뉴 이름은 캔바 화면에 따라 조금 다를 수 있어요.</small></details>' +
         (items.length
           ? '<ol class="short-list">' + items.map(function (it, k) {
               return '<li><b>' + esc(it.label) + '</b><div class="short-text">' + esc(it.text) + '</div>' +

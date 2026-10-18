@@ -186,7 +186,8 @@ const ColorMBridge = (function () {
     ['cast', '등장인물'],
     ['content', '내용|본문|서술'],
     ['dialogue', '대화|대사'],
-    ['conti', '그림\\s*콘티|콘티|구도']
+    // 「그림:」(특강 짧은 요청문으로 받은 답의 그릴 모습 한 줄)도 그림 구성으로 읽어요
+    ['conti', '그림\\s*콘티|콘티|구도|그림\\s*구성|그림']
   ];
 
   function stripMd(s) { return s.replace(/\*\*|__/g, '').replace(/^\s*(?:[-•·*]|\d+[.)])\s+/, ''); }
