@@ -32,7 +32,9 @@ const ColorM = (function () {
     { no: 3, name: '편집', short: '편집', path: 'maker-3' },
     { no: 4, name: '표지 · 출판', short: '출판', path: 'maker-4' },
     // 2시간 특강용 메이커 (4회 수업과 따로 쓰는 한 번에 끝나는 메이커 · 저장도 따로)
-    { no: 5, name: '2시간 특강', short: '특강', path: 'special', title: '마음색 그림책 특강', label: '특강', single: true }
+    { no: 5, name: '2시간 특강', short: '특강', path: 'special', title: '마음색 그림책 특강', label: '특강', single: true },
+    // 캔바 강의 전용 특강 (ChatGPT 없이 캔바 요청문만 · 저장도 따로 s6)
+    { no: 6, name: '캔바 특강', short: '캔바', path: 'canva', title: '마음색 그림책 특강 · 캔바', label: '캔바 특강', single: true }
   ];
   // 화면에 쓰는 회차 이름: 1회 ~ 4회, 특강
   function sessionLabel(no) {
@@ -57,7 +59,14 @@ const ColorM = (function () {
     { key: 'character', label: '03 CHARACTER', num: '03', name: '캐릭터', session: 5, path: 'special/03-character.html' },
     { key: 'scene', label: '04 BOOK', num: '04', name: '그림책', session: 5, path: 'special/04-book.html' },
     { key: 'cover', label: '05 COVER', num: '05', name: '표지', session: 5, path: 'special/05-cover.html' },
-    { key: 'author', label: '06 AUTHOR', num: '06', name: '작가의 말', session: 5, path: 'special/06-author.html' }
+    { key: 'author', label: '06 AUTHOR', num: '06', name: '작가의 말', session: 5, path: 'special/06-author.html' },
+    // 캔바 특강: 같은 단계 · 캔바용 화면
+    { key: 'plan', label: '01 PLAN', num: '01', name: '기획', session: 6, path: 'canva/01-plan.html' },
+    { key: 'storyboard', label: '02 STORY', num: '02', name: '이야기', session: 6, path: 'canva/02-story.html' },
+    { key: 'character', label: '03 CHARACTER', num: '03', name: '캐릭터', session: 6, path: 'canva/03-character.html' },
+    { key: 'scene', label: '04 BOOK', num: '04', name: '그림책', session: 6, path: 'canva/04-book.html' },
+    { key: 'cover', label: '05 COVER', num: '05', name: '표지', session: 6, path: 'canva/05-cover.html' },
+    { key: 'author', label: '06 AUTHOR', num: '06', name: '작가의 말', session: 6, path: 'canva/06-author.html' }
   ];
   // 같은 단계가 여러 메이커에 있을 수 있어서, 지금 열린 메이커의 단계를 먼저 찾아요
   function stepFor(key) {
@@ -468,7 +477,7 @@ const ColorM = (function () {
         return '<i style="background:' + (flow ? flow[i] : (m.color || '#E9E2DE')) + ';opacity:' + (flow || !m.color ? 1 : 0.35) + '"></i>';
       }).join('');
       const cur = sessionOf(activeKey);
-      const steps = '<li class="side-session">' + (cur === 5 ? '마음색 그림책 특강' : cur + '회 메이커') + '</li>' + STEPS.filter(function (s) { return s.session === cur; }).map(function (s) {
+      const steps = '<li class="side-session">' + (SESSIONS[cur - 1] && SESSIONS[cur - 1].single ? SESSIONS[cur - 1].title : cur + '회 메이커') + '</li>' + STEPS.filter(function (s) { return s.session === cur; }).map(function (s) {
         const on = s.key === activeKey;
         return '<li class="' + (st[s.key] ? 'done' : '') + (on ? ' on' : '') + '"><a href="' + base + s.path + '">' + (st[s.key] ? '✓ ' : '· ') + s.name + '</a></li>';
       }).join('');

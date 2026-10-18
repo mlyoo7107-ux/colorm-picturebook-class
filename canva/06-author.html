@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko" data-session="6" data-mode="canva">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 작가의 말 — 마음색 그림책 특강 · 캔바</title>
+<link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-6.svg">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="../shared/colorm.css?v=20261018f">
+</head>
+<body>
+<div id="cmHeader"></div>
+<header class="hero hero-sub">
+<p class="sub">그림책 <b>맨 마지막 페이지</b>에 넣을 <b>작가의 말</b>을 써요.<br>아래 질문에 한두 문장씩 답하면 초안을 만들어 드려요.</p>
+</header>
+
+<main class="wrap">
+<form id="authorForm" onsubmit="return false">
+<section class="card">
+<div class="step"><span>STEP 01</span><h2>떠올려 보기</h2></div>
+<p class="help">길게 쓰지 않아도 돼요. 떠오르는 대로 한두 문장이면 충분해요.</p>
+<label>왜 이 이야기를 만들었나요?<textarea id="q1" rows="2" placeholder="예: 새로운 곳 앞에서 망설이던 어릴 적 내 모습이 떠올랐어요."></textarea></label>
+<label>이야기를 만들면서 알게 된 내 마음이 있나요?<textarea id="q2" rows="2" placeholder="예: 두려운 마음도 한 걸음을 내딛게 하는 힘이 될 수 있다는 걸 알았어요."></textarea></label>
+<label>이 책을 읽는 사람에게 건네고 싶은 말은?<textarea id="q3" rows="2" placeholder="예: 두근거려도 괜찮아요. 한 걸음이면 충분해요."></textarea></label>
+<label>지은이 <small>(이름 또는 필명)</small><input id="authorName" placeholder="예: 유미란"></label>
+</section>
+
+<button class="btn primary big" type="button" id="makeBtn">작가의 말 만들기</button>
+</form>
+
+<section id="results" class="results hidden">
+<p class="eyebrow">RESULT</p>
+<h2>작가의 말이 완성되었어요!</h2>
+<div class="result-grid">
+<article class="result"><h3>작가의 말 <small style="font-weight:600;color:var(--muted)">(여기서 바로 고칠 수 있어요)</small></h3>
+<textarea id="authorText" class="box" rows="10"></textarea>
+<button class="copy" type="button" onclick="ColorM.copyBox('authorText')">복사하기</button></article>
+</div>
+<div class="actions" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+<button type="button" class="btn soft" id="polishBtn">AI로 다듬기 요청문 복사 (캔바 Magic Write)</button>
+</div>
+
+<div class="download-actions">
+  <button class="btn primary" type="button" onclick="ColorM.saveAsPDF('results','작가의말')">PDF 저장</button>
+  <button class="btn soft" type="button" onclick="downloadTXT()">TXT 저장</button>
+</div>
+
+<div class="note"><b>캔바에 넣기</b><br>① 캔바 디자인 <b>맨 뒤에 페이지를 하나 추가</b>해요. ② 「작가의 말」 제목과 위 글을 텍스트 상자로 넣어요. ③ 표지·본문·작가의 말까지 넘겨 보고, <b>공유 → 다운로드 → PDF</b>로 그림책을 저장해요.</div>
+<div class="step-nav" id="cmStepNav"></div>
+</section>
+</main>
+
+<footer></footer>
+
+<script src="../shared/colorm.js?v=20261018f"></script>
+<script src="../shared/mind.js?v=20261018f"></script>
+<script src="../shared/gallery.js?v=20261018f"></script>
+<script>
+const $=id=>document.getElementById(id);
+ColorM.renderHeader('cmHeader','author');
+ColorM.renderStepNav('cmStepNav','author');
+const v=id=>($(id).value||'').trim();
+// 문장 끝에 마침표가 없으면 붙여요
+const sentence=s=>{ s=String(s||'').trim(); return !s ? '' : (/[.!?。…~"”]$/.test(s) ? s : s+'.'); };
+
+function build(){
+  const m = (typeof ColorMMind !== 'undefined' && ColorMMind.hasColor && ColorMMind.hasColor()) ? ColorMMind.get() : null;
+  const title = ColorM.getProject().bookTitle || ((ColorM.getProject().cover||{}).title) || '';
+  const lines = [];
+  if(m) lines.push('내 마음의 색은 ' + (m.colorLabel || m.colorName) + '입니다.' + (title ? ' 그 색에서 『' + title + '』가 시작되었습니다.' : ''));
+  else if(title) lines.push('『' + title + '』를 만들며 내 마음을 들여다보았습니다.');
+  [v('q1'), v('q2'), v('q3')].map(sentence).filter(Boolean).forEach(s=>lines.push(s));
+  if(lines.length <= 1) lines.push('(위 질문에 답을 적으면 여기에 들어가요.)');
+  return lines.join('\n\n') + '\n\n— ' + (v('authorName') || '지은이');
+}
+function save(){
+  ColorM.saveStep('author', { q1:v('q1'), q2:v('q2'), q3:v('q3'), name:v('authorName'), text:$('authorText').value.trim() });
+}
+$('makeBtn').addEventListener('click', function(){
+  if(!v('q1') && !v('q2') && !v('q3')){ alert('질문 중 하나 이상에 답을 적어 주세요.'); $('q1').focus(); return; }
+  if($('authorText').value.trim() && !confirm('지금 고친 작가의 말이 새 초안으로 바뀌어요. 계속할까요?')) return;
+  $('authorText').value = build();
+  $('results').classList.remove('hidden');
+  save();
+  ColorM.renderHeader('cmHeader','author');
+  setTimeout(()=>$('results').scrollIntoView({behavior:'smooth',block:'start'}),50);
+});
+// 결과를 고치면 바로 저장
+let t=null;
+$('authorText').addEventListener('input', function(){ clearTimeout(t); t=setTimeout(save, 400); });
+$('polishBtn').addEventListener('click', function(){
+  const text = $('authorText').value.trim();
+  if(!text){ alert('먼저 작가의 말을 만들어 주세요.'); return; }
+  ColorM.copyText("아래는 내가 쓴 그림책 '작가의 말'이야. 내 표현과 내용은 그대로 살리고, 맞춤법과 어색한 문장만 자연스럽게 다듬어줘. 새로운 내용은 더하지 마.\n\n" + text);
+});
+function downloadTXT(){
+  if(!$('authorText').value.trim()){ alert('먼저 작가의 말을 만들어 주세요.'); return; }
+  ColorM.downloadTXT('COLOR.M_'+ColorM.getProject().projectName+'_작가의말.txt', 'COLOR.M 마음색 그림책 특강 · 06 작가의 말\n================================\n\n' + $('authorText').value.trim());
+}
+
+// 작성하던 답 자동 저장 · 이미 만든 작가의 말 다시 보여주기
+ColorM.autoSaveForm('authorForm', 'author');
+const saved = ColorM.getProject().author || {};
+if(saved.text){ $('authorText').value = saved.text; $('results').classList.remove('hidden'); }
+// 그림책 완성 → 갤러리에 작품 자랑하기 (원하는 사람만)
+ColorMGallery.mount($('cmStepNav'), 'before');
+</script>
+</body>
+</html>

@@ -47,7 +47,8 @@ const ColorMShort = (function () {
   function hero(p) {
     const c = p.character || {};
     const name = String(c.name || ColorM.heroName(p.plan || {}) || '주인공').trim();
-    const feats = [clip(String(c.appearance || '').split(/와 |과 /)[0], 14), clip(String(c.outfit || '').split(/와 |과 /)[0], 14)].filter(Boolean);
+    // 종류(예: 고양이)는 캔바 특강 03에서 적어요 — 그림 AI가 무엇을 그릴지 알게 맨 앞에
+    const feats = [clip(c.kind, 10), clip(String(c.appearance || '').split(/와 |과 /)[0], 14), clip(String(c.outfit || '').split(/와 |과 /)[0], 14)].filter(Boolean);
     if (!feats.length && (p.plan || {}).hero) feats.push(clip(p.plan.hero, 16));
     return name + (feats.length ? '(' + feats.join(', ') + ')' : '');
   }
@@ -187,6 +188,11 @@ const ColorMShort = (function () {
     scene: '캔바는 장면을 하나씩 만들면 캐릭터가 달라지기 쉬워요. 그래서 ①이나 ②로 <b>전체 장면을 한 번에</b> 만들고, 마음에 안 드는 장면만 아래 「장면 하나씩」으로 다시 만들어요.',
     cover: '캔바 디자인 맨 앞 페이지에 넣고, 제목·지은이는 글자로 얹어요.'
   };
+  // 캔바 특강에서 달라지는 안내
+  const HELP_CANVA = {
+    story: '캔바가 써 준 글 전체를 아래 「캔바에서 받은 글 붙여넣기」 칸에 넣고 「장면 카드 채우기」 → 맨 아래 「스토리보드 만들기」까지 눌러요. 그래야 03 캐릭터·04 그림책으로 이어져요.',
+    character: '캔바에서 그림 만들기(Magic Media 등)에 넣어요. 마음에 드는 캐릭터 그림과 캐릭터 시트는 꼭 내려받아 두세요. 04에서 전체 장면을 만들 때 함께 올려요.'
+  };
   // 캔바에서 하는 순서 (메뉴 이름은 캔바 화면이 바뀌면 조금 다를 수 있어요)
   const GUIDE = {
     story: ['캔바 홈에서 「문서(Docs)」를 새로 만들어요', '「Magic Write」(글쓰기 AI)를 열어요', '아래 요청문을 그대로 쳐요(또는 붙여넣기)', '나온 글 전체를 복사해서 위 붙여넣기 칸에 넣어요'],
@@ -249,11 +255,20 @@ const ColorMShort = (function () {
 
   // ---------- 카드 ----------
   function mount(anchor, kind, where) {
-    if (!anchor || !BUILD[kind]) return;
+    if ((!anchor && where !== 'end') || !BUILD[kind]) return;
+    const CANVA = document.documentElement.dataset.mode === 'canva';
+    // 캔바 특강: 이야기 요청문은 「받은 글 붙여넣기」 칸 바로 위에
+    if (CANVA && kind === 'story' && document.querySelector('.bridge-card')) { anchor = document.querySelector('.bridge-card'); where = 'before'; }
     const sec = document.createElement('section');
-    sec.className = 'card short-card';
-    if (where === 'after') anchor.parentNode.insertBefore(sec, anchor.nextSibling);
+    sec.className = 'card short-card' + (CANVA ? ' short-main' : '');
+    // 기존 흐름(ChatGPT)은 그대로 두고, 「만일에 대비」한 캔바용 요청문은 화면 맨 아래 접힌 상자로 둬요
+    if (where === 'end') (document.querySelector('main .wrap-main') || document.querySelector('main')).appendChild(sec);
+    else if (where === 'after') anchor.parentNode.insertBefore(sec, anchor.nextSibling);
     else anchor.parentNode.insertBefore(sec, anchor);
+    const WHAT = { story: '이야기 받기', character: '캐릭터 그림', scene: '전체 장면 한 번에', cover: '표지 그림' };
+    // 캔바 특강은 이게 주 요청문이라 펼쳐 두고, ChatGPT 특강에서는 맨 아래 접힌 대비용 상자로
+    sec.innerHTML = CANVA ? '<div class="short-body"></div>' : '<details class="short-wrap"><summary><span class="short-badge">대비용</span> ⌨ ChatGPT를 못 쓸 때 · 캔바용 요청문 (' + WHAT[kind] + ')<small>필요할 때 펼쳐요</small></summary><div class="short-body"></div></details>';
+    const bodyEl = sec.querySelector('.short-body');
     let items = [];
     function render() {
       if (sec.contains(document.activeElement) && document.activeElement.tagName !== 'BUTTON') return;
@@ -266,12 +281,12 @@ const ColorMShort = (function () {
       };
       const main = [], extra = [];
       items.forEach(function (it, k) { (it.extra ? extra : main).push(li(it, k)); });
-      sec.innerHTML =
-        '<div class="step"><span>⌨ 캔바용 · 따라 치기</span><h2>' + (kind === 'scene' ? '캔바에 전체 장면 한 번에' : '짧은 요청문') + '</h2></div>' +
-        '<p class="help">ChatGPT를 못 쓰거나 요청문을 보내기 어려울 때, 선생님 화면에 <b>크게 띄워</b> 보고 따라 쳐요. 순서: <b>화풍 → 주인공 → 장면 → 장소 → 분위기·색감 → 글자 없이</b></p>' +
+      bodyEl.innerHTML =
+        '<h2 class="short-title">' + (kind === 'scene' ? '캔바에 전체 장면 한 번에' : '캔바용 짧은 요청문') + '</h2>' +
+        '<p class="help">' + (CANVA ? '선생님 화면에 <b>크게 띄워</b> 보고 따라 치거나, 같은 컴퓨터라면 복사해서 캔바에 넣어요.' : 'ChatGPT를 못 쓰거나 요청문을 보내기 어려울 때, 선생님 화면에 <b>크게 띄워</b> 보고 따라 쳐요.') + ' 순서: <b>화풍 → 주인공 → 장면 → 장소 → 분위기·색감 → 글자 없이</b></p>' +
         '<details class="short-guide" open><summary>캔바에서 이렇게 해요</summary><ol>' + (GUIDE[kind] || []).map(function (g) { return '<li>' + esc(g) + '</li>'; }).join('') + '</ol><small>메뉴 이름은 캔바 화면에 따라 조금 다를 수 있어요.</small></details>' +
         (items.length
-          ? '<p class="help">' + HELP[kind] + '</p>' +
+          ? '<p class="help">' + ((CANVA && HELP_CANVA[kind]) || HELP[kind]) + '</p>' +
             '<ol class="short-list">' + main.join('') + '</ol>' +
             (extra.length ? '<details class="short-more"><summary>장면 하나씩 다시 만들 때 (마음에 안 드는 장면만)</summary><ol class="short-list">' + extra.join('') + '</ol></details>' : '')
           : '<p class="help"><b>' + esc(EMPTY[kind] || '') + '</b></p>');

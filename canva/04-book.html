@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko" data-session="6" data-mode="canva">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 그림책 — 마음색 그림책 특강 · 캔바</title>
+<link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-6.svg">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="../shared/colorm.css?v=20261018f">
+</head>
+<body>
+<div id="cmHeader"></div>
+<header class="hero hero-sub">
+<p class="sub">캔바는 장면을 하나씩 만들면 캐릭터가 달라지기 쉬워요.<br><b>이야기 전체를 한 번에</b> 넣어 모든 장면을 같이 만들어요.</p>
+</header>
+
+<main class="wrap">
+<div id="shortAnchor"></div>
+
+<section class="card" id="doneCard">
+<div class="step"><span>마무리</span><h2>캔바에서 만들었나요?</h2></div>
+<label>캔바 디자인 링크 <small>(선택 · 공유 → 링크 복사)</small><input id="canvaLink" type="url" placeholder="https://www.canva.com/design/..."></label>
+<div class="actions" style="margin-top:14px"><button type="button" class="btn primary big" id="doneBtn">캔바에서 그림책 장면을 다 만들었어요 ✓</button></div>
+<p class="help" id="doneMsg"></p>
+</section>
+
+<div class="step-nav" id="cmStepNav"></div>
+</main>
+
+<footer></footer>
+
+<script src="../shared/colorm.js?v=20261018f"></script>
+<script src="../shared/mind.js?v=20261018f"></script>
+<script src="../shared/short.js?v=20261018f"></script>
+<script>
+const $=id=>document.getElementById(id);
+ColorM.renderHeader('cmHeader','scene');
+ColorM.renderStepNav('cmStepNav','scene');
+
+ColorMShort.mount($('shortAnchor'), 'scene', 'before');
+
+// 다 만들었다고 표시하면 04가 완료(✓)되고, 캔바 링크는 나중에 다시 열 수 있게 저장해요
+const p0 = ColorM.getProject();
+$('canvaLink').value = (p0.canva||{}).link || '';
+$('canvaLink').addEventListener('input', function(){ const p=ColorM.getProject(); ColorM.saveStep('canva', Object.assign({}, p.canva, {link:this.value.trim()})); });
+function showDone(){
+  const st = ColorM.stepStatus();
+  $('doneMsg').textContent = st.scene ? '✓ 표시했어요. 다음은 05 표지예요.' : '';
+}
+$('doneBtn').addEventListener('click', function(){
+  const p = ColorM.getProject();
+  const sc = ((p.storyboard||{}).scenes)||[];
+  if(!sc.length){ alert('02 이야기에서 장면을 먼저 만들어 주세요.'); return; }
+  ColorM.saveStep('scenes', sc.map(s=>({no:s.no, madeInCanva:true})));
+  ColorM.renderHeader('cmHeader','scene');
+  showDone();
+});
+showDone();
+</script>
+</body>
+</html>

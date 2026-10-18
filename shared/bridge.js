@@ -392,6 +392,16 @@ const ColorMBridge = (function () {
     const T = Object.assign({}, KIND_TEXT[opts.kind] || KIND_TEXT.storyboard, opts.note ? { note: opts.note } : {});
     const sec = document.createElement('section');
     sec.className = 'card bridge-card';
+    // 캔바 특강(html data-mode="canva"): ChatGPT 안내 없이, 캔바에서 받은 글을 붙여넣는 칸만 둬요 (요청문은 위 캔바 카드에)
+    if (document.documentElement.dataset.mode === 'canva') {
+      sec.innerHTML =
+        '<div class="step"><span>캔바 · 받은 글</span><h2>캔바에서 받은 글 붙여넣기</h2></div>' +
+        '<p class="help">위 요청문으로 캔바 <b>Magic Write</b>에서 받은 글 <b>전체</b>(맨 위 제목·주인공·다른 인물까지)를 복사해 아래 칸에 붙여넣고 「' + T.fill + '」를 눌러요.</p>' +
+        '<label>' + T.paste + '<textarea class="bridge-paste" rows="8" placeholder="캔바가 써 준 글 전체를 그대로 붙여넣어 주세요."></textarea></label>' +
+        '<div class="actions" style="margin-top:12px"><button type="button" class="btn primary" data-act="fill">' + T.fill + '</button></div>' +
+        '<p class="help bridge-status" style="margin:10px 0 0"></p>' +
+        '<pre class="bridge-preview hidden"></pre>';
+    } else
     sec.innerHTML =
       '<div class="step"><span>' + T.tag + '</span><h2>' + ColorM.escapeHTML(opts.title) + '</h2></div>' +
       '<p class="help">' + opts.lead + '</p>' +
@@ -436,7 +446,8 @@ const ColorMBridge = (function () {
     };
 
     sec.addEventListener('click', function (e) {
-      const mb = e.target.closest('[data-mode]');
+      // html의 data-mode(캔바 특강 표시)와 헷갈리지 않게 이 카드 안의 전환 버튼만 찾아요
+      const mb = e.target.closest('button[data-mode]');
       if (mb) {
         mode = mb.dataset.mode;
         [].slice.call(sec.querySelectorAll('[data-mode]')).forEach(function (b) { b.classList.toggle('on', b === mb); });

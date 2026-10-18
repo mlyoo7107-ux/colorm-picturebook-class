@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-5.svg">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="../shared/colorm.css?v=20261018d">
+<link rel="stylesheet" href="../shared/colorm.css?v=20261018f">
 <style>
 .prev-box{background:var(--tint);border:1px solid var(--ab);border-radius:14px;padding:14px 16px;font-size:13px;line-height:1.7;color:#5e575b;white-space:pre-wrap}
 .count-options{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
@@ -23,7 +23,7 @@
 <body>
 <div id="cmHeader"></div>
 <header class="hero hero-sub">
-<p class="sub">캔바는 장면을 하나씩 만들면 캐릭터가 달라지기 쉬워요.<br>아래 <b>「캔바에 전체 장면 한 번에」</b> 요청문으로 이야기 전체를 넣어 모든 장면을 한 번에 만들어요.</p>
+<p class="sub">스토리보드와 캐릭터를 바탕으로 <b>장면 그림 요청문</b>을 만들어요. 아래 <b>「모든 장면 한 번에 만들기」</b>를 누르면 모든 장면 요청문이 한 번에 나와요.<br>캔바를 쓴다면 맨 위 카드로 책 전체를 한 번에 넣을 수도 있어요.</p>
 </header>
 
 <main class="wrap">
@@ -122,12 +122,12 @@
 
 <footer></footer>
 
-<script src="../shared/colorm.js?v=20261018d"></script>
-<script src="../shared/presets.js?v=20261018d"></script>
-<script src="../shared/mind.js?v=20261018d"></script>
-<script src="../shared/recommend.js?v=20261018d"></script>
-<script src="../shared/kr-en-prompt.js?v=20261018d"></script>
-<script src="../shared/canva.js?v=20261018d"></script>
+<script src="../shared/colorm.js?v=20261018f"></script>
+<script src="../shared/presets.js?v=20261018f"></script>
+<script src="../shared/mind.js?v=20261018f"></script>
+<script src="../shared/recommend.js?v=20261018f"></script>
+<script src="../shared/kr-en-prompt.js?v=20261018f"></script>
+<script src="../shared/canva.js?v=20261018f"></script>
 <script>
 const $=id=>document.getElementById(id);
 const SCENE_LOCK_LINE = '첨부한 기준 캐릭터의 얼굴, 헤어, 의상, 소품, 신체 비율, 대표 색상은 변경하지 말고 유지해주세요.';
@@ -386,10 +386,10 @@ ColorM.restoreSilently(function(){
   const sc = (ColorM.getProject().scenes || [])[selectedIdx];
   if(draft.restored && sc && sc.scenePrompt) $('sceneForm').dispatchEvent(new Event('submit', {cancelable:true, bubbles:true}));
 });</script>
-<script src="../shared/short.js?v=20261018d"></script>
+<script src="../shared/short.js?v=20261018f"></script>
 <script>
-// 캔바용 짧은 요청문 + 크게 보기 (ChatGPT를 못 쓰거나 요청문을 보내기 어려운 교실용)
-ColorMShort.mount(document.querySelector('.canva-card') || document.querySelector('main section'), 'scene', 'before');
+// 만일에 대비: ChatGPT를 못 쓰거나 요청문을 보내기 어려운 교실용 캔바 요청문 (맨 아래 접힌 상자)
+ColorMShort.mount(null, 'scene', 'end');
 </script>
 </body>
 </html>

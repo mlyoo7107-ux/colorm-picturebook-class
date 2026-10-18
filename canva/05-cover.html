@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko" data-session="6" data-mode="canva">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 표지 — 마음색 그림책 특강 · 캔바</title>
+<link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-6.svg">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="../shared/colorm.css?v=20261018f">
+</head>
+<body>
+<div id="cmHeader"></div>
+<header class="hero hero-sub">
+<p class="sub">책 제목을 정하고 캔바에 넣을 <b>표지 그림 요청문</b>을 만들어요.<br>그림을 만든 뒤 제목·지은이는 캔바에서 글자로 얹어요.</p>
+</header>
+
+<main class="wrap">
+<form id="coverForm" onsubmit="return false">
+<section class="card">
+<div class="step"><span>STEP 01</span><h2>제목과 표지 장면</h2></div>
+<label>책 제목<input id="cvTitle" placeholder="예: 새벽을 기다리는 호기"></label>
+<label>표지에 그릴 장면<textarea id="cvScene" rows="2" placeholder="예: 호기와 별이가 햇살 비치는 꽃밭 앞에 나란히 서 있는 모습"></textarea></label>
+<p class="help">이야기에서 가장 마음에 남는 순간이나, 주인공이 잘 보이는 모습이 좋아요.</p>
+</section>
+</form>
+
+<div id="shortAnchor"></div>
+<div class="step-nav" id="cmStepNav"></div>
+</main>
+
+<footer></footer>
+
+<script src="../shared/colorm.js?v=20261018f"></script>
+<script src="../shared/mind.js?v=20261018f"></script>
+<script src="../shared/short.js?v=20261018f"></script>
+<script>
+const $=id=>document.getElementById(id);
+ColorM.renderHeader('cmHeader','cover');
+ColorM.renderStepNav('cmStepNav','cover');
+const v=id=>($(id).value||'').trim();
+
+// 처음 열면: 저장한 표지 → 없으면 02에서 받은 이야기 제목으로
+const p0=ColorM.getProject(), cv0=p0.cover||{};
+$('cvTitle').value = cv0.title || p0.bookTitle || ((p0.story||{}).titles||[])[0] || '';
+$('cvScene').value = cv0.sceneDesc || '';
+function save(){
+  const p=ColorM.getProject();
+  ColorM.saveStep('cover', Object.assign({}, p.cover, {title: v('cvTitle'), sceneDesc: v('cvScene')}));
+  if(v('cvTitle')) ColorM.setBookTitle(v('cvTitle'));
+  document.dispatchEvent(new Event('change'));
+}
+let t=null;
+$('coverForm').addEventListener('input', ()=>{ clearTimeout(t); t=setTimeout(save,400); });
+if(v('cvTitle') && !cv0.title) save();
+
+ColorMShort.mount($('shortAnchor'), 'cover', 'before');
+</script>
+</body>
+</html>

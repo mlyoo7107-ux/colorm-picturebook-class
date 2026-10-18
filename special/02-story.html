@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-5.svg">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="../shared/colorm.css?v=20261018d">
+<link rel="stylesheet" href="../shared/colorm.css?v=20261018f">
 <style>
 .prev-box{background:var(--tint);border:1px solid var(--ab);border-radius:14px;padding:14px 16px;font-size:13px;line-height:1.7;color:#5e575b;white-space:pre-wrap}
 .scene-card{border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:14px;background:#fffdfb}
@@ -66,11 +66,11 @@
 
 <footer></footer>
 
-<script src="../shared/colorm.js?v=20261018d"></script>
-<script src="../shared/presets.js?v=20261018d"></script>
-<script src="../shared/mind.js?v=20261018d"></script>
-<script src="../shared/recommend.js?v=20261018d"></script>
-<script src="../shared/bridge.js?v=20261018d"></script>
+<script src="../shared/colorm.js?v=20261018f"></script>
+<script src="../shared/presets.js?v=20261018f"></script>
+<script src="../shared/mind.js?v=20261018f"></script>
+<script src="../shared/recommend.js?v=20261018f"></script>
+<script src="../shared/bridge.js?v=20261018f"></script>
 <script>
 const $=id=>document.getElementById(id);
 ColorM.renderHeader('cmHeader','storyboard');
@@ -313,7 +313,7 @@ ColorMBridge.mount({
       lastCutScene = looksCut ? last.no : 0;
       const ask = '앞의 답변이 중간에 끊겼어. [장면 ' + from + ']부터 [장면 ' + total + ']까지 앞에서 정한 [출력 형식] 그대로 이어서 써 줘. 앞 장면과 인물·말투는 그대로 이어 가 줘.';
       ColorM.copyText(ask);
-      msg = '⚠ 답변이 ' + (looksCut ? '장면 ' + last.no + '에서 중간에 끊겼어요.' : '장면 ' + empty.join(', ') + ' 카드가 비어 있어요.') +
+      msg = '⚠ ' + (looksCut ? '답변이 장면 ' + last.no + '에서 중간에 끊겼어요.' : '장면 ' + empty.join(', ') + ' 카드가 아직 비어 있어요.') +
         ' 「장면 ' + from + '부터 이어서 써 줘」 요청문을 복사해 뒀어요. ChatGPT 같은 대화창에 붙여넣고, 받은 답을 위 칸에 다시 붙여넣은 뒤 「장면 카드 채우기」를 누르면 장면 ' + from + '~' + total + ' 카드가 채워져요.';
     }else{
       lastCutScene = 0;
@@ -339,10 +339,10 @@ ColorM.restoreSilently(function(){
   const sb = ColorM.getProject().storyboard || {};
   if(draft.restored && sb.scenes && sb.scenes.length) $('boardForm').dispatchEvent(new Event('submit', {cancelable:true, bubbles:true}));
 });</script>
-<script src="../shared/short.js?v=20261018d"></script>
+<script src="../shared/short.js?v=20261018f"></script>
 <script>
-// 캔바용 짧은 요청문 + 크게 보기 (ChatGPT를 못 쓰거나 요청문을 보내기 어려운 교실용)
-ColorMShort.mount(document.getElementById('boardForm'), 'story', 'before');
+// 만일에 대비: ChatGPT를 못 쓰거나 요청문을 보내기 어려운 교실용 캔바 요청문 (맨 아래 접힌 상자)
+ColorMShort.mount(null, 'story', 'end');
 </script>
 </body>
 </html>

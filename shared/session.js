@@ -62,6 +62,20 @@ const ColorMSession = (function () {
       },
       wrap: ['캔바에 표지 · 본문 · 작가의 말 페이지를 넣었어요', '그림책을 PDF로 내려받았어요', '작업파일(.json)을 저장했어요'],
       next: ''
+    },
+    6: {
+      goal: 'ChatGPT 없이 캔바만으로, 마음색에서 출발해 5~6장면 그림책 한 권을 만들어요. 요청문은 선생님 화면을 보고 따라 쳐도 돼요.',
+      bring: ['캔바 계정 (학교·교육용 계정이면 AI 기능이 켜져 있는지 미리 확인)', '만든 그림을 모아 둘 폴더'],
+      steps: {
+        plan: '마음색을 고르고, 주인공·원하는 것·문제·전하고 싶은 말을 정해요. (15분)',
+        storyboard: '장면 수(5·6)를 고르고, 캔바 Magic Write로 책에 실릴 글을 받아 붙여넣어요. (25분)',
+        character: '주인공 모습을 정하고, 캔바로 캐릭터 그림과 캐릭터 시트를 만들어요. (20분)',
+        scene: '이야기 전체를 한 번에 넣어 캔바로 모든 장면을 만들어요. (40분)',
+        cover: '책 제목을 정하고 캔바로 표지 그림을 만들어요. (10분)',
+        author: '책 맨 뒤에 넣을 작가의 말을 써요. (10분)'
+      },
+      wrap: ['캔바에 표지 · 본문 · 작가의 말 페이지를 넣었어요', '그림책을 PDF로 내려받았어요', '작업파일(.json)을 저장했어요'],
+      next: ''
     }
   };
 
@@ -83,7 +97,7 @@ const ColorMSession = (function () {
 
     document.title = se.title || (se.name + ' — 마음색 그림책 ' + no + '회 메이커');
     root.innerHTML =
-      '<header class="hero">' + (single ? '' : '<p class="eyebrow">' + no + '회차 메이커</p>') + '<h1><b>' + esc(single ? '마음색 그림책 특강' : se.name) + '</b></h1><p class="sub">' + esc(info.goal) + '</p></header>' +
+      '<header class="hero">' + (single ? '' : '<p class="eyebrow">' + no + '회차 메이커</p>') + '<h1><b>' + esc(single ? se.title : se.name) + '</b></h1><p class="sub">' + esc(info.goal) + '</p></header>' +
       loadCard(no, prevSteps, prevMissing) +
       '<section class="card"><div class="step"><span>오늘 할 일</span><h2>' + steps.length + '단계로 진행해요</h2></div>' +
         '<nav class="makers">' + steps.map(function (s) {

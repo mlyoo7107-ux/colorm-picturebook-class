@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko" data-session="6" data-mode="canva">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 캐릭터 — 마음색 그림책 특강 · 캔바</title>
+<link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-6.svg">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="../shared/colorm.css?v=20261018f">
+<style>
+.cast-mini{display:grid;grid-template-columns:140px 1fr;gap:8px;margin-top:8px}
+.cast-mini input{margin:0}
+@media(max-width:640px){.cast-mini{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="cmHeader"></div>
+<header class="hero hero-sub">
+<p class="sub">주인공의 모습을 정하면 캔바에 넣을 <b>캐릭터 그림 요청문</b>과 <b>캐릭터 시트 요청문</b>이 만들어져요.<br>02에서 캔바로 받은 이야기의 주인공·다른 인물이 미리 채워져 있어요.</p>
+</header>
+
+<main class="wrap">
+<form id="charForm" onsubmit="return false">
+<section class="card">
+<div class="step"><span>STEP 01</span><h2>주인공</h2></div>
+<div class="grid">
+<label>이름<input id="cName" placeholder="예: 호기"></label>
+<label>종류 <small>(예: 고양이, 토끼, 여자아이)</small><input id="cKind" placeholder="예: 고양이"></label>
+</div>
+<label>생김새<input id="cLook" placeholder="예: 크고 쫑긋한 귀, 복슬복슬한 회색 털"></label>
+<label>옷·소품<input id="cOutfit" placeholder="예: 빨간 털모자와 목도리"></label>
+<label>화풍 <small>(책 전체가 이 그림체로 통일돼요)</small><select id="cStyle">
+<option>부드러운 파스텔 톤의 수채화 그림책 스타일</option>
+<option>따뜻한 선과 포근한 색감의 동화책 일러스트 스타일</option>
+<option>선명한 색감의 디지털 일러스트 스타일</option>
+<option>손그림 느낌의 색연필 스타일</option>
+<option>귀여운 플랫 벡터 스타일</option>
+<option>따뜻한 톤의 동화책 유화 스타일</option>
+</select></label>
+</section>
+
+<section class="card">
+<div class="step"><span>선택</span><h2>함께 나오는 인물</h2></div>
+<p class="help">이야기에 함께 나오는 인물이 있으면 이름과 모습을 적어요. 전체 장면을 만들 때 모습이 같게 유지돼요.</p>
+<div class="cast-mini"><input class="castName" data-i="0" placeholder="이름 (예: 별이)"><input class="castDesc" data-i="0" placeholder="모습 (예: 한쪽 다리가 없는 노란 고양이)"></div>
+<div class="cast-mini"><input class="castName" data-i="1" placeholder="이름"><input class="castDesc" data-i="1" placeholder="모습"></div>
+</section>
+</form>
+
+<div id="shortAnchor"></div>
+<div class="step-nav" id="cmStepNav"></div>
+</main>
+
+<footer></footer>
+
+<script src="../shared/colorm.js?v=20261018f"></script>
+<script src="../shared/mind.js?v=20261018f"></script>
+<script src="../shared/short.js?v=20261018f"></script>
+<script>
+const $=id=>document.getElementById(id);
+ColorM.renderHeader('cmHeader','character');
+ColorM.renderStepNav('cmStepNav','character');
+const v=id=>($(id).value||'').trim();
+
+// 처음 열면: 저장한 캐릭터 → 없으면 02에서 받은 이야기의 주인공(heroDraft)으로 채워요
+function fill(){
+  const p=ColorM.getProject(), c=p.character||{}, hd=p.heroDraft||{};
+  const kindFromDraft=String(hd.raw||'').split(/\s*[,，]\s*/).length>=4 ? String(hd.raw).split(/\s*[,，]\s*/)[0] : '';
+  $('cName').value = c.name || hd.name || '';
+  $('cKind').value = c.kind || kindFromDraft || '';
+  $('cLook').value = c.appearance || hd.appearance || '';
+  // 주인공 줄 끝의 「이름 "○○"」은 이름 칸에 이미 들어가니 옷 칸에서는 빼요
+  const noName = s => String(s||'').replace(/[,，]?\s*이름\s*["“'‘][^"”'’]*["”'’]/g,'').trim();
+  $('cOutfit').value = c.outfit || noName(hd.outfit) || '';
+  if(c.artStyle) $('cStyle').value = c.artStyle;
+  const cast = Array.isArray(p.cast) ? p.cast : [];
+  document.querySelectorAll('.castName').forEach(el=>{ el.value=(cast[+el.dataset.i]||{}).name||''; });
+  document.querySelectorAll('.castDesc').forEach(el=>{ el.value=(cast[+el.dataset.i]||{}).desc||''; });
+}
+// 고치는 대로 바로 저장 → 아래 캔바 요청문이 따라 바뀌어요
+function save(){
+  const p=ColorM.getProject();
+  // kind(종류)는 요청문에 그대로 들어가요 (예: 고양이). 4회 메이커와 같은 칸 이름(type)에도 같이 둬요.
+  ColorM.saveStep('character', Object.assign({}, p.character, {
+    name: v('cName') || '주인공', kind: v('cKind'), type: v('cKind'), appearance: v('cLook'), outfit: v('cOutfit'), artStyle: $('cStyle').value
+  }));
+  const rows=[0,1].map(i=>({ role:'친구', name:(document.querySelector('.castName[data-i="'+i+'"]').value||'').trim(), desc:(document.querySelector('.castDesc[data-i="'+i+'"]').value||'').trim() })).filter(r=>r.name||r.desc);
+  ColorM.saveStep('cast', rows);
+  const hd=p.heroDraft; if(hd && hd.fresh){ hd.fresh=false; ColorM.saveStep('heroDraft', hd); }
+}
+fill();
+if(!(ColorM.getProject().character||{}).name && v('cName')) save();
+let t=null;
+$('charForm').addEventListener('input', ()=>{ clearTimeout(t); t=setTimeout(()=>{ save(); document.dispatchEvent(new Event('change')); },400); });
+$('charForm').addEventListener('change', save);
+
+ColorMShort.mount($('shortAnchor'), 'character', 'before');
+</script>
+</body>
+</html>

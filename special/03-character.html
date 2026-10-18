@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-5.svg">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="../shared/colorm.css?v=20261018d">
+<link rel="stylesheet" href="../shared/colorm.css?v=20261018f">
 <style>
 .prev-box{background:var(--tint);border:1px solid var(--ab);border-radius:14px;padding:14px 16px;font-size:13px;line-height:1.7;color:#5e575b;white-space:pre-wrap}
 .checks{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
@@ -155,12 +155,12 @@
 
 <footer></footer>
 
-<script src="../shared/colorm.js?v=20261018d"></script>
-<script src="../shared/presets.js?v=20261018d"></script>
-<script src="../shared/mind.js?v=20261018d"></script>
-<script src="../shared/recommend.js?v=20261018d"></script>
-<script src="../shared/kr-en-prompt.js?v=20261018d"></script>
-<script src="../shared/styles.js?v=20261018d"></script>
+<script src="../shared/colorm.js?v=20261018f"></script>
+<script src="../shared/presets.js?v=20261018f"></script>
+<script src="../shared/mind.js?v=20261018f"></script>
+<script src="../shared/recommend.js?v=20261018f"></script>
+<script src="../shared/kr-en-prompt.js?v=20261018f"></script>
+<script src="../shared/styles.js?v=20261018f"></script>
 <script>
 const $=id=>document.getElementById(id);
 ColorM.renderHeader('cmHeader','character');
@@ -531,10 +531,10 @@ setTimeout(syncMoreDet, 400);
     ColorM.toast('03 스토리보드의 인물 정보를 가져왔어요. 확인하고 고쳐주세요.');
   }
 })();</script>
-<script src="../shared/short.js?v=20261018d"></script>
+<script src="../shared/short.js?v=20261018f"></script>
 <script>
-// 캔바용 짧은 요청문 + 크게 보기 (ChatGPT를 못 쓰거나 요청문을 보내기 어려운 교실용)
-ColorMShort.mount(document.getElementById('results1'), 'character', 'after');
+// 만일에 대비: ChatGPT를 못 쓰거나 요청문을 보내기 어려운 교실용 캔바 요청문 (맨 아래 접힌 상자)
+ColorMShort.mount(null, 'character', 'end');
 </script>
 </body>
 </html>

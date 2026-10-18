@@ -437,8 +437,8 @@ html[data-session="4"]{--bg:#f3effc}
 .prev-btns{display:flex;gap:8px;flex-wrap:wrap}
 .prev-btns .btn{padding:8px 14px;font-size:13.5px;color:var(--m);border-color:var(--ab)}
 /* 2시간 특강(special) — 핑크 */
-html[data-session="5"],[data-s="5"]{--m:#e2457f;--m-hover:#c93169;--ab:#f5b0c8;--soft:#fde4ee;--tint:#fff2f7;--tint2:#fff7fa;--lv:#e8689a;--lv-bg:#fff2f7;--line:#f6d6e3;--glow:rgba(226,69,127,.12)}
-html[data-session="5"]{--bg:#fff1f6}
+html[data-session="5"],[data-s="5"],html[data-session="6"],[data-s="6"]{--m:#e2457f;--m-hover:#c93169;--ab:#f5b0c8;--soft:#fde4ee;--tint:#fff2f7;--tint2:#fff7fa;--lv:#e8689a;--lv-bg:#fff2f7;--line:#f6d6e3;--glow:rgba(226,69,127,.12)}
+html[data-session="5"],html[data-session="6"]{--bg:#fff1f6}
 
 /* ===== 캔바용 짧은 요청문 (특강) ===== */
 .short-card{border:2px dashed var(--ab);background:var(--tint2)}
@@ -472,5 +472,16 @@ body.sp-open{overflow:hidden}
 .short-guide small{color:var(--muted);font-size:12px}
 .short-more{margin-top:12px}
 .short-more summary{cursor:pointer;font-weight:800;font-size:14px;color:var(--muted)}
-/* 특강 04: 전체 장면 한 번에는 짧은 요청문 카드로 하니, 4회 수업용 긴 캔바 카드는 숨겨요 */
-html[data-session="5"] .canva-card{display:none!important}
+/* 대비용 캔바 요청문: 평소엔 접혀 있는 상자 */
+.short-card{padding:14px 18px}
+.short-wrap>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:800;font-size:15px;color:var(--ink)}
+.short-wrap>summary::-webkit-details-marker{display:none}
+.short-wrap>summary::after{content:'펼치기 ▾';margin-left:auto;font-size:13px;color:var(--m)}
+.short-wrap[open]>summary::after{content:'접기 ▴'}
+.short-wrap>summary small{color:var(--muted);font-weight:600;font-size:12.5px}
+.short-badge{display:inline-block;padding:3px 10px;border-radius:999px;background:var(--m);color:#fff;font-size:12px;font-weight:900}
+.short-body{margin-top:12px}
+.short-title{margin:0 0 6px;font-size:19px}
+/* 캔바 특강: 캔바 요청문 카드가 주인공 */
+.short-card.short-main{padding:22px;border:2px solid var(--m);background:#fff}
+.short-card.short-main .short-title{font-size:21px}

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko" data-session="6" data-mode="canva">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 기획 — 마음색 그림책 특강 · 캔바</title>
+<link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-6.svg">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="../shared/colorm.css?v=20261018f">
+</head>
+<body>
+<div id="cmHeader"></div>
+<header class="hero hero-sub">
+<p class="sub">이야기를 쓰기 전에 주제·주인공·문제·메시지를 간단히 정리해보세요.<br>입력한 내용으로 <b>한 줄 기획</b>과 <b>그림책 기획서</b>를 만들어요.</p>
+</header>
+
+<main class="wrap">
+<form id="planForm">
+<section class="card">
+<div class="step"><span>STEP 01</span><h2>이야기 기본 기획</h2></div>
+<p class="help">이야기의 큰 방향을 먼저 정해보세요.</p>
+<div class="grid">
+<label>이야기 주제<input id="topic" placeholder="예: 자기 자신을 알아가는 것, 나눔, 용기, 우정"></label>
+<label>대상 독자<select id="audience"><option>유아 5~7세</option><option selected>초등 저학년</option><option>초등 고학년</option><option>청소년</option><option>전체 연령</option></select></label>
+<label class="cm-hide">장르<select id="genre"><option>창작동화</option><option>판타지</option><option>모험</option><option selected>성장 이야기</option><option>환경 이야기</option><option>감성 이야기</option></select></label>
+<label class="cm-hide">전체 분위기<select id="mood"><option selected>따뜻하고 다정한</option><option>밝고 경쾌한</option><option>신비롭고 환상적인</option><option>재미있고 유쾌한</option><option>잔잔하고 감성적인</option></select></label>
+</div>
+</section>
+
+<section class="card">
+<div class="step"><span>STEP 02</span><h2>이야기의 핵심 정하기</h2></div>
+<p class="help">주인공이 무엇을 원하는지, 이야기에서 가장 큰 문제가 무엇인지 적어보세요.</p>
+<label>주인공은 누구인가요?<input id="hero" placeholder="예: 자신만의 색이 없다고 느끼는 루나"></label>
+<div class="grid">
+<label>주인공이 원하는 것은?<textarea id="goal" rows="3" placeholder="예: 친구들처럼 자신만의 색을 찾고 싶다"></textarea></label>
+<label>어떤 문제가 생기나요?<textarea id="problem" rows="3" placeholder="예: 친구들은 각자의 색으로 반짝이는데 루나에게는 색이 없는 것 같다"></textarea></label>
+</div>
+<label>이야기를 통해 전하고 싶은 메시지<textarea id="message" rows="3" placeholder="예: 나는 색이 없는 게 아니라, 아직 나를 몰랐을 뿐이다"></textarea></label>
+</section>
+
+<section class="card">
+<div class="step"><span>STEP 03</span><h2>이야기가 펼쳐지는 곳</h2></div>
+<div class="grid">
+<label>주요 장소<input id="place" placeholder="예: 색을 가진 친구들이 사는 마을"></label>
+<label class="cm-hide">시대 / 시간<input id="time" placeholder="예: 현재, 옛날, 어느 계절의 하루"></label>
+</div>
+<label class="cm-hide">특별한 설정 <small>(선택)</small><textarea id="special" rows="3" placeholder="예: 마음의 색이 눈에 보이는 세계"></textarea></label>
+</section>
+
+<button class="btn primary big" type="submit">그림책 기획 만들기</button>
+</form>
+
+<section id="results" class="results hidden">
+<p class="eyebrow">RESULT</p>
+<h2>그림책 기획이 완성되었습니다!</h2>
+<div class="result-grid">
+<article class="result"><h3>① 한 줄 기획</h3><div id="oneLine" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('oneLine')">복사하기</button></article>
+<article class="result"><h3>② 그림책 기획서</h3><div id="planSheet" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('planSheet')">복사하기</button></article>
+<article class="result cm-hide"><h3>③ ChatGPT에 바로 물어볼 요청문 <small style="font-weight:600;color:var(--muted)">(선택)</small></h3><div id="nextPrompt" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('nextPrompt')">복사하기</button></article>
+</div>
+
+<div class="download-actions">
+  <button class="btn primary" type="button" onclick="ColorM.saveAsPDF('results','기획서')">PDF 저장</button>
+  <button class="btn soft" type="button" onclick="downloadTXT()">TXT 저장</button>
+</div>
+
+<div class="note"><b>다음 단계</b><br>기획 내용은 <b>02 이야기</b>로 자동으로 이어져요. 따로 복사할 필요는 없어요.</div>
+<div class="step-nav" id="cmStepNav"></div>
+</section>
+</main>
+
+<footer></footer>
+
+<script src="../shared/colorm.js?v=20261018f"></script>
+<script src="../shared/presets.js?v=20261018f"></script>
+<script src="../shared/mind.js?v=20261018f"></script>
+<script src="../shared/recommend.js?v=20261018f"></script>
+<script>
+const $=id=>document.getElementById(id);
+ColorM.renderHeader('cmHeader','plan');
+ColorM.applyDrops(ColorMPresets.plan);
+ColorMRecommend.mount('plan');
+ColorMMind.mountEntry(document.getElementById('planForm'));
+ColorM.renderStepNav('cmStepNav','plan');
+
+function v(id){return ($(id).value||"").trim()}
+
+let lastResult=null;
+
+$("planForm").addEventListener("submit",function(e){
+e.preventDefault();
+const d={topic:v("topic")||"주제 미정",audience:v("audience"),genre:v("genre"),mood:v("mood"),hero:v("hero")||"주인공 미정",goal:v("goal")||"목표 미정",problem:v("problem")||"문제 미정",message:v("message")||"메시지 미정",place:v("place")||"장소 미정",time:v("time")||"시간 미정",special:v("special")};
+const one=`${d.mood} 분위기의 ${d.genre}. ${d.hero}${ColorM.josa(d.hero,['은','는'])} '${d.problem}'라는 문제 앞에서 '${d.goal}'는 마음으로 한 걸음씩 나아가며, '${d.message}'라는 메시지를 전하는 그림책.`;
+const sheet=[`주제: ${d.topic}`,`대상 독자: ${d.audience}`,`장르: ${d.genre}`,`분위기: ${d.mood}`,`주인공: ${d.hero}`,`주인공의 목표: ${d.goal}`,`문제/갈등: ${d.problem}`,`주요 장소: ${d.place}`,`시대/시간: ${d.time}`,d.special?`특별한 설정: ${d.special}`:"",`핵심 메시지: ${d.message}`].filter(Boolean).join("\n");
+const prompt=["아래 그림책 기획을 바탕으로 이해하기 쉬운 이야기 초안을 만들어줘.",`대상 독자는 ${d.audience}이고, 장르는 ${d.genre}, 전체 분위기는 ${d.mood} 느낌으로 해줘.`,"이야기는 시작-문제 발생-행동-어려움-해결의 실마리-결말이 자연스럽게 이어지도록 구성해줘.","주인공의 행동과 감정 변화가 잘 보이게 하고, 마지막에는 핵심 메시지가 자연스럽게 느껴지도록 해줘.","","[그림책 기획]",sheet].join("\n");
+$("oneLine").textContent=one;$("planSheet").textContent=sheet;$("nextPrompt").textContent=prompt;
+$("results").classList.remove("hidden");
+lastResult={...d,oneLine:one,planSheet:sheet,nextPrompt:prompt};
+ColorM.saveStep('plan', lastResult);
+setTimeout(()=>$("results").scrollIntoView({behavior:"smooth",block:"start"}),50)
+});
+
+function buildDownloadText(){
+  const one = $("oneLine").textContent.trim();
+  const plan = $("planSheet").textContent.trim();
+  const next = $("nextPrompt").textContent.trim();
+  return ["COLOR.M 마음색 그림책 메이커 · 01 기획","================================","","[한 줄 기획]",one,"","[그림책 기획서]",plan,"","[다음 단계 전달 정보]",next].join("\n");
+}
+function downloadTXT(){
+  if ($("results").classList.contains("hidden")){ alert("먼저 그림책 기획을 만들어주세요."); return; }
+  const project=ColorM.getProject();
+  ColorM.downloadTXT("COLOR.M_"+project.projectName+"_기획서.txt", buildDownloadText());
+}
+
+// 작성하던 내용 자동 저장/복원 + 이미 만든 결과 다시 보여주기
+const draft = ColorM.autoSaveForm('planForm', 'plan');
+ColorM.restoreSilently(function(){
+  const pl = ColorM.getProject().plan || {};
+  if(draft.restored && pl.planSheet && $('hero').value.trim()) $('planForm').dispatchEvent(new Event('submit', {cancelable:true, bubbles:true}));
+});</script>
+</body>
+</html>
