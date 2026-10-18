@@ -647,16 +647,23 @@ const ColorM = (function () {
 
   // ---------- 텍스트 복사 (직접 문자열을 넘길 때) ----------
   function copyText(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(text).then(function () { toast(); });
-    } else {
+    // 예비 방법: 숨긴 글상자에 넣고 복사 (학교 컴퓨터처럼 클립보드 쓰기가 막힌 브라우저용)
+    function fallback() {
       const ta = document.createElement('textarea');
       ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
       document.body.appendChild(ta);
       ta.select();
-      document.execCommand('copy');
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
       ta.remove();
-      toast();
+      toast(ok ? '복사되었습니다.' : '복사가 막혀 있어요. 글을 직접 선택해서 복사해 주세요.');
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () { toast(); }, fallback);
+    } else {
+      fallback();
     }
   }
 
