@@ -135,6 +135,40 @@ const ColorMShort = (function () {
       };
     });
   }
+  // 캔바에 전체 장면을 한 번에 넣는 요청문 (캔바는 장면을 따로 만들면 캐릭터가 달라지기 쉬워서 이게 기본)
+  // 1) 따라 치기용: 머리 몇 줄만 치고, 그 아래에 02에서 캔바로 받은 이야기 전체를 붙여넣어요
+  // 2) 전체 요청문: 장면 1~N의 그림·본문·대화까지 담은 완성본 (같은 컴퓨터면 복사해서 그대로)
+  function bookHead(p, n) {
+    const sc = scenesOf(p);
+    const others = othersIn(p, sc.map(function (s) { return [s.content, s.dialogue, s.conti, s.cast].join(' '); }).join(' '));
+    const lines = [
+      n + '장면짜리 그림책을 한 번에 만들어 줘. 장면마다 한 페이지씩, 그림 1장과 본문·대화를 함께 넣어 줘.',
+      '주인공: ' + hero(p) + ' — 모든 페이지에서 같은 얼굴·몸·옷으로'
+    ];
+    if (others.length) lines.push('함께 나오는 인물: ' + others.join(', '));
+    lines.push('그림체: ' + style(p) + ' 그림책, 색감: ' + colorWord(p).replace(/ 색감$/, '') + (mood(p) ? ', 분위기: ' + mood(p) : ''));
+    lines.push('글은 본문·대화만 넣고, 그림 안에는 다른 글자를 넣지 마.');
+    return lines;
+  }
+  function book(p) {
+    const sc = scenesOf(p);
+    if (!sc.length) return [];
+    const n = sc.length, head = bookHead(p, n);
+    const full = head.concat(['', '[이야기]']).concat(sc.map(function (s, i) {
+      const conti = String(s.conti || '').trim(), planPlace = String((p.plan || {}).place || '').trim();
+      // 「그림:」 줄은 이야기에서 받은 그릴 모습이 있을 때만 (없으면 본문과 겹치니 빼요)
+      const pic = (conti && conti !== planPlace ? sentence(conti, 70) : '') || (String(s.content || '').trim() ? '' : sentence(s.memo, 60));
+      return ['[장면 ' + (s.no || i + 1) + ']' + (s.title && !/^장면\s*\d+$/.test(s.title) ? ' ' + s.title : ''),
+        pic ? '그림: ' + pic : '',
+        '본문: ' + (String(s.content || '').trim() || '(장면 설명으로 문장을 지어 줘)'),
+        String(s.dialogue || '').trim() ? '대화: ' + String(s.dialogue).trim().replace(/\n/g, ' / ') : ''
+      ].filter(Boolean).join('\n');
+    }).join('\n\n'));
+    return [
+      { label: '① 따라 치기용 — 이 줄만 치고, 아래에 02에서 받은 이야기 전체를 붙여넣어요', text: head.concat(['(여기에 02에서 받은 이야기 전체를 붙여넣기)']).join('\n') },
+      { label: '② 전체 요청문 — 같은 컴퓨터라면 복사해서 그대로 넣어요', text: full.join('\n') }
+    ];
+  }
   function cover(p) {
     const cv = p.cover || {};
     const title = p.bookTitle || (cv.title && cv.title !== '제목 미정' ? cv.title : '') || ((p.story || {}).titles || [])[0] || '';
@@ -144,24 +178,26 @@ const ColorMShort = (function () {
       text: style(p) + ' 그림책 표지 그림. 주인공 ' + hero(p) + '. ' + what + '. ' + colorWord(p) + ', 위쪽에 제목 넣을 여백, 글자 없이'
     }];
   }
-  const BUILD = { story: story, character: character, scene: scene, cover: cover };
+  // 04 그림책: 전체 장면 한 번에(①②)가 기본, 장면 하나씩은 접어 둔 예비용(extra)
+  function sceneCard(p) { return book(p).concat(scene(p).map(function (x) { return Object.assign({ extra: true }, x); })); }
+  const BUILD = { story: story, character: character, scene: sceneCard, cover: cover };
   const HELP = {
     story: '받은 답을 위 「ChatGPT로 책에 실릴 글 받기」의 붙여넣기 칸에 넣고 「장면 카드 채우기」 → 맨 아래 「스토리보드 만들기」까지 눌러요. 그래야 03 캐릭터·04 그림책으로 이어져요.',
     character: '캔바에서 그림 만들기(Magic Media 등)에 넣어요. 마음에 드는 그림은 꼭 저장해 두세요.',
-    scene: '장면마다 하나씩 캔바 그림 만들기에 넣어요. 스타일은 매번 같은 것으로 골라야 그림체가 맞아요.',
+    scene: '캔바는 장면을 하나씩 만들면 캐릭터가 달라지기 쉬워요. 그래서 ①이나 ②로 <b>전체 장면을 한 번에</b> 만들고, 마음에 안 드는 장면만 아래 「장면 하나씩」으로 다시 만들어요.',
     cover: '캔바 디자인 맨 앞 페이지에 넣고, 제목·지은이는 글자로 얹어요.'
   };
   // 캔바에서 하는 순서 (메뉴 이름은 캔바 화면이 바뀌면 조금 다를 수 있어요)
   const GUIDE = {
     story: ['캔바 홈에서 「문서(Docs)」를 새로 만들어요', '「Magic Write」(글쓰기 AI)를 열어요', '아래 요청문을 그대로 쳐요(또는 붙여넣기)', '나온 글 전체를 복사해서 위 붙여넣기 칸에 넣어요'],
     character: ['캔바 디자인을 열고 왼쪽 「앱」에서 「Magic Media」(이미지 만들기)를 열어요', '「이미지」에 아래 캐릭터 요청문을 쳐요', '스타일·비율을 고르고 「이미지 생성」을 눌러요', '마음에 드는 그림을 내려받아 두세요 (장면을 그릴 때 기준이 돼요)'],
-    scene: ['캔바 그림책 디자인에서 왼쪽 「앱」 → 「Magic Media」를 열어요', '장면 1 요청문을 쳐요 (주인공 설명은 매 장면 똑같이)', '스타일은 캐릭터를 만들 때와 같은 것, 비율은 책 크기와 같게', '「이미지 생성」 → 마음에 드는 그림을 그 장면 페이지에 넣고, 오른쪽 클릭 「배경으로 설정」', '02 이야기의 본문·대화를 텍스트로 넣어요', '장면 2부터 같은 방법으로 반복해요'],
+    scene: ['캔바에서 AI에게 디자인을 부탁하는 창(Canva AI 등)을 열어요', '① 따라 치기용 줄을 치고, 그 아래에 02에서 캔바로 받은 이야기 전체를 붙여넣어요 (같은 컴퓨터라면 ② 전체 요청문을 복사해 넣어도 돼요)', '03에서 만든 캐릭터 그림을 함께 올릴 수 있으면 같이 올려요 (모습이 더 잘 유지돼요)', '만들어진 페이지를 넘겨 보며 장면 순서와 글이 맞는지 확인해요', '마음에 안 드는 장면만 아래 「장면 하나씩」 요청문으로 다시 만들어 바꿔 넣어요'],
     cover: ['그림책 디자인의 맨 앞 페이지에서 「Magic Media」를 열어요', '아래 표지 요청문을 쳐요', '그림을 넣고 위쪽 여백에 제목·지은이를 글자로 얹어요']
   };
   const EMPTY = {
     story: '01 기획을 먼저 해 주세요.',
     character: '01 기획을 하면 주인공 이름으로 만들어져요. 아래에서 캐릭터를 정하면 더 정확해져요.',
-    scene: '02 이야기에서 장면을 만들면 장면별 짧은 요청문이 나와요.',
+    scene: '02 이야기에서 장면을 만들고 「스토리보드 만들기」까지 누르면 전체 장면 요청문이 나와요.',
     cover: ''
   };
 
@@ -185,7 +221,9 @@ const ColorMShort = (function () {
       ov.querySelector('.sp-count').textContent = (i + 1) + ' / ' + slides.length;
       const t = ov.querySelector('.sp-text');
       t.classList.toggle('sp-order', !!s.order);
-      t.style.fontSize = 'calc(' + size + ' * clamp(26px, 3.6vw, 58px))';
+      // 긴 글(전체 요청문)은 한 화면에 들어오게 글자를 줄여요
+      const fit = s.text.length > 600 ? 0.42 : s.text.length > 320 ? 0.55 : s.text.length > 160 ? 0.75 : 1;
+      t.style.fontSize = 'calc(' + (size * fit) + ' * clamp(26px, 3.6vw, 58px))';
       t.textContent = s.text;
       ov.querySelector('[data-act="prev"]').disabled = i === 0;
       ov.querySelector('[data-act="next"]').disabled = i === slides.length - 1;
@@ -221,17 +259,21 @@ const ColorMShort = (function () {
       if (sec.contains(document.activeElement) && document.activeElement.tagName !== 'BUTTON') return;
       const p = ColorM.getProject();
       items = (kind === 'story' && !(p.plan || {}).hero) ? [] : BUILD[kind](p);
+      const li = function (it, k) {
+        return '<li><b>' + esc(it.label) + '</b><div class="short-text">' + esc(it.text) + '</div>' +
+          '<div class="short-btns"><button type="button" class="btn soft" data-big="' + k + '">크게 보기</button><button type="button" class="btn ghost" data-copy="' + k + '">복사</button>' +
+          '<small>' + it.text.length + '자</small></div></li>';
+      };
+      const main = [], extra = [];
+      items.forEach(function (it, k) { (it.extra ? extra : main).push(li(it, k)); });
       sec.innerHTML =
-        '<div class="step"><span>⌨ 캔바용 · 따라 치기</span><h2>짧은 요청문</h2></div>' +
+        '<div class="step"><span>⌨ 캔바용 · 따라 치기</span><h2>' + (kind === 'scene' ? '캔바에 전체 장면 한 번에' : '짧은 요청문') + '</h2></div>' +
         '<p class="help">ChatGPT를 못 쓰거나 요청문을 보내기 어려울 때, 선생님 화면에 <b>크게 띄워</b> 보고 따라 쳐요. 순서: <b>화풍 → 주인공 → 장면 → 장소 → 분위기·색감 → 글자 없이</b></p>' +
         '<details class="short-guide" open><summary>캔바에서 이렇게 해요</summary><ol>' + (GUIDE[kind] || []).map(function (g) { return '<li>' + esc(g) + '</li>'; }).join('') + '</ol><small>메뉴 이름은 캔바 화면에 따라 조금 다를 수 있어요.</small></details>' +
         (items.length
-          ? '<ol class="short-list">' + items.map(function (it, k) {
-              return '<li><b>' + esc(it.label) + '</b><div class="short-text">' + esc(it.text) + '</div>' +
-                '<div class="short-btns"><button type="button" class="btn soft" data-big="' + k + '">크게 보기</button><button type="button" class="btn ghost" data-copy="' + k + '">복사</button>' +
-                '<small>' + it.text.length + '자</small></div></li>';
-            }).join('') + '</ol>' +
-            '<p class="help">' + HELP[kind] + '</p>'
+          ? '<p class="help">' + HELP[kind] + '</p>' +
+            '<ol class="short-list">' + main.join('') + '</ol>' +
+            (extra.length ? '<details class="short-more"><summary>장면 하나씩 다시 만들 때 (마음에 안 드는 장면만)</summary><ol class="short-list">' + extra.join('') + '</ol></details>' : '')
           : '<p class="help"><b>' + esc(EMPTY[kind] || '') + '</b></p>');
     }
     sec.addEventListener('click', function (e) {

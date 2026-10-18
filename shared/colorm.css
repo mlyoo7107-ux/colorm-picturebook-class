@@ -470,3 +470,7 @@ body.sp-open{overflow:hidden}
 .short-guide summary{cursor:pointer;font-weight:800;color:var(--m);font-size:14px}
 .short-guide ol{margin:8px 0 4px;padding-left:20px;font-size:14px;line-height:1.8}
 .short-guide small{color:var(--muted);font-size:12px}
+.short-more{margin-top:12px}
+.short-more summary{cursor:pointer;font-weight:800;font-size:14px;color:var(--muted)}
+/* 특강 04: 전체 장면 한 번에는 짧은 요청문 카드로 하니, 4회 수업용 긴 캔바 카드는 숨겨요 */
+html[data-session="5"] .canva-card{display:none!important}
