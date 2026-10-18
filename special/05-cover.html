@@ -342,5 +342,10 @@ ColorM.restoreSilently(function(){
   const cv = ColorM.getProject().cover || {};
   if(draft.restored && cv.coverPrompt && $('title').value.trim()) $('coverForm').dispatchEvent(new Event('submit', {cancelable:true, bubbles:true}));
 });</script>
+<script src="../shared/short.js"></script>
+<script>
+// 캔바용 짧은 요청문 + 크게 보기 (ChatGPT를 못 쓰거나 요청문을 보내기 어려운 교실용)
+ColorMShort.mount(document.getElementById('coverForm'), 'cover', 'after');
+</script>
 </body>
 </html>

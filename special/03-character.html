@@ -531,5 +531,10 @@ setTimeout(syncMoreDet, 400);
     ColorM.toast('03 스토리보드의 인물 정보를 가져왔어요. 확인하고 고쳐주세요.');
   }
 })();</script>
+<script src="../shared/short.js"></script>
+<script>
+// 캔바용 짧은 요청문 + 크게 보기 (ChatGPT를 못 쓰거나 요청문을 보내기 어려운 교실용)
+ColorMShort.mount(document.getElementById('results1'), 'character', 'after');
+</script>
 </body>
 </html>

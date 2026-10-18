@@ -439,3 +439,26 @@ html[data-session="4"]{--bg:#f3effc}
 /* 2시간 특강(special) — 핑크 */
 html[data-session="5"],[data-s="5"]{--m:#e2457f;--m-hover:#c93169;--ab:#f5b0c8;--soft:#fde4ee;--tint:#fff2f7;--tint2:#fff7fa;--lv:#e8689a;--lv-bg:#fff2f7;--line:#f6d6e3;--glow:rgba(226,69,127,.12)}
 html[data-session="5"]{--bg:#fff1f6}
+
+/* ===== 캔바용 짧은 요청문 (특강) ===== */
+.short-card{border:2px dashed var(--ab);background:var(--tint2)}
+.short-list{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:10px}
+.short-list li{padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.short-list li>b{font-size:13px;color:var(--m)}
+.short-text{margin-top:6px;font-size:16px;line-height:1.7;font-weight:600;word-break:keep-all}
+.short-btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.short-btns .btn{padding:7px 14px;font-size:13px}
+.short-btns small{margin-left:auto;color:var(--muted);font-size:12px}
+/* 크게 보기: 프로젝터 화면 전체에 큰 글씨 */
+body.sp-open{overflow:hidden}
+.short-present{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;background:#fffdfb;color:#171512}
+.sp-top{display:flex;align-items:center;gap:14px;padding:16px 24px;border-bottom:4px solid var(--m)}
+.sp-label{font-size:clamp(18px,2vw,28px);color:var(--m)}
+.sp-count{margin-left:auto;font-size:clamp(14px,1.6vw,22px);font-weight:800;color:#7a7268}
+.sp-top button,.sp-nav button{border:1px solid var(--ab);background:#fff;color:var(--m);border-radius:999px;padding:10px 18px;font-size:clamp(14px,1.5vw,20px);font-weight:800;cursor:pointer}
+.sp-nav button:disabled{opacity:.35;cursor:default}
+.sp-text{flex:1;display:flex;align-items:center;justify-content:center;padding:4vh 6vw;font-weight:800;line-height:1.75;text-align:left;word-break:keep-all;overflow:auto}
+.sp-text.sp-order{color:var(--m);text-align:center}
+.sp-nav{display:flex;justify-content:center;gap:12px;padding:16px 24px 24px}
+.sp-nav [data-act="next"]{background:var(--m);color:#fff;border-color:var(--m)}
+@media print{.short-card,.short-present{display:none!important}}
