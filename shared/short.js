@@ -112,12 +112,32 @@ const ColorMShort = (function () {
       return c.name.trim() + (d ? '(' + d + ')' : '');
     });
   }
+  // 함께 나오는 인물: 이름(모습) — 03의 함께 나오는 캐릭터
+  function castOf(p) {
+    const main = heroName(p);
+    return (Array.isArray(p.cast) ? p.cast : []).filter(function (c) {
+      return c && String(c.name || '').trim() && String(c.name).trim() !== main;
+    }).slice(0, 3).map(function (c) {
+      const d = clip(String(c.desc || '').split(/와 |과 /)[0], 20);
+      return { name: c.name.trim(), tag: c.name.trim() + (d ? '(' + d + ')' : '') };
+    });
+  }
   function character(p) {
-    const st = style(p), h = hero(p), nm = heroName(p);
-    return [
-      { label: '캐릭터 그림', text: st + ' 그림책 주인공 캐릭터. ' + h + '. 전신, 정면, 흰 배경, 글자 없이' },
-      { label: '캐릭터 시트', text: '같은 캐릭터 ' + nm + '의 캐릭터 시트. 정면·옆모습·뒷모습과 여러 표정을 한 장에. ' + st + ', 흰 배경, 글자 없이' }
+    const st = style(p), h = hero(p), nm = heroName(p), cast = castOf(p);
+    const out = [
+      { label: '주인공 캐릭터 그림 · ' + nm, text: st + ' 그림책 주인공 캐릭터. ' + h + '. 전신, 정면, 흰 배경, 글자 없이' },
+      { label: '주인공 캐릭터 시트 · ' + nm, text: '같은 캐릭터 ' + nm + '의 캐릭터 시트. 정면·옆모습·뒷모습과 여러 표정을 한 장에. ' + st + ', 흰 배경, 글자 없이' }
     ];
+    // 다른 인물도 그림과 시트를 따로 만들어야 장면마다 모습이 같게 유지돼요
+    cast.forEach(function (c) {
+      out.push({ label: c.name + ' 캐릭터 그림', text: st + ' 그림책 캐릭터. ' + c.tag + '. 주인공 ' + nm + ColorM.josa(nm, ['과', '와']) + ' 같은 그림체. 전신, 정면, 흰 배경, 글자 없이' });
+      out.push({ label: c.name + ' 캐릭터 시트', text: '같은 캐릭터 ' + c.name + '의 캐릭터 시트. 정면·옆모습·뒷모습과 여러 표정을 한 장에. ' + st + ', 흰 배경, 글자 없이' });
+    });
+    // 라인업: 모두 한 장에 나란히 — 크기 차이와 그림체를 맞추는 기준 그림
+    if (cast.length) {
+      out.push({ label: '캐릭터 라인업 (모두 한 장에)', text: '캐릭터 라인업. ' + [h].concat(cast.map(function (c) { return c.tag; })).join(', ') + '가 나란히 선 전신 그림. 각자 모습 그대로, 키·크기 차이가 보이게. ' + st + ', 흰 배경, 글자 없이' });
+    }
+    return out;
   }
   function scene(p) {
     const st = style(p), h = hero(p), sc = scenesOf(p);
@@ -148,6 +168,7 @@ const ColorMShort = (function () {
     ];
     if (others.length) lines.push('함께 나오는 인물: ' + others.join(', '));
     lines.push('그림체: ' + style(p) + ' 그림책, 색감: ' + colorWord(p).replace(/ 색감$/, '') + (mood(p) ? ', 분위기: ' + mood(p) : ''));
+    lines.push('함께 올린 캐릭터 그림이 있으면 그 모습 그대로 그려 줘.');
     lines.push('글은 본문·대화만 넣고, 그림 안에는 다른 글자를 넣지 마.');
     return lines;
   }
@@ -191,13 +212,13 @@ const ColorMShort = (function () {
   // 캔바 특강에서 달라지는 안내
   const HELP_CANVA = {
     story: '캔바가 써 준 글 전체를 아래 「캔바에서 받은 글 붙여넣기」 칸에 넣고 「장면 카드 채우기」 → 맨 아래 「스토리보드 만들기」까지 눌러요. 그래야 03 캐릭터·04 그림책으로 이어져요.',
-    character: '캔바에서 그림 만들기(Magic Media 등)에 넣어요. 마음에 드는 캐릭터 그림과 캐릭터 시트는 꼭 내려받아 두세요. 04에서 전체 장면을 만들 때 함께 올려요.'
+    character: '주인공뿐 아니라 <b>함께 나오는 인물도</b> 그림과 시트를 만들어야 장면마다 모습이 같게 나와요. 만든 그림은 모두 내려받아 두고, 04에서 전체 장면을 만들 때 함께 올려요.'
   };
   // 캔바에서 하는 순서 (메뉴 이름은 캔바 화면이 바뀌면 조금 다를 수 있어요)
   const GUIDE = {
     story: ['캔바 홈에서 「문서(Docs)」를 새로 만들어요', '「Magic Write」(글쓰기 AI)를 열어요', '아래 요청문을 그대로 쳐요(또는 붙여넣기)', '나온 글 전체를 복사해서 위 붙여넣기 칸에 넣어요'],
-    character: ['캔바 디자인을 열고 왼쪽 「앱」에서 「Magic Media」(이미지 만들기)를 열어요', '「이미지」에 아래 캐릭터 요청문을 쳐요', '스타일·비율을 고르고 「이미지 생성」을 눌러요', '마음에 드는 그림을 내려받아 두세요 (장면을 그릴 때 기준이 돼요)'],
-    scene: ['캔바에서 AI에게 디자인을 부탁하는 창(Canva AI 등)을 열어요', '① 따라 치기용 줄을 치고, 그 아래에 02에서 캔바로 받은 이야기 전체를 붙여넣어요 (같은 컴퓨터라면 ② 전체 요청문을 복사해 넣어도 돼요)', '03에서 만든 캐릭터 그림을 함께 올릴 수 있으면 같이 올려요 (모습이 더 잘 유지돼요)', '만들어진 페이지를 넘겨 보며 장면 순서와 글이 맞는지 확인해요', '마음에 안 드는 장면만 아래 「장면 하나씩」 요청문으로 다시 만들어 바꿔 넣어요'],
+    character: ['캔바 디자인을 열고 왼쪽 「앱」에서 「Magic Media」(이미지 만들기)를 열어요', '주인공 그림 → 주인공 시트 순서로 요청문을 쳐요', '함께 나오는 인물도 그림과 시트를 하나씩 만들어요 (스타일은 주인공과 같은 것)', '마지막으로 라인업(모두 한 장에)을 만들어 크기와 그림체를 맞춰요', '마음에 드는 그림은 모두 내려받아 두세요 — 04에서 함께 올려요'],
+    scene: ['캔바에서 AI에게 디자인을 부탁하는 창(Canva AI 등)을 열어요', '① 따라 치기용 줄을 치고, 그 아래에 02에서 캔바로 받은 이야기 전체를 붙여넣어요 (같은 컴퓨터라면 ② 전체 요청문을 복사해 넣어도 돼요)', '03에서 만든 캐릭터 그림을 모두 함께 올려요 — 주인공, 함께 나오는 인물, 라인업 그림까지 (모습이 더 잘 유지돼요)', '만들어진 페이지를 넘겨 보며 장면 순서와 글이 맞는지 확인해요', '마음에 안 드는 장면만 아래 「장면 하나씩」 요청문으로 다시 만들어 바꿔 넣어요'],
     cover: ['그림책 디자인의 맨 앞 페이지에서 「Magic Media」를 열어요', '아래 표지 요청문을 쳐요', '그림을 넣고 위쪽 여백에 제목·지은이를 글자로 얹어요']
   };
   const EMPTY = {
