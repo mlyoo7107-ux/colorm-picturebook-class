@@ -462,3 +462,7 @@ body.sp-open{overflow:hidden}
 .sp-nav{display:flex;justify-content:center;gap:12px;padding:16px 24px 24px}
 .sp-nav [data-act="next"]{background:var(--m);color:#fff;border-color:var(--m)}
 @media print{.short-card,.short-present{display:none!important}}
+/* 장면 수 고르기 버튼 (4회 02 이야기 · 특강 02 이야기 공용) */
+.count-options{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.count-options button{border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px 18px;font-weight:800;cursor:pointer}
+.count-options button.on{background:var(--soft);border-color:var(--m);color:var(--m)}
