@@ -33,6 +33,17 @@ const ColorMShort = (function () {
     }
     return s;
   }
+  // 학생이 쓴 문장(기획·장면 설명)은 뜻이 잘리지 않게: 첫 문장만, 쉼표에서 자르지 않고, 너무 길 때만 낱말 단위로 줄여요
+  function sentence(s, n) {
+    s = String(s || '').replace(/["“”'‘’「」『』]/g, '').replace(/\s+/g, ' ').trim();
+    if (!s) return '';
+    s = s.split(/[.!?。\n]/)[0].trim().replace(/[,，\s]+$/, '');
+    if (s.length > n) {
+      const cut = s.slice(0, n), k = cut.lastIndexOf(' ');
+      s = (k > n * 0.6 ? cut.slice(0, k) : cut).replace(/[,，\s]+$/, '') + '…';
+    }
+    return s;
+  }
   function hero(p) {
     const c = p.character || {};
     const name = String(c.name || ColorM.heroName(p.plan || {}) || '주인공').trim();
@@ -58,13 +69,16 @@ const ColorMShort = (function () {
     const pl = p.plan || {};
     const n = (p.story || {}).sceneCount || scenesOf(p).length || 6;
     const who = (pl.audience || '어린이') + ' 독자';
-    return [{
-      label: '이야기 받기 (캔바 Magic Write · 글쓰기 AI)',
-      text: who + '를 위한 그림책 이야기를 ' + n + '장면으로 써 줘. ' +
-        '주인공: ' + (clip(pl.hero, 24) || '주인공') + '. 원하는 것: ' + (clip(pl.goal, 24) || '') + '. 문제: ' + (clip(pl.problem, 24) || '') +
-        '. 전하고 싶은 말: ' + (clip(pl.message, 24) || '') + '. ' +
-        '장면마다 [장면 1]처럼 쓰고, 그 아래에 제목: 본문: (2문장) 대화: (1줄)로 써 줘.'
-    }];
+    // 줄을 나눠서 크게 보기에서 한 줄씩 따라 칠 수 있게 해요. 마지막 형식 예시는 답을 「장면 카드 채우기」가 읽는 모양 그대로예요.
+    const lines = [
+      who + '를 위한 그림책 이야기를 ' + n + '장면으로 써 줘.',
+      '주인공: ' + (sentence(pl.hero, 60) || '주인공')
+    ];
+    if (pl.goal) lines.push('원하는 것: ' + sentence(pl.goal, 60));
+    if (pl.problem) lines.push('문제: ' + sentence(pl.problem, 60));
+    if (pl.message) lines.push('전하고 싶은 말: ' + sentence(pl.message, 60));
+    lines.push('장면마다 아래 모양으로 써 줘.', '[장면 1]', '제목:', '본문: (2문장)', '대화: (1줄)');
+    return [{ label: '이야기 받기 (캔바 Magic Write · 글쓰기 AI)', text: lines.join('\n') }];
   }
   function character(p) {
     const st = style(p), h = hero(p), nm = heroName(p);
@@ -77,7 +91,7 @@ const ColorMShort = (function () {
     const st = style(p), h = hero(p), sc = scenesOf(p);
     if (!sc.length) return [];
     return sc.map(function (s, i) {
-      const act = clip(s.memo || s.content || s.title, 34) || '이야기의 한 장면';
+      const act = sentence(s.memo || s.content || s.title, 45) || '이야기의 한 장면';
       const place = clip(s.conti, 16);
       return {
         label: '장면 ' + pad(s.no || i + 1) + (s.title && !/^장면\s*\d+$/.test(s.title) ? ' · ' + clip(s.title, 16) : ''),
@@ -88,7 +102,7 @@ const ColorMShort = (function () {
   function cover(p) {
     const cv = p.cover || {};
     const title = p.bookTitle || (cv.title && cv.title !== '제목 미정' ? cv.title : '') || ((p.story || {}).titles || [])[0] || '';
-    const what = clip(cv.sceneDesc && cv.sceneDesc !== '표지 장면 미정' ? cv.sceneDesc : '', 34) || '이야기에서 가장 중요한 순간';
+    const what = sentence(cv.sceneDesc && cv.sceneDesc !== '표지 장면 미정' ? cv.sceneDesc : '', 45) || '이야기에서 가장 중요한 순간';
     return [{
       label: '표지 그림' + (title ? ' · 『' + title + '』' : ''),
       text: style(p) + ' 그림책 표지 그림. 주인공 ' + hero(p) + '. ' + what + '. ' + colorWord(p) + ', 위쪽에 제목 넣을 여백, 글자 없이'
