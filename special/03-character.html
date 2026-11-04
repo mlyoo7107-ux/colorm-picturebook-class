@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-5.svg">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="../shared/colorm.css?v=20261104c">
+<link rel="stylesheet" href="../shared/colorm.css?v=20261104e">
 <style>
 .prev-box{background:var(--tint);border:1px solid var(--ab);border-radius:14px;padding:14px 16px;font-size:13px;line-height:1.7;color:#5e575b;white-space:pre-wrap}
 .checks{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
@@ -36,7 +36,7 @@
 <li><b>③ 마음에 드는 그림 저장</b><small>이 그림을 04 그림책·05 표지에서 AI에 함께 첨부해요.</small></li>
 <li><b>④ 캐릭터 시트 만들기</b><small>정면·옆모습·표정을 한 장에 모아 둬요. 모든 장면에서 같은 모습으로 그리는 데 꼭 필요해요.</small></li>
 </ol>
-<details class="paste-det"><summary>03 스토리보드에서 정한 등장인물 보기</summary>
+<details class="paste-det"><summary>02 이야기에서 정한 등장인물 보기</summary>
 <p class="help" style="margin-top:8px">자동으로 불러왔어요. 바뀐 게 있다면 아래 버튼으로 다시 불러오세요.</p>
 <div class="actions"><button class="btn ghost" type="button" onclick="loadPrevData()">등장인물 다시 불러오기</button></div>
 <div id="prevPreview" class="prev-box" style="margin-top:10px">아직 불러온 정보가 없습니다.</div>
@@ -142,7 +142,7 @@
 <span class="lang-tag lang-en cm-hide">🇺🇸 English</span>
 <div id="sheetPromptEN" class="box cm-hide"></div>
 </article>
-<article class="result cm-hide"><h3>⑤ 05 장면으로 이어지는 정보</h3><div id="sceneHandoff" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('sceneHandoff')">복사하기</button></article>
+<article class="result cm-hide"><h3>⑤ 04 그림책으로 이어지는 정보</h3><div id="sceneHandoff" class="box"></div><button class="copy" type="button" onclick="ColorM.copyBox('sceneHandoff')">복사하기</button></article>
 </div>
 
 <div class="download-actions">
@@ -155,12 +155,12 @@
 
 <footer></footer>
 
-<script src="../shared/colorm.js?v=20261104c"></script>
-<script src="../shared/presets.js?v=20261104c"></script>
-<script src="../shared/mind.js?v=20261104c"></script>
-<script src="../shared/recommend.js?v=20261104c"></script>
-<script src="../shared/kr-en-prompt.js?v=20261104c"></script>
-<script src="../shared/styles.js?v=20261104c"></script>
+<script src="../shared/colorm.js?v=20261104e"></script>
+<script src="../shared/presets.js?v=20261104e"></script>
+<script src="../shared/mind.js?v=20261104e"></script>
+<script src="../shared/recommend.js?v=20261104e"></script>
+<script src="../shared/kr-en-prompt.js?v=20261104e"></script>
+<script src="../shared/styles.js?v=20261104e"></script>
 <script>
 const $=id=>document.getElementById(id);
 ColorM.renderHeader('cmHeader','character');
@@ -191,7 +191,7 @@ function loadPrevData(){
     if(!v('name') && plan.hero) $('name').value = ColorM.heroName(plan) === '주인공' ? '' : ColorM.heroName(plan);
     if(!v('mood')) $('mood').value = plan.mood || '';
   }else{
-    $('prevPreview').textContent = '아직 불러온 정보가 없습니다. 03 스토리보드를 먼저 완료해주세요.';
+    $('prevPreview').textContent = '아직 불러온 정보가 없습니다. 02 이야기를 먼저 완료해주세요.';
   }
 }
 loadPrevData();
@@ -460,12 +460,12 @@ $('sheetForm').addEventListener('submit', function(e){
 });
 
 function buildDownloadText(){
-  return ['COLOR.M 마음색 그림책 메이커 · 04 캐릭터','================================','',
+  return ['COLOR.M 마음색 그림책 메이커 · 03 캐릭터','================================','',
     '[한 줄 캐릭터]', $('oneLine').textContent.trim(),'',
     '[캐릭터 고정 정보]', $('fixedInfo').textContent.trim(),'',
     '[기본 캐릭터 프롬프트 · 한국어]', $('basePrompt').textContent.trim(),'',
     '[캐릭터 시트 요청문 · 한국어]', $('sheetPrompt').textContent.trim(),'',
-    '[05 장면으로 이어지는 정보]', $('sceneHandoff').textContent.trim()
+    '[04 그림책으로 이어지는 정보]', $('sceneHandoff').textContent.trim()
   ].join('\n');
 }
 function downloadTXT(){
@@ -497,8 +497,8 @@ function syncMoreDet(){ if(['personality','emotion','habit','mood'].some(functio
 $('baseForm').addEventListener('input', syncMoreDet);
 setTimeout(syncMoreDet, 400);
 
-// 03 스토리보드에서 넘어온 인물 정보로 채웁니다.
-//  · ChatGPT 답변을 새로 채운 직후(fresh)에는 04 칸을 그 내용으로 바꾸고,
+// 02 이야기에서 넘어온 인물 정보로 채웁니다.
+//  · ChatGPT 답변을 새로 채운 직후(fresh)에는 03 칸을 그 내용으로 바꾸고,
 //  · 그 외에는 빈 칸만 채웁니다. (주인공 줄이 없던 스토리보드는 장면 속 인물 이름으로 대신해요)
 (function(){
   const pr = ColorM.getProject();
@@ -528,10 +528,10 @@ setTimeout(syncMoreDet, 400);
     if(hd.raw && pvEl.textContent.indexOf('ChatGPT 주인공 설명') < 0){
       pvEl.textContent += (pvEl.textContent ? '\n\n' : '') + 'ChatGPT 주인공 설명: ' + hd.raw;
     }
-    ColorM.toast('03 스토리보드의 인물 정보를 가져왔어요. 확인하고 고쳐주세요.');
+    ColorM.toast('02 이야기의 인물 정보를 가져왔어요. 확인하고 고쳐주세요.');
   }
 })();</script>
-<script src="../shared/short.js?v=20261104c"></script>
+<script src="../shared/short.js?v=20261104e"></script>
 <script>
 // 만일에 대비: ChatGPT를 못 쓰거나 요청문을 보내기 어려운 교실용 캔바 요청문 (맨 아래 접힌 상자)
 ColorMShort.mount(null, 'character', 'end');

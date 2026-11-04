@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-5.svg">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="../shared/colorm.css?v=20261104c">
+<link rel="stylesheet" href="../shared/colorm.css?v=20261104e">
 <style>
 .prev-box{background:var(--tint);border:1px solid var(--ab);border-radius:14px;padding:14px 16px;font-size:13px;line-height:1.7;color:#5e575b;white-space:pre-wrap}
 .count-options{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
@@ -23,18 +23,18 @@
 <body>
 <div id="cmHeader"></div>
 <header class="hero hero-sub">
-<p class="sub">스토리보드와 캐릭터를 바탕으로 <b>장면 그림 요청문</b>을 만들어요. 아래 <b>「모든 장면 한 번에 만들기」</b>를 누르면 모든 장면 요청문이 한 번에 나와요.<br>캔바를 쓴다면 맨 위 카드로 책 전체를 한 번에 넣을 수도 있어요.</p>
+<p class="sub">그림을 만드는 방법은 두 가지예요. 쓰는 AI에 맞는 하나만 하면 돼요.<br>① <b>캔바</b> → 맨 위 「캔바에 전체를 한 번에 넣기」 카드 &nbsp;② <b>ChatGPT 등 다른 AI</b> → 아래 「모든 장면 한 번에 만들기」</p>
 </header>
 
 <main class="wrap">
 <form id="sceneForm">
 <section class="card">
-<div class="step"><span>STEP 01</span><h2>장면 선택</h2></div>
-<p class="help"><b>장면별로 이미지를 만들 때</b> 쓰는 부분이에요. 작업할 장면을 선택하세요. (03 스토리보드 기준)</p>
+<div class="step"><span>STEP 01</span><h2>장면별 요청문 (ChatGPT · 다른 AI)</h2></div>
+<p class="help">장면마다 그림을 따로 만들 때 쓰는 부분이에요. 먼저 <b>「모든 장면 한 번에 만들기」</b>를 누르고, 한 장면만 다듬고 싶을 때 아래에서 장면을 골라요.</p>
 <div class="count-options" id="sceneOptions"></div>
 <div class="all-box">
 <div><b>⚡ 장면이 여러 개라면 한 번에 만들 수 있어요</b>
-<span class="help" style="display:block;margin:4px 0 0">03 스토리보드의 모든 장면을 한꺼번에 프롬프트로 만들어요. 한 장면만 더 다듬고 싶다면 위에서 장면을 골라 아래 칸을 고치세요.</span></div>
+<span class="help" style="display:block;margin:4px 0 0">02 이야기의 모든 장면을 한꺼번에 프롬프트로 만들어요. 한 장면만 더 다듬고 싶다면 위에서 장면을 골라 아래 칸을 고치세요.</span></div>
 <button type="button" class="btn primary" id="makeAll">모든 장면 한 번에 만들기</button>
 </div>
 </section>
@@ -62,7 +62,7 @@
 
 <section class="card">
 <div class="step"><span>STEP 03</span><h2>그림 비율</h2></div>
-<p class="help">캔바에서 쓸 <b>책 크기와 같은 비율</b>로 골라요. (정사각형 1:1 · 가로형 4:3 · 세로형 3:4)</p>
+<p class="help">만들 <b>책 크기와 같은 비율</b>로 골라요. 그림책은 <b>세로 3:4</b>를 가장 많이 써요.</p>
 <div class="grid3">
 <label>이미지 비율<select id="ratio"><option>1:1</option><option selected>3:4</option><option>4:3</option><option>16:9</option><option>9:16</option></select></label>
 <label class="cm-hide">배경<input id="iBg" placeholder="예: 색색의 꽃이 핀 마을 풍경"></label>
@@ -122,12 +122,12 @@
 
 <footer></footer>
 
-<script src="../shared/colorm.js?v=20261104c"></script>
-<script src="../shared/presets.js?v=20261104c"></script>
-<script src="../shared/mind.js?v=20261104c"></script>
-<script src="../shared/recommend.js?v=20261104c"></script>
-<script src="../shared/kr-en-prompt.js?v=20261104c"></script>
-<script src="../shared/canva.js?v=20261104c"></script>
+<script src="../shared/colorm.js?v=20261104e"></script>
+<script src="../shared/presets.js?v=20261104e"></script>
+<script src="../shared/mind.js?v=20261104e"></script>
+<script src="../shared/recommend.js?v=20261104e"></script>
+<script src="../shared/kr-en-prompt.js?v=20261104e"></script>
+<script src="../shared/canva.js?v=20261104e"></script>
 <script>
 const $=id=>document.getElementById(id);
 const SCENE_LOCK_LINE = '첨부한 기준 캐릭터의 얼굴, 헤어, 의상, 소품, 신체 비율, 대표 색상은 변경하지 말고 유지해주세요.';
@@ -166,7 +166,7 @@ function renderSceneOptions(){
   boardScenes = (project.storyboard && project.storyboard.scenes) ? project.storyboard.scenes : [];
   const wrap = $('sceneOptions');
   if(boardScenes.length===0){
-    wrap.innerHTML = '<span class="help" style="margin:0">아직 불러올 스토리보드가 없습니다. 03 스토리보드를 먼저 완료해주세요. (기본 장면으로 진행합니다)</span>';
+    wrap.innerHTML = '<span class="help" style="margin:0">아직 불러올 스토리보드가 없습니다. 02 이야기를 먼저 완료해주세요. (기본 장면으로 진행합니다)</span>';
     boardScenes = [{no:1,title:'',cast:'',content:'',dialogue:'',conti:''}];
   }else{
     wrap.innerHTML = boardScenes.map((s,i)=>`<button type="button" data-i="${i}" class="${i===0?'on':''}">장면 ${String(s.no).padStart(2,'0')}</button>`).join('');
@@ -359,7 +359,7 @@ $('saveAllTXT').addEventListener('click', function(){
 });
 
 function buildDownloadText(){
-  return ['COLOR.M 마음색 그림책 메이커 · 05 장면','================================','',
+  return ['COLOR.M 마음색 그림책 메이커 · 04 그림책','================================','',
     '[장면 설명]', $('sceneDesc').textContent.trim(),'',
     '[AI 이미지 생성용 상세 프롬프트 · 한국어]', $('scenePrompt').textContent.trim(),'',
     '[캐릭터 일관성 유지 문장 · 한국어]', $('lockLine').textContent.trim(),'',
@@ -386,7 +386,7 @@ ColorM.restoreSilently(function(){
   const sc = (ColorM.getProject().scenes || [])[selectedIdx];
   if(draft.restored && sc && sc.scenePrompt) $('sceneForm').dispatchEvent(new Event('submit', {cancelable:true, bubbles:true}));
 });</script>
-<script src="../shared/short.js?v=20261104c"></script>
+<script src="../shared/short.js?v=20261104e"></script>
 <script>
 // 만일에 대비: ChatGPT를 못 쓰거나 요청문을 보내기 어려운 교실용 캔바 요청문 (맨 아래 접힌 상자)
 ColorMShort.mount(null, 'scene', 'end');

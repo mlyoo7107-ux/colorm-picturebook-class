@@ -15,6 +15,9 @@ const ColorMCanva = (function () {
     return /[가-힣]/.test(t) ? s : t;
   };
   const fx = function (s) { return (typeof ColorMEN !== 'undefined') ? ColorMEN.fixed(s) : s; };
+  // 특강 메이커(5회)는 단계 번호가 달라요 (02 이야기 · 03 캐릭터 · 05 표지)
+  const S5 = document.documentElement.dataset.session === "5";
+  const STEP = S5 ? { sb: "02 이야기", sbNo: "02", ch: "03 캐릭터", chNo: "03", cv: "05 표지" } : { sb: "03 스토리보드", sbNo: "03", ch: "04 캐릭터", chNo: "04", cv: "06 표지" };
   const mindOn = function () { return typeof ColorMMind !== 'undefined' && ColorMMind.hasColor(); };
 
   // ---------- 프로젝트에서 필요한 값 모으기 ----------
@@ -29,18 +32,18 @@ const ColorMCanva = (function () {
   // 빠진 부분을 알려줘서 채우도록 안내합니다.
   function missing(D) {
     const out = [];
-    if (!D.n) out.push('03 스토리보드에 장면이 없어요. 장면이 있어야 전체 스토리보드를 만들 수 있어요.');
+    if (!D.n) out.push(STEP.sb + '에 장면이 없어요. 장면이 있어야 전체 스토리보드를 만들 수 있어요.');
     else {
       const noText = [], noDlg = [];
       D.scenes.forEach(function (s, i) {
         if (!has(s.content)) noText.push(pad(s.no || i + 1));
         if (!has(s.dialogue)) noDlg.push(pad(s.no || i + 1));
       });
-      if (noText.length) out.push('본문 글이 비어 있는 장면: ' + noText.join(', ') + ' (03에서 채우면 좋아요. 비워 두면 캔바 AI가 장면 설명으로 문장을 만들어요)');
+      if (noText.length) out.push('본문 글이 비어 있는 장면: ' + noText.join(', ') + ' (' + STEP.sbNo + '에서 채우면 좋아요. 비워 두면 캔바 AI가 장면 설명으로 문장을 만들어요)');
       if (noDlg.length && noDlg.length < D.n) out.push('대화가 비어 있는 장면: ' + noDlg.join(', ') + ' (대화 없는 장면이면 그대로 둬도 돼요)');
     }
-    if (!(D.ch.fixedInfo || D.ch.name)) out.push('04 캐릭터를 아직 만들지 않았어요. 캐릭터 정보가 있어야 모든 페이지에서 같은 모습을 유지해요.');
-    if (!(D.cover.coverDesc || D.cover.sceneDesc)) out.push('06 표지를 아직 만들지 않았어요. (표지 설명 없이도 만들 수 있지만, 만들어 두면 표지가 더 정확해져요)');
+    if (!(D.ch.fixedInfo || D.ch.name)) out.push(STEP.ch + '를 아직 만들지 않았어요. 캐릭터 정보가 있어야 모든 페이지에서 같은 모습을 유지해요.');
+    if (!(D.cover.coverDesc || D.cover.sceneDesc)) out.push(STEP.cv + '를 아직 만들지 않았어요. (표지 설명 없이도 만들 수 있지만, 만들어 두면 표지가 더 정확해져요)');
     return out;
   }
 
@@ -80,7 +83,7 @@ const ColorMCanva = (function () {
     L.push('[주인공 캐릭터 — 모든 페이지에서 동일하게]');
     // 화풍·팔레트는 위 [화풍과 색]에 한 번만 적어요 (캐릭터 정보에 따로 저장된 예전 값은 뺍니다)
     const fixed = has(ch.fixedInfo) ? ch.fixedInfo.split('\n').filter(function (ln) { return !/^(색상 팔레트|화풍)\s*:/.test(ln.trim()); }).join('\n').trim() : '';
-    L.push(fixed || (has(ch.name) ? ('이름: ' + ch.name) : '(04에서 캐릭터를 만들면 여기에 들어가요)'));
+    L.push(fixed || (has(ch.name) ? ('이름: ' + ch.name) : '(' + STEP.chNo + '에서 캐릭터를 만들면 여기에 들어가요)'));
     const cast = ColorM.castBlock('kr');
     if (cast) { L.push(''); L.push('[함께 나오는 인물 — 해당 장면에만 등장]'); L.push(cast); }
     L.push('');
@@ -181,7 +184,7 @@ const ColorMCanva = (function () {
     sec.innerHTML =
       '<div class="step"><span>캔바를 쓴다면</span><h2>캔바에 전체를 한 번에 넣기</h2></div>' +
       '<p class="help">캔바는 장면을 하나씩 넣으면 장면마다 그림체와 캐릭터가 달라지기 쉬워요. 아래 <b>전체 스토리보드</b>(본문·대화 포함)를 한 번에 넣으면 그림과 본문 글이 함께 만들어져요.</p>' +
-      '<ol class="canva-steps"><li>04에서 만든 <b>캐릭터 그림·캐릭터 시트</b>를 캔바에 준비해요</li><li>아래 <b>전체 복사</b>를 눌러요</li><li>캔바 AI에 <b>붙여넣어 한 번에</b> 만들어요</li></ol>' +
+      '<ol class="canva-steps"><li>' + STEP.chNo + '에서 만든 <b>캐릭터 그림·캐릭터 시트</b>를 캔바에 준비해요</li><li>아래 <b>전체 복사</b>를 눌러요</li><li>캔바 AI에 <b>붙여넣어 한 번에</b> 만들어요</li></ol>' +
       '<div class="canva-warn" data-role="warn" hidden></div>' +
       '<div class="actions"><button type="button" class="btn primary" data-act="kr">전체 복사</button>' +
 
@@ -197,7 +200,7 @@ const ColorMCanva = (function () {
       const D = collect(), warn = missing(D);
       q('warn').hidden = !warn.length;
       q('warn').innerHTML = warn.length ? '<b>채우면 더 좋아요</b><ul>' + warn.map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul>' : '';
-      q('kr').textContent = D.n ? buildKR(D) : '(03 스토리보드에서 장면을 만들면 여기에 전체 스토리보드가 만들어져요)';
+      q('kr').textContent = D.n ? buildKR(D) : '(' + STEP.sb + '에서 장면을 만들면 여기에 전체 스토리보드가 만들어져요)';
       q('en').textContent = D.n ? buildEN(D) : '(Create scenes in step 03 first)';
       return D;
     }
@@ -207,7 +210,7 @@ const ColorMCanva = (function () {
       if (!b) return;
       const D = refresh();
       if (b.dataset.act === 'refresh') { ColorM.toast('최신 내용으로 다시 만들었어요.'); return; }
-      if (!D.n) { ColorM.toast('먼저 03 스토리보드에서 장면을 만들어주세요.'); return; }
+      if (!D.n) { ColorM.toast('먼저 ' + STEP.sb + '에서 장면을 만들어주세요.'); return; }
       if (b.dataset.act === 'kr') ColorM.copyText(buildKR(D));
       else if (b.dataset.act === 'en') ColorM.copyText(buildEN(D));
       else if (b.dataset.act === 'txt') {

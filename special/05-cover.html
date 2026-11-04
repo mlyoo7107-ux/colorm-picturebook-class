@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-5.svg">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="../shared/colorm.css?v=20261104c">
+<link rel="stylesheet" href="../shared/colorm.css?v=20261104e">
 <style>
 .prev-box{background:var(--tint);border:1px solid var(--ab);border-radius:14px;padding:14px 16px;font-size:13px;line-height:1.7;color:#5e575b;white-space:pre-wrap}
 .lang-tag{display:inline-block;font-size:11px;font-weight:900;padding:3px 8px;border-radius:999px;margin:10px 0 6px}
@@ -43,7 +43,7 @@
 
 <section class="card">
 <div class="step"><span>STEP 02</span><h2>표지 모양</h2></div>
-<p class="help">캔바에서 쓸 <b>책 크기와 같은 비율</b>로 골라요. (정사각형 1:1 · 가로형 4:3 · 세로형 3:4)</p>
+<p class="help">만들 <b>책 크기와 같은 비율</b>로 골라요. 그림책은 <b>세로 3:4</b>를 가장 많이 써요.</p>
 <div class="grid3 cover-grid">
 <label>이미지 비율<select id="ratio"><option>1:1</option><option selected>3:4</option><option>4:3</option><option>16:9</option><option>9:16</option></select></label>
 <label class="cm-hide">배경<input id="iBg" placeholder="예: 색색의 빛이 감도는 몽환적인 배경"></label>
@@ -132,11 +132,11 @@
 
 <footer></footer>
 
-<script src="../shared/colorm.js?v=20261104c"></script>
-<script src="../shared/presets.js?v=20261104c"></script>
-<script src="../shared/mind.js?v=20261104c"></script>
-<script src="../shared/recommend.js?v=20261104c"></script>
-<script src="../shared/kr-en-prompt.js?v=20261104c"></script>
+<script src="../shared/colorm.js?v=20261104e"></script>
+<script src="../shared/presets.js?v=20261104e"></script>
+<script src="../shared/mind.js?v=20261104e"></script>
+<script src="../shared/recommend.js?v=20261104e"></script>
+<script src="../shared/kr-en-prompt.js?v=20261104e"></script>
 <script>
 const $=id=>document.getElementById(id);
 const COVER_LOCK_LINE = '첨부한 기준 캐릭터의 얼굴, 헤어, 의상, 소품, 신체 비율, 대표 색상은 변경하지 말고 유지해주세요.';
@@ -209,7 +209,7 @@ function loadPrevData(){
 }
 loadPrevData();
 
-// 05 장면과 같이, 마음색을 정했다면 표지의 컬러 분위기·배경을 미리 채워 둡니다 (직접 고칠 수 있어요).
+// 04 그림책과 같이, 마음색을 정했다면 표지의 컬러 분위기·배경을 미리 채워 둡니다 (직접 고칠 수 있어요).
 function fillCoverDefaults(){
   const pr = ColorM.getProject();
   if(typeof ColorMMind !== 'undefined' && ColorMMind.hasColor() && !$('iColor').value.trim()){
@@ -323,7 +323,7 @@ $('coverForm').addEventListener('submit', function(e){
 });
 
 function buildDownloadText(){
-  return ['COLOR.M 마음색 그림책 메이커 · 06 표지','================================','',
+  return ['COLOR.M 마음색 그림책 메이커 · 05 표지','================================','',
     '[표지 설명]', $('coverDesc').textContent.trim(),'',
     '[표지 그림 요청문]', $('coverPrompt').textContent.trim(),'',
     '[캐릭터 유지 문장]', $('lockLine').textContent.trim(),'',
@@ -342,7 +342,7 @@ ColorM.restoreSilently(function(){
   const cv = ColorM.getProject().cover || {};
   if(draft.restored && cv.coverPrompt && $('title').value.trim()) $('coverForm').dispatchEvent(new Event('submit', {cancelable:true, bubbles:true}));
 });</script>
-<script src="../shared/short.js?v=20261104c"></script>
+<script src="../shared/short.js?v=20261104e"></script>
 <script>
 // 만일에 대비: ChatGPT를 못 쓰거나 요청문을 보내기 어려운 교실용 캔바 요청문 (맨 아래 접힌 상자)
 ColorMShort.mount(null, 'cover', 'end');
