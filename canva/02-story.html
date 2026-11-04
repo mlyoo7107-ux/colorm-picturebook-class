@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-6.svg">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="../shared/colorm.css?v=20261104b">
+<link rel="stylesheet" href="../shared/colorm.css?v=20261104c">
 <style>
 .prev-box{background:var(--tint);border:1px solid var(--ab);border-radius:14px;padding:14px 16px;font-size:13px;line-height:1.7;color:#5e575b;white-space:pre-wrap}
 .scene-card{border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:14px;background:#fffdfb}
@@ -25,13 +25,11 @@
 <main class="wrap">
 <section class="card">
 <div class="step"><span>STEP 01</span><h2>장면 수 정하기</h2></div>
-<p class="help">2시간 특강이라면 <b>6장면</b>이면 충분해요. 시간이 넉넉하면 8·10·12장면, 출판용이면 16장면으로 늘려요.</p>
-<div class="count-options" id="countOptions">
-<button type="button" data-n="6">6장면 (2시간 추천)</button>
-<button type="button" data-n="8">8장면</button>
-<button type="button" data-n="10">10장면</button>
-<button type="button" data-n="12">12장면</button>
-<button type="button" data-n="16">16장면 (출판용)</button>
+<p class="help">2시간 수업이라면 <b>6장면</b>이면 충분해요. 출판할 책은 「출판용」에서 골라요.</p>
+<style>.count-groups{flex-direction:column;align-items:stretch;gap:8px}.count-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}.count-label{min-width:58px;font-weight:800;font-size:.92rem;color:var(--muted)}</style>
+<div class="count-options count-groups" id="countOptions">
+<div class="count-row"><span class="count-label">수업용</span><button type="button" data-n="6">6장면 (2시간 추천)</button><button type="button" data-n="8">8장면</button><button type="button" data-n="10">10장면</button></div>
+<div class="count-row"><span class="count-label">출판용</span><button type="button" data-n="12">12장면</button><button type="button" data-n="14">14장면</button><button type="button" data-n="16">16장면</button></div>
 </div>
 </section>
 
@@ -69,11 +67,11 @@
 
 <footer></footer>
 
-<script src="../shared/colorm.js?v=20261104b"></script>
-<script src="../shared/presets.js?v=20261104b"></script>
-<script src="../shared/mind.js?v=20261104b"></script>
-<script src="../shared/recommend.js?v=20261104b"></script>
-<script src="../shared/bridge.js?v=20261104b"></script>
+<script src="../shared/colorm.js?v=20261104c"></script>
+<script src="../shared/presets.js?v=20261104c"></script>
+<script src="../shared/mind.js?v=20261104c"></script>
+<script src="../shared/recommend.js?v=20261104c"></script>
+<script src="../shared/bridge.js?v=20261104c"></script>
 <script>
 const $=id=>document.getElementById(id);
 ColorM.renderHeader('cmHeader','storyboard');
@@ -156,8 +154,8 @@ function decorateSceneCards(){
 
 let currentPlan = {};
 
-// 줄거리 단계 없이 여기서 장면 수(6·8·10·12·16)를 바로 정해요. 고른 수는 story.sceneCount에 저장해요.
-const SCENE_COUNTS = [6, 8, 10, 12, 16];
+// 줄거리 단계 없이 여기서 장면 수(수업용 6·8·10, 출판용 12·14·16)를 바로 정해요. 고른 수는 story.sceneCount에 저장해요.
+const SCENE_COUNTS = [6, 8, 10, 12, 14, 16];
 function sceneCountNow(){
   const n = +((ColorM.getProject().story||{}).sceneCount);
   return SCENE_COUNTS.indexOf(n) >= 0 ? n : 6;
@@ -346,7 +344,7 @@ ColorM.restoreSilently(function(){
   const sb = ColorM.getProject().storyboard || {};
   if(draft.restored && sb.scenes && sb.scenes.length) $('boardForm').dispatchEvent(new Event('submit', {cancelable:true, bubbles:true}));
 });</script>
-<script src="../shared/short.js?v=20261104b"></script>
+<script src="../shared/short.js?v=20261104c"></script>
 <script>
 // 만일에 대비: ChatGPT를 못 쓰거나 요청문을 보내기 어려운 교실용 캔바 요청문 (맨 아래 접힌 상자)
 ColorMShort.mount(null, 'story', 'end');
