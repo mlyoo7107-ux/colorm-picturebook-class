@@ -30,7 +30,12 @@
 </div>
 <label>생김새<input id="cLook" placeholder="예: 크고 쫑긋한 귀, 복슬복슬한 회색 털"></label>
 <label>옷·소품<input id="cOutfit" placeholder="예: 빨간 털모자와 목도리"></label>
-<label>화풍 <small>(책 전체가 이 그림체로 통일돼요)</small><select id="cStyle">
+</section>
+
+<section class="card">
+<div class="step"><span>STEP 02</span><h2>화풍 고르기</h2></div>
+<p class="help">예시 그림을 보고 마음에 드는 그림체를 골라요. 책 전체가 이 그림체로 통일돼요.</p>
+<label>화풍<select id="cStyle">
 <option>부드러운 파스텔 톤의 수채화 그림책 스타일</option>
 <option>따뜻한 선과 포근한 색감의 동화책 일러스트 스타일</option>
 <option>선명한 색감의 디지털 일러스트 스타일</option>
@@ -57,9 +62,13 @@
 <script src="../shared/colorm.js?v=20261018h"></script>
 <script src="../shared/mind.js?v=20261018h"></script>
 <script src="../shared/short.js?v=20261018h"></script>
+<script src="../shared/styles.js?v=20261018h"></script>
 <script>
 const $=id=>document.getElementById(id);
 ColorM.renderHeader('cmHeader','character');
+// 화풍은 예시 그림 카드로 골라요 (「직접 입력」도 돼요)
+ColorM.selectOther('cStyle', { placeholder: '예: 따뜻한 동화책 수채화 스타일' });
+ColorMStyles.mount('cStyle');
 ColorM.renderStepNav('cmStepNav','character');
 const v=id=>($(id).value||'').trim();
 
