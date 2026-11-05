@@ -144,7 +144,9 @@ function deriveDefaults(p){
   const summary=(story.summary||'').trim();
   const intro=[summary || [plan.problem,plan.goal].filter(Boolean).join(' '), plan.message?('이 책이 전하는 마음: '+plan.message):''].filter(Boolean).join('\n\n');
   const cat={'유아 5~7세':'유아 그림책','청소년':'어른을 위한 그림책','전체 연령':'어른을 위한 그림책'}[plan.audience]||'어린이 그림책';
-  return { title, subtitle:cover.subtitle||'', category:cat, price:'3000', intro, toc:deriveToc(p), aiText:'assist', aiImage:'ai' };
+  // 캔바·특강 메이커 06 작가의 말에서 쓴 이름과 글이 있으면 그대로 이어 받아요
+  const au=p.author||{};
+  return { title, subtitle:cover.subtitle||'', author:au.name||'', category:cat, price:'3000', intro, toc:deriveToc(p), aiText:'assist', aiImage:'ai', authorNote:au.text||'' };
 }
 function aiLine(f){
   if(f.aiText!=='assist' && f.aiImage==='hand') return '';
