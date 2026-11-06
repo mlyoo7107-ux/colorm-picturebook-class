@@ -142,7 +142,10 @@ function deriveDefaults(p){
   const plan=p.plan||{}, story=p.story||{}, cover=p.cover||{};
   const title=p.bookTitle||(cover.title&&cover.title!=='제목 미정'?cover.title:'')||(story.titles&&story.titles[0])||'';
   const summary=(story.summary||'').trim();
-  const intro=[summary || [plan.problem,plan.goal].filter(Boolean).join(' '), plan.message?('이 책이 전하는 마음: '+plan.message):''].filter(Boolean).join('\n\n');
+  // 줄거리가 없으면 01 기획의 「한 줄 기획」을 써요. 한 줄 기획에는 메시지가 이미 들어 있어요.
+  const oneLine=(plan.oneLine||'').trim();
+  const intro=(!summary && oneLine) ? oneLine
+    : [summary || [plan.problem,plan.goal].filter(Boolean).join(' '), plan.message?('이 책이 전하는 마음: '+plan.message):''].filter(Boolean).join('\n\n');
   const cat={'유아 5~7세':'유아 그림책','청소년':'어른을 위한 그림책','전체 연령':'어른을 위한 그림책'}[plan.audience]||'어린이 그림책';
   // 캔바·특강 메이커 06 작가의 말에서 쓴 이름과 글이 있으면 그대로 이어 받아요
   const au=p.author||{};
