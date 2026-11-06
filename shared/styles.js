@@ -6,21 +6,23 @@
 const ColorMStyles = (function () {
 
   // 선택 목록의 값 → 카드 이름/설명
+  // 카드는 9개 + 「직접 입력」. card:false 화풍은 카드에서만 빼요(예전에 고른 작업파일은 그대로 쓰여요).
   const STYLES = [
     { value: '부드러운 파스텔 톤의 수채화 그림책 스타일', key: 'wc', label: '수채화 그림책', desc: '물감이 번진 듯 부드럽고 포근해요. 어린이 그림책에 잘 어울려요.' },
     { value: '따뜻한 선과 포근한 색감의 동화책 일러스트 스타일', key: 'sb', label: '동화책 일러스트', desc: '부드러운 선과 포근한 색으로 그린, 우리가 아는 그 동화책 그림이에요.' },
-    { value: '선명한 색감의 디지털 일러스트 스타일', key: 'dg', label: '디지털 일러스트', desc: '또렷하고 선명한 색, 빛 표현이 살아 있는 웹툰·포스터 느낌이에요.' },
+    { value: '차분한 색면의 과슈 그림책 스타일', key: 'gq', label: '과슈', desc: '불투명한 물감의 차분하고 세련된 색, 요즘 그림책에 많이 써요.' },
     { value: '손그림 느낌의 색연필 스타일', key: 'cp', label: '색연필 손그림', desc: '색연필로 쓱쓱 칠한 듯한 따뜻한 손맛이 나요.' },
-    { value: '귀여운 플랫 벡터 스타일', key: 'fv', label: '플랫 벡터', desc: '단순한 도형과 깔끔한 색 면으로 만든 아이콘·캐릭터 느낌이에요.' },
-    { value: '따뜻한 톤의 동화책 유화 스타일', key: 'oil', label: '유화 느낌', desc: '물감이 두툼하게 올라간 깊은 색감, 클래식한 명화 같은 분위기예요.' },
+    { value: '아이가 그린 듯한 크레파스 오일파스텔 스타일', key: 'cr', label: '크레파스', desc: '크레파스로 꾹꾹 눌러 칠한 듯 꾸밈없고 정겨워요.' },
+    { value: '선명한 색감의 디지털 일러스트 스타일', key: 'dg', label: '디지털 일러스트', desc: '또렷하고 선명한 색, 빛 표현이 살아 있는 웹툰·포스터 느낌이에요.' },
     { value: '맑고 선명한 색감의 2D 애니메이션 스타일', key: 'an', label: '애니메이션', desc: '맑은 하늘색과 또렷한 명암, 만화영화의 한 장면 같아요.' },
     { value: '말랑한 점토로 빚은 듯한 3D 클레이 스타일', key: 'clay', label: '클레이(점토)', desc: '손으로 조물조물 빚은 듯 말랑하고 입체적이에요.' },
-    { value: '아이가 그린 듯한 크레파스 오일파스텔 스타일', key: 'cr', label: '크레파스', desc: '크레파스로 꾹꾹 눌러 칠한 듯 꾸밈없고 정겨워요.' },
-    { value: '색종이를 오려 붙인 종이 콜라주 스타일', key: 'pc', label: '종이 콜라주', desc: '색종이를 오려 붙인 듯한 고전 그림책 느낌이에요.' },
     { value: '먹선과 은은한 채색의 한국 민화 수묵담채 스타일', key: 'mh', label: '민화 · 수묵담채', desc: '먹선에 은은한 색을 올린 한국적인 그림이에요. 옛이야기에 잘 어울려요.' },
-    { value: '보송보송한 펠트 양모 인형 스타일', key: 'ft', label: '펠트 인형', desc: '털실을 뭉쳐 만든 인형처럼 보송보송하고 포근해요.' },
-    { value: '차분한 색면의 과슈 그림책 스타일', key: 'gq', label: '과슈', desc: '불투명한 물감의 차분하고 세련된 색, 요즘 그림책에 많이 써요.' }
+    { value: '귀여운 플랫 벡터 스타일', key: 'fv', label: '플랫 벡터', desc: '단순한 도형과 깔끔한 색 면으로 만든 아이콘·캐릭터 느낌이에요.', card: false },
+    { value: '따뜻한 톤의 동화책 유화 스타일', key: 'oil', label: '유화 느낌', desc: '물감이 두툼하게 올라간 깊은 색감, 클래식한 명화 같은 분위기예요.', card: false },
+    { value: '색종이를 오려 붙인 종이 콜라주 스타일', key: 'pc', label: '종이 콜라주', desc: '색종이를 오려 붙인 듯한 고전 그림책 느낌이에요.', card: false },
+    { value: '보송보송한 펠트 양모 인형 스타일', key: 'ft', label: '펠트 인형', desc: '털실을 뭉쳐 만든 인형처럼 보송보송하고 포근해요.', card: false }
   ];
+  const CARDS = STYLES.filter(function (s) { return s.card !== false; });
 
   // ---------- 예시 그림 (SVG) ----------
   const W = 160, H = 108;
@@ -388,7 +390,7 @@ const ColorMStyles = (function () {
     });
     const grid = document.createElement('div');
     grid.className = 'style-cards';
-    grid.innerHTML = STYLES.map(function (s) {
+    grid.innerHTML = CARDS.map(function (s) {
       return '<button type="button" class="style-card" data-value="' + s.value + '">' +
         '<span class="style-thumb">' + THUMBS[s.key]() + '</span>' +
         '<b>' + s.label + '</b><small>' + s.desc + '</small></button>';
