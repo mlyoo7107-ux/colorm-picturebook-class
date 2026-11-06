@@ -95,7 +95,9 @@ const ColorMSession = (function () {
     const prevMissing = prevSteps.filter(function (s) { return !status[s.key]; });
     const checks = (ColorM.getProject().wrapChecks || {})[no] || {};
 
-    document.title = se.title || (se.name + ' — 마음색 그림책 ' + no + '회 메이커');
+    // 탭 이름 맨 앞에 용도를 붙여 메이커끼리 헷갈리지 않게 해요: [1회] · [특강] · [캔바]
+    const tag = no === 5 ? '특강' : no === 6 ? '캔바' : no + '회';
+    document.title = '[' + tag + '] ' + (se.title || (se.name + ' — 마음색 그림책'));
     root.innerHTML =
       '<header class="hero">' + (single ? '' : '<p class="eyebrow">' + no + '회차 메이커</p>') + '<h1><b>' + esc(single ? se.title : se.name) + '</b></h1><p class="sub">' + esc(info.goal) + '</p></header>' +
       loadCard(no, prevSteps, prevMissing) +
