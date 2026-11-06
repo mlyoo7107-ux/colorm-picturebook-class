@@ -20,6 +20,13 @@ const ColorMEN = (function () {
     '손그림 느낌의 색연필 스타일': 'hand-drawn colored-pencil style',
     '귀여운 플랫 벡터 스타일': 'cute flat vector illustration style',
     '따뜻한 톤의 동화책 유화 스타일': 'warm-toned storybook oil-painting style',
+    '맑고 선명한 색감의 2D 애니메이션 스타일': '2D animation style with clean lines, crisp cel shading and bright clear colors',
+    '말랑한 점토로 빚은 듯한 3D 클레이 스타일': 'soft 3D claymation style, as if sculpted from playdough-like modeling clay',
+    '아이가 그린 듯한 크레파스 오일파스텔 스타일': "childlike crayon and oil-pastel drawing style with waxy, textured strokes",
+    '색종이를 오려 붙인 종이 콜라주 스타일': 'cut-paper collage style made of layered, textured colored paper',
+    '먹선과 은은한 채색의 한국 민화 수묵담채 스타일': 'traditional Korean folk painting (minhwa) style with ink brush outlines and soft, light color washes on hanji paper',
+    '보송보송한 펠트 양모 인형 스타일': 'needle-felted wool doll style with a soft, fuzzy texture',
+    '차분한 색면의 과슈 그림책 스타일': 'matte gouache picture-book painting style with calm, flat areas of color',
     // 화면 범위 / 배경 / 텍스트
     '전신': 'full body shot', '반신': 'half body shot', '45도': '3/4 angle view', '얼굴 중심': 'close-up on face',
     '흰색 기본': 'plain white background', '단색': 'solid color background', '간단한 배경': 'simple background',

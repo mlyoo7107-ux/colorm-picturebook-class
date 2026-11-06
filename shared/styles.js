@@ -12,7 +12,14 @@ const ColorMStyles = (function () {
     { value: '선명한 색감의 디지털 일러스트 스타일', key: 'dg', label: '디지털 일러스트', desc: '또렷하고 선명한 색, 빛 표현이 살아 있는 웹툰·포스터 느낌이에요.' },
     { value: '손그림 느낌의 색연필 스타일', key: 'cp', label: '색연필 손그림', desc: '색연필로 쓱쓱 칠한 듯한 따뜻한 손맛이 나요.' },
     { value: '귀여운 플랫 벡터 스타일', key: 'fv', label: '플랫 벡터', desc: '단순한 도형과 깔끔한 색 면으로 만든 아이콘·캐릭터 느낌이에요.' },
-    { value: '따뜻한 톤의 동화책 유화 스타일', key: 'oil', label: '유화 느낌', desc: '물감이 두툼하게 올라간 깊은 색감, 클래식한 명화 같은 분위기예요.' }
+    { value: '따뜻한 톤의 동화책 유화 스타일', key: 'oil', label: '유화 느낌', desc: '물감이 두툼하게 올라간 깊은 색감, 클래식한 명화 같은 분위기예요.' },
+    { value: '맑고 선명한 색감의 2D 애니메이션 스타일', key: 'an', label: '애니메이션', desc: '맑은 하늘색과 또렷한 명암, 만화영화의 한 장면 같아요.' },
+    { value: '말랑한 점토로 빚은 듯한 3D 클레이 스타일', key: 'clay', label: '클레이(점토)', desc: '손으로 조물조물 빚은 듯 말랑하고 입체적이에요.' },
+    { value: '아이가 그린 듯한 크레파스 오일파스텔 스타일', key: 'cr', label: '크레파스', desc: '크레파스로 꾹꾹 눌러 칠한 듯 꾸밈없고 정겨워요.' },
+    { value: '색종이를 오려 붙인 종이 콜라주 스타일', key: 'pc', label: '종이 콜라주', desc: '색종이를 오려 붙인 듯한 고전 그림책 느낌이에요.' },
+    { value: '먹선과 은은한 채색의 한국 민화 수묵담채 스타일', key: 'mh', label: '민화 · 수묵담채', desc: '먹선에 은은한 색을 올린 한국적인 그림이에요. 옛이야기에 잘 어울려요.' },
+    { value: '보송보송한 펠트 양모 인형 스타일', key: 'ft', label: '펠트 인형', desc: '털실을 뭉쳐 만든 인형처럼 보송보송하고 포근해요.' },
+    { value: '차분한 색면의 과슈 그림책 스타일', key: 'gq', label: '과슈', desc: '불투명한 물감의 차분하고 세련된 색, 요즘 그림책에 많이 써요.' }
   ];
 
   // ---------- 예시 그림 (SVG) ----------
@@ -165,7 +172,205 @@ const ColorMStyles = (function () {
     return wrap(body, defs);
   }
 
-  const THUMBS = { wc: thumbWC, sb: thumbSB, dg: thumbDG, cp: thumbCP, fv: thumbFV, oil: thumbOil };
+  // 애니메이션: 맑은 하늘 그라데이션 + 경계가 또렷한 셀 명암(밝은 면 · 그림자 면 두 단계)
+  function thumbAN() {
+    const defs =
+      '<linearGradient id="cmst-ans" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3f9cff"/><stop offset="0.75" stop-color="#bfe4ff"/><stop offset="1" stop-color="#e8f6ff"/></linearGradient>' +
+      '<radialGradient id="cmst-ansun"><stop offset="0" stop-color="#ffffff"/><stop offset="0.35" stop-color="#fff8d0"/><stop offset="1" stop-color="#fff8d0" stop-opacity="0"/></radialGradient>';
+    const cloud = function (x, y, s) {
+      return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')">' +
+        '<path d="M0 14 Q0 6 8 6 Q10 -2 20 0 Q28 -4 32 4 Q40 4 40 14 Z" fill="#ffffff"/>' +
+        '<path d="M2 14 Q14 9 24 12 Q32 9 39 14 Z" fill="#d3e9ff"/></g>';
+    };
+    const body =
+      '<rect width="160" height="108" fill="url(#cmst-ans)"/>' +
+      '<circle cx="124" cy="26" r="26" fill="url(#cmst-ansun)"/><circle cx="124" cy="26" r="9" fill="#ffffff"/>' +
+      cloud(12, 14, 1) + cloud(70, 30, 0.7) +
+      '<path d="M0 72 Q40 48 84 64 T160 58 V108 H0Z" fill="#62cf6e"/>' +
+      '<path d="M0 80 Q40 60 84 72 T160 66 V108 H0Z" fill="#45b25e"/>' +
+      '<path d="M0 92 Q50 74 104 88 T160 84 V108 H0Z" fill="#2f9a50"/>' +
+      '<path d="M0 98 Q50 84 104 96 T160 94 V108 H0Z" fill="#23803f"/>' +
+      '<rect x="38" y="58" width="6" height="24" fill="#8a5232"/><rect x="41" y="58" width="3" height="24" fill="#6a3a22"/>' +
+      '<circle cx="41" cy="48" r="17" fill="#2aa05a"/>' +
+      '<path d="M26 44 A17 17 0 0 1 52 34 Q44 44 30 50 Z" fill="#5fd384"/>' +
+      '<rect x="96" y="66" width="32" height="22" fill="#ffffff"/><rect x="116" y="66" width="12" height="22" fill="#cfe2f7"/>' +
+      '<path d="M92 67 L112 49 L132 67Z" fill="#ff5f57"/><path d="M112 49 L132 67 L118 67Z" fill="#d93f46"/>' +
+      '<rect x="102" y="72" width="9" height="8" fill="#7cc8ff"/><path d="M102 72 h9 l-9 6z" fill="#ffffff" opacity="0.7"/>' +
+      '<path d="M18 30 l1.5 4 4 1.5 -4 1.5 -1.5 4 -1.5 -4 -4 -1.5 4 -1.5z" fill="#ffffff"/>' +
+      '<path d="M146 50 l1 3 3 1 -3 1 -1 3 -1 -3 -3 -1 3 -1z" fill="#ffffff" opacity="0.85"/>';
+    return wrap(body, defs);
+  }
+
+  // 클레이: 모양마다 볼록한 입체감(빛 반사 + 그림자)이 생기게 조명 필터를 씌워요
+  function thumbClay() {
+    const defs =
+      '<filter id="cmst-cl" x="-15%" y="-15%" width="130%" height="140%">' +
+        '<feGaussianBlur in="SourceAlpha" stdDeviation="2.4" result="b"/>' +
+        '<feDiffuseLighting in="b" surfaceScale="3.5" diffuseConstant="1" lighting-color="#ffffff" result="d"><feDistantLight azimuth="235" elevation="48"/></feDiffuseLighting>' +
+        '<feComposite in="SourceGraphic" in2="d" operator="arithmetic" k1="1.32" k2="0" k3="0" k4="0" result="lit"/>' +
+        '<feSpecularLighting in="b" surfaceScale="3.5" specularConstant="0.8" specularExponent="16" lighting-color="#ffffff" result="s"><feDistantLight azimuth="235" elevation="52"/></feSpecularLighting>' +
+        '<feComposite in="lit" in2="s" operator="arithmetic" k2="1" k3="0.45" result="c"/>' +
+        '<feComposite in="c" in2="SourceAlpha" operator="in" result="ci"/>' +
+        '<feGaussianBlur in="SourceAlpha" stdDeviation="1.8" result="sh"/><feOffset in="sh" dx="1.5" dy="2.8" result="so"/>' +
+        '<feColorMatrix in="so" type="matrix" values="0 0 0 0 0.25  0 0 0 0 0.18  0 0 0 0 0.12  0 0 0 0.4 0" result="sc"/>' +
+        '<feMerge><feMergeNode in="sc"/><feMergeNode in="ci"/></feMerge></filter>';
+    const c = function (el) { return '<g filter="url(#cmst-cl)">' + el + '</g>'; };
+    const body =
+      '<rect width="160" height="108" fill="#cfeaf4"/>' +
+      c('<circle cx="124" cy="28" r="13" fill="#ffcf4d"/>') +
+      c('<path d="M-6 76 Q40 50 84 68 T166 62 V114 H-6Z" fill="#8fd08a"/>') +
+      c('<path d="M-6 92 Q50 72 104 90 T166 86 V114 H-6Z" fill="#6cbf72"/>') +
+      c('<rect x="37" y="58" width="8" height="24" rx="3" fill="#bf7d4f"/>') +
+      c('<circle cx="41" cy="48" r="17" fill="#4fb36c"/>') +
+      c('<rect x="96" y="66" width="32" height="22" rx="4" fill="#ffe8c4"/>') +
+      c('<path d="M90 69 Q112 44 134 69 Z" fill="#ff8676"/>') +
+      c('<rect x="106" y="74" width="10" height="14" rx="5" fill="#7d9ce6"/>') +
+      c('<circle cx="64" cy="96" r="3.4" fill="#ff93b6"/>') + c('<circle cx="76" cy="99" r="3.4" fill="#ffd34d"/>');
+    return wrap(body, defs);
+  }
+
+  // 크레파스: 아이 그림처럼 단순한 모양 + 종이가 비치는 거친 크레파스 질감 + 굵은 선
+  function thumbCR() {
+    const defs =
+      '<filter id="cmst-cr" x="-5%" y="-5%" width="110%" height="110%">' +
+        '<feTurbulence type="fractalNoise" baseFrequency="0.95 0.3" numOctaves="2" seed="11" result="t"/>' +
+        '<feColorMatrix in="t" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -2.6 0 0 0 1.95" result="m"/>' +
+        '<feComposite in="SourceGraphic" in2="m" operator="in" result="w"/>' +
+        '<feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="4" result="n"/>' +
+        '<feDisplacementMap in="w" in2="n" scale="3.5"/></filter>';
+    const ln = ' stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"';
+    const rays = [0, 45, 90, 135, 180, 225, 270, 315].map(function (a) {
+      const r = a * Math.PI / 180, x1 = 124 + Math.cos(r) * 15, y1 = 26 + Math.sin(r) * 15, x2 = 124 + Math.cos(r) * 22, y2 = 26 + Math.sin(r) * 22;
+      return '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="#ff9d1c"' + ln + '/>';
+    }).join('');
+    const body =
+      '<rect width="160" height="108" fill="#fffaf0"/>' +
+      '<g filter="url(#cmst-cr)">' +
+        '<rect x="0" y="0" width="160" height="70" fill="#7cc4ff"/>' +
+        '<circle cx="124" cy="26" r="11" fill="#ffd21f" stroke="#ff9d1c"' + ln + '/>' + rays +
+        '<path d="M0 76 Q40 56 84 70 T160 64 V108 H0Z" fill="#69c94f" stroke="#2f8f2a"' + ln + '/>' +
+        '<path d="M0 94 Q56 80 108 92 T160 90 V108 H0Z" fill="#42ad3c"/>' +
+        '<rect x="37" y="56" width="7" height="26" fill="#a0612e" stroke="#6b3a17"' + ln + '/>' +
+        '<circle cx="40" cy="46" r="16" fill="#2fb34a" stroke="#1d7a2c"' + ln + '/>' +
+        '<rect x="96" y="66" width="32" height="24" fill="#ffe35c" stroke="#c98a12"' + ln + '/>' +
+        '<path d="M91 67 L112 48 L133 67Z" fill="#ff4b4b" stroke="#c22424"' + ln + '/>' +
+        '<rect x="106" y="76" width="9" height="14" fill="#6c4ccf" stroke="#3f2a8a"' + ln + '/>' +
+        '<circle cx="64" cy="98" r="3" fill="#ff6fb0"/><circle cx="76" cy="100" r="3" fill="#ff6fb0"/>' +
+      '</g>';
+    return wrap(body, defs);
+  }
+
+  // 종이 콜라주: 가장자리가 살짝 찢긴 색종이 조각 + 조각마다 얇은 그림자 + 무늬 종이
+  function thumbPC() {
+    const defs =
+      '<filter id="cmst-pc" x="-10%" y="-10%" width="120%" height="125%">' +
+        '<feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="1" seed="2" result="n"/>' +
+        '<feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" result="d"/>' +
+        '<feDropShadow in="d" dx="1.2" dy="1.8" stdDeviation="0.9" flood-color="#3a2a1a" flood-opacity="0.4"/></filter>' +
+      '<pattern id="cmst-pcd" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="#e8483f"/><circle cx="2.5" cy="2.5" r="1" fill="#ffd6cf"/></pattern>' +
+      '<pattern id="cmst-pcs" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><rect width="4" height="4" fill="#3f9f58"/><rect width="2" height="4" fill="#55b56a"/></pattern>' +
+      '<filter id="cmst-pcg"><feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="3" seed="8" result="t"/>' +
+        '<feColorMatrix in="t" type="matrix" values="0 0 0 0 0.5  0 0 0 0 0.4  0 0 0 0 0.3  0 0 0 0.4 -0.12"/></filter>';
+    const p = function (el) { return '<g filter="url(#cmst-pc)">' + el + '</g>'; };
+    const body =
+      '<rect width="160" height="108" fill="#efe1c6"/>' +
+      p('<rect x="5" y="5" width="150" height="66" fill="#8fcde6"/>') +
+      p('<circle cx="122" cy="29" r="13" fill="#f7a531"/>') +
+      p('<path d="M0 76 Q40 52 84 70 T160 62 V108 H0Z" fill="#9ccf6a"/>') +
+      p('<path d="M0 92 Q50 74 104 90 T160 86 V108 H0Z" fill="url(#cmst-pcs)"/>') +
+      p('<rect x="37" y="58" width="7" height="24" fill="#8b5a36"/>') +
+      p('<circle cx="34" cy="48" r="11" fill="#2f8f4e"/>') + p('<circle cx="47" cy="44" r="12" fill="#4fae5f"/>') + p('<circle cx="41" cy="55" r="10" fill="#6cc070"/>') +
+      p('<rect x="96" y="66" width="32" height="22" fill="#fff4dc"/>') +
+      p('<path d="M91 68 L112 48 L133 68Z" fill="url(#cmst-pcd)"/>') +
+      p('<rect x="106" y="75" width="9" height="13" fill="#2f4f9a"/>') +
+      '<rect width="160" height="108" filter="url(#cmst-pcg)" opacity="0.45"/>';
+    return wrap(body, defs);
+  }
+
+  // 민화 · 수묵담채: 한지 바탕 + 먹선 + 옅은 채색. 해 · 다섯 봉우리 · 소나무 · 기와집
+  function thumbMH() {
+    const defs =
+      '<filter id="cmst-mh" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="6" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2"/></filter>' +
+      '<filter id="cmst-mhp"><feTurbulence type="fractalNoise" baseFrequency="0.035 0.6" numOctaves="3" seed="12" result="t"/>' +
+        '<feColorMatrix in="t" type="matrix" values="0 0 0 0 0.55  0 0 0 0 0.45  0 0 0 0 0.3  0 0 0 0.45 -0.15"/></filter>';
+    const ink = ' stroke="#2b2622" stroke-linejoin="round" stroke-linecap="round"';
+    const body =
+      '<rect width="160" height="108" fill="#efe3c6"/>' +
+      '<g filter="url(#cmst-mh)">' +
+        '<circle cx="126" cy="24" r="10" fill="#d4412c"/>' +
+        '<path d="M-2 74 L18 46 L30 60 L48 30 L64 58 L80 38 L96 62 L112 44 L130 66 L146 50 L162 70 V80 H-2Z" fill="#7fa79c" fill-opacity="0.75"' + ink + ' stroke-width="1.3"/>' +
+        '<path d="M-2 80 Q40 66 84 76 T162 74 V108 H-2Z" fill="#c9b27a" fill-opacity="0.7"' + ink + ' stroke-width="1"/>' +
+        '<path d="M0 98 q8 -5 16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0" fill="none" stroke="#5c8fa3" stroke-width="1.2" stroke-opacity="0.8"/>' +
+        '<path d="M40 92 Q36 76 42 66 Q46 58 40 50" fill="none"' + ink + ' stroke-width="2.2"/>' +
+        '<ellipse cx="34" cy="52" rx="13" ry="4.5" fill="#3d6b4c"' + ink + ' stroke-width="0.9"/>' +
+        '<ellipse cx="48" cy="45" rx="12" ry="4" fill="#4a7a56"' + ink + ' stroke-width="0.9"/>' +
+        '<ellipse cx="38" cy="38" rx="10" ry="3.6" fill="#3d6b4c"' + ink + ' stroke-width="0.9"/>' +
+        '<rect x="98" y="72" width="30" height="16" fill="#f4ead6"' + ink + ' stroke-width="1"/>' +
+        '<line x1="106" y1="72" x2="106" y2="88"' + ink + ' stroke-width="1"/><line x1="120" y1="72" x2="120" y2="88"' + ink + ' stroke-width="1"/>' +
+        '<path d="M88 66 Q100 70 113 60 Q126 70 138 66 L132 73 L94 73 Z" fill="#4c5b66"' + ink + ' stroke-width="1.1"/>' +
+      '</g>' +
+      '<rect width="160" height="108" filter="url(#cmst-mhp)" opacity="0.5"/>';
+    return wrap(body, defs);
+  }
+
+  // 펠트 인형: 보풀이 인 가장자리 + 털실 결 + 바느질 땀(점선)
+  function thumbFT() {
+    const defs =
+      '<filter id="cmst-ft" x="-10%" y="-10%" width="120%" height="125%">' +
+        '<feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="7" result="n"/>' +
+        '<feDisplacementMap in="SourceGraphic" in2="n" scale="3.6" result="d"/>' +
+        '<feTurbulence type="fractalNoise" baseFrequency="2.2" numOctaves="1" seed="1" result="f"/>' +
+        '<feColorMatrix in="f" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 -0.24" result="fw"/>' +
+        '<feComposite in="fw" in2="d" operator="in" result="fi"/>' +
+        '<feGaussianBlur in="SourceAlpha" stdDeviation="1.4" result="sh"/><feOffset in="sh" dx="1" dy="2" result="so"/>' +
+        '<feColorMatrix in="so" type="matrix" values="0 0 0 0 0.3  0 0 0 0 0.22  0 0 0 0 0.16  0 0 0 0.3 0" result="sc"/>' +
+        '<feMerge><feMergeNode in="sc"/><feMergeNode in="d"/><feMergeNode in="fi"/></feMerge></filter>';
+    const f = function (el) { return '<g filter="url(#cmst-ft)">' + el + '</g>'; };
+    const st = ' fill="none" stroke="#fffaf2" stroke-width="0.9" stroke-dasharray="2 2" stroke-opacity="0.9"';
+    const body =
+      '<rect width="160" height="108" fill="#e8dccb"/>' +
+      f('<rect x="4" y="4" width="152" height="68" rx="8" fill="#9cc7d6"/>') +
+      f('<circle cx="122" cy="28" r="12" fill="#f2b84a"/>') +
+      f('<path d="M-4 76 Q40 52 84 70 T164 62 V112 H-4Z" fill="#94bf72"/>') +
+      f('<path d="M-4 92 Q50 74 104 90 T164 86 V112 H-4Z" fill="#6fa25c"/>') +
+      f('<rect x="37" y="58" width="7" height="24" rx="2" fill="#8d6346"/>') +
+      f('<circle cx="41" cy="48" r="16" fill="#4f8a55"/>') +
+      f('<rect x="96" y="66" width="32" height="22" rx="3" fill="#f6e6cf"/>') +
+      f('<path d="M91 68 Q112 46 133 68 Z" fill="#d9705f"/>') +
+      f('<rect x="106" y="75" width="9" height="13" rx="4" fill="#6f74b8"/>') +
+      '<circle cx="122" cy="28" r="9"' + st + '/>' +
+      '<circle cx="41" cy="48" r="12.5"' + st + '/>' +
+      '<path d="M95 67 Q112 50 129 67"' + st + '/>' +
+      '<rect x="99" y="69" width="26" height="16" rx="2"' + st + '/>';
+    return wrap(body, defs);
+  }
+
+  // 과슈: 윤곽선 없이 불투명하고 차분한 색면 + 마른 붓 자국 + 종이 결
+  function thumbGQ() {
+    const defs =
+      '<filter id="cmst-gq" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.04 0.12" numOctaves="3" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3"/></filter>' +
+      '<filter id="cmst-gqg"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="9" result="t"/>' +
+        '<feColorMatrix in="t" type="matrix" values="0 0 0 0 0.45  0 0 0 0 0.4  0 0 0 0 0.35  0 0 0 0.4 -0.12"/></filter>';
+    const body =
+      '<rect width="160" height="108" fill="#ecdfc6"/>' +
+      '<g filter="url(#cmst-gq)">' +
+        '<rect x="0" y="0" width="160" height="70" fill="#e7d6b6"/>' +
+        '<circle cx="122" cy="30" r="13" fill="#e2a03a"/>' +
+        '<path d="M0 74 Q40 48 84 66 T160 60 V108 H0Z" fill="#4f8a72"/>' +
+        '<path d="M14 72 Q40 58 70 66" fill="none" stroke="#6ea58c" stroke-width="3" stroke-linecap="round" opacity="0.7"/>' +
+        '<path d="M0 90 Q50 70 104 88 T160 84 V108 H0Z" fill="#2e6766"/>' +
+        '<path d="M96 96 Q124 86 152 92" fill="none" stroke="#3f7f7c" stroke-width="3" stroke-linecap="round" opacity="0.7"/>' +
+        '<rect x="38" y="58" width="6" height="24" fill="#7e4a2e"/>' +
+        '<path d="M41 28 C56 36 58 62 41 64 C24 62 26 36 41 28Z" fill="#1f4f4b"/>' +
+        '<rect x="96" y="66" width="32" height="22" fill="#f4ede0"/>' +
+        '<path d="M92 67 L112 50 L132 67Z" fill="#c4553d"/>' +
+        '<rect x="106" y="75" width="9" height="13" fill="#2a3a5c"/>' +
+      '</g>' +
+      '<rect width="160" height="108" filter="url(#cmst-gqg)" opacity="0.45"/>';
+    return wrap(body, defs);
+  }
+
+  const THUMBS = { wc: thumbWC, sb: thumbSB, dg: thumbDG, cp: thumbCP, fv: thumbFV, oil: thumbOil, an: thumbAN, clay: thumbClay, cr: thumbCR, pc: thumbPC, mh: thumbMH, ft: thumbFT, gq: thumbGQ };
 
   // ---------- 카드 화면 ----------
   // selId: 화풍 select의 id. (ColorM.selectOther로 「기타」가 붙은 뒤에 호출해주세요.)
@@ -173,6 +378,14 @@ const ColorMStyles = (function () {
     const sel = document.getElementById(selId);
     if (!sel || sel.dataset.cmStyles) return;
     sel.dataset.cmStyles = '1';
+    // 카드에 있는데 선택 목록에 없는 화풍은 「직접 입력」 앞에 넣어 둬요
+    const otherOpt = [].slice.call(sel.options).find(function (o) { return o.value === '__other__'; });
+    STYLES.forEach(function (s) {
+      if ([].slice.call(sel.options).some(function (o) { return o.value === s.value; })) return;
+      const o = document.createElement('option');
+      o.value = o.textContent = s.value;
+      sel.insertBefore(o, otherOpt || null);
+    });
     const grid = document.createElement('div');
     grid.className = 'style-cards';
     grid.innerHTML = STYLES.map(function (s) {
