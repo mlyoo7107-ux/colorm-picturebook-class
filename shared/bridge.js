@@ -246,28 +246,49 @@ const ColorMBridge = (function () {
     const filled = scenes.filter(function (s) { return s.title || s.cast || s.content || s.dialogue || s.conti; });
     if (!filled.length) return null;
     // 첫 장면 앞에 있는 "제목:", "주인공:" 줄(한 번에 완성 모드)
+    // 맨 위 머리말 읽기 — AI마다 쓰는 모양이 달라서 넓게 받아요:
+    //   「주인공: …」 「**주인공**」 다음 줄 / 「제목: … / 주인공: … / 함께 나오는 인물: …」 한 줄 / 「이름(설명), 이름(설명)」 목록
     const meta = { others: [] };
-    let inOthers = false;
+    let pending = null;
+    const SEP = '\\s*[:：\\-–—]\\s*';
+    const TITLE_RE = new RegExp('^(?:책\\s*)?제목' + SEP + '(.+)$');
+    const HERO_RE = new RegExp('^(?:주인공(?:\\s*이름)?|주\\s*인물)' + SEP + '(.+)$');
+    const HERO_ONLY = /^(?:주인공(?:\s*이름)?|주\s*인물)\s*[:：]?$/;
+    const OTHER_RE = /^(?:함께\s*나오는\s*(?:인물|캐릭터|친구들?)|다른\s*(?:등장\s*)?인물|주변\s*인물|그\s*외\s*인물|조연|등장\s*인물(?:\s*설정)?)\s*[:：\-–—]?\s*(.*)$/;
+    const LABEL_SPLIT = /\s*[\/|]\s*(?=(?:책\s*)?제목|주인공|주\s*인물|함께\s*나오는|다른\s*(?:등장\s*)?인물|주변\s*인물|조연|등장\s*인물)/;
+    // 「이름: 설명」 한 명, 또는 「이름(설명), 이름(설명)」 여러 명
+    function pushOthers(v) {
+      v = String(v || '').trim();
+      if (!v || /^(없음|없어요|-)$/.test(v)) return;
+      const one = /^([^\s:：(（,，]{1,10}(?:\s[^\s:：(（,，]{1,6})?)\s*[:：]\s*(.+)$/.exec(v);
+      if (one) { meta.others.push({ name: one[1].trim(), desc: one[2].trim() }); return; }
+      v.split(/\s*[,，;]\s*(?![^()（）]*[)）])/).forEach(function (it) {
+        it = it.trim();
+        if (!it) return;
+        const m = /^([^\s:：(（\-–—]{1,10}(?:\s[^\s:：(（\-–—]{1,6})?)\s*(?:[(（]\s*([^)）]*?)\s*[)）]|[\-–—]\s*(.+))?\s*$/.exec(it);
+        if (m) meta.others.push({ name: m[1].trim(), desc: (m[2] || m[3] || '').trim() });
+      });
+    }
+    function readHead(s) {
+      let m = TITLE_RE.exec(s);
+      if (m) { meta.title = m[1].replace(/^[『「《“"'‘]+|[』」》”"'’]+$/g, '').trim(); pending = null; return; }
+      m = HERO_RE.exec(s);
+      if (m) { meta.hero = m[1].trim(); pending = null; return; }
+      if (HERO_ONLY.test(s)) { pending = 'hero'; return; }
+      m = OTHER_RE.exec(s);
+      if (m) { pending = 'others'; pushOthers(m[1]); return; }
+      if (pending === 'hero') { meta.hero = s; pending = null; return; }
+      if (pending === 'others') {
+        const before = meta.others.length;
+        pushOthers(s);
+        if (meta.others.length === before) pending = null;
+      }
+    }
     String(text || '').replace(/\r/g, '').split('\n').some(function (ln) {
       if (SCENE_HEAD.test(ln)) return true;
-      const s = stripMd(ln).trim();
+      const s = stripMd(ln).replace(/^#{1,6}\s*/, '').replace(/\*\*/g, '').trim();
       if (!s) return false;
-      let m = /^제목\s*[:：]\s*(.+)$/.exec(s);
-      if (m) { meta.title = m[1].replace(/^[『「“"'‘]+|[』」”"'’]+$/g, '').trim(); inOthers = false; return false; }
-      m = /^주인공\s*[:：]\s*(.+)$/.exec(s);
-      if (m) { meta.hero = m[1].trim(); inOthers = false; return false; }
-      m = /^(?:다른\s*인물|주변\s*인물|그\s*외\s*인물|조연|등장인물\s*설정)\s*[:：]?\s*(.*)$/.exec(s);
-      if (m) {
-        inOthers = true;
-        const first = /^([^\s:：]{1,10}(?:\s[^\s:：]{1,6})?)\s*[:：]\s*(.+)$/.exec(m[1]);
-        if (first) meta.others.push({ name: first[1].trim(), desc: first[2].trim() });
-        return false;
-      }
-      if (inOthers) {
-        m = /^([^\s:：]{1,10}(?:\s[^\s:：]{1,6})?)\s*[:：]\s*(.+)$/.exec(s);
-        if (m) meta.others.push({ name: m[1].trim(), desc: m[2].trim() });
-        else inOthers = false;
-      }
+      s.split(LABEL_SPLIT).forEach(function (piece) { if (piece.trim()) readHead(piece.trim()); });
       return false;
     });
     return { scenes: filled, meta: meta };
@@ -314,12 +335,25 @@ const ColorMBridge = (function () {
   function parseHero(raw) {
     raw = String(raw || '').trim();
     if (!raw) return null;
+    // 「두두 (네이비 고래, …)」 「두두 – 네이비 고래」 「두두: …」처럼 이름이 맨 앞에 오면 이름과 설명을 나눠요
+    let lead = '';
+    if (!QUOTE.test(raw)) {
+      const lm = /^([가-힣A-Za-z]{1,8})\s*(?:[(（]\s*([^)）]+?)\s*[)）]\s*[,，]?\s*(.*)|[:：\-–—]\s*(.+))$/.exec(raw);
+      if (lm) {
+        const rest = [lm[2], lm[3], lm[4]].filter(function (x) { return x && x.trim(); }).join(', ').trim();
+        if (rest) { lead = lm[1]; raw = rest; }
+      }
+    }
     const parts = raw.split(/\s*[,，]\s*/).map(function (s) { return s.trim(); }).filter(Boolean);
-    let name = '';
+    let name = lead;
     parts.some(function (p) { const m = QUOTE.exec(p); if (m) { name = m[1].trim(); return true; } return false; });
     const clean = function (s) { return String(s || '').replace(QUOTE, '').replace(/\s{2,}/g, ' ').trim(); };
     const structured = parts.length >= 4;
-    const kind = structured ? parts[0] : '';
+    // 「…숨어 버린 네이비 고래」처럼 설명 한 줄이면 마지막 낱말(아기·어린이 붙으면 함께)을 종류로 써요
+    const tail = clean(raw).replace(/[.。!]+$/, '').split(/\s+/);
+    const lastWord = tail[tail.length - 1] || '';
+    const guessKind = lastWord.length <= 6 ? ((/^(아기|어린|꼬마|작은)$/.test(tail[tail.length - 2] || '') ? tail[tail.length - 2] + ' ' : '') + lastWord) : '';
+    const kind = structured ? parts[0] : guessKind;
     const appearance = structured ? clean(parts[1]) : clean(raw);
     const outfit = structured ? [parts[2]].concat(parts.slice(4)).filter(Boolean).join(', ') : '';
     const colorText = structured ? parts[3] : raw;
@@ -333,7 +367,7 @@ const ColorMBridge = (function () {
     const am = /(\d+\s*[~-]\s*\d+\s*세|\d+\s*세|성인|청소년|어린이|유아|노인|할머니|할아버지)/.exec(raw);
     let mainColor = '';
     COLOR_WORDS.some(function (c) { return c[1].some(function (w) { if (colorText.indexOf(w) >= 0) { mainColor = c[0]; return true; } return false; }); });
-    return { raw: raw, name: name, type: type, age: am ? am[1].replace(/\s/g, '') : '', appearance: appearance, outfit: outfit, mainColor: mainColor };
+    return { raw: raw, name: name, kind: kind, type: type, age: am ? am[1].replace(/\s/g, '') : '', appearance: appearance, outfit: outfit, mainColor: mainColor };
   }
 
   // 03에서 답변을 채운 뒤 호출 → 04 캐릭터 단계로 넘길 정보를 프로젝트에 저장
@@ -349,7 +383,7 @@ const ColorMBridge = (function () {
     others.forEach(function (o) {
       if (baseOf(o.name) === baseOf(main)) return;
       if (!d.extras.some(function (e) { return baseOf(e.name) === baseOf(o.name); })) {
-        d.extras.push({ role: ColorM.guessCastRole ? ColorM.guessCastRole(baseOf(o.name)) : '친구', name: baseOf(o.name), desc: '' });
+        d.extras.push({ role: ColorM.guessCastRole ? ColorM.guessCastRole(baseOf(o.name)) : '친구', name: String(o.name || '').trim(), desc: '' });
       }
     });
     d.extras.forEach(function (e) {
