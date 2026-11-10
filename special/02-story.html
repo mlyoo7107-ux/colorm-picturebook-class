@@ -97,7 +97,7 @@ function renderSceneCards(n, storyScenes, plan){
       <div class="step"><span>장면 ${no}</span></div>
       <label>장면 제목<input class="sc-title" placeholder="예: ${no}장. 장면 제목"></label>
       <label>등장인물 및 표정, 행동<textarea class="sc-cast" rows="2" placeholder="예: ${ColorM.escapeHTML(hero)}: 놀란 표정, 앞으로 손을 뻗는 포즈">${ColorM.escapeHTML(hero)}</textarea></label>
-      <label>장면 설명 <small>(이 장면에서 일어나는 일 · 그림에 그려져요)</small><textarea class="sc-memo" rows="2">${ColorM.escapeHTML(draft)}</textarea></label>
+      <label>장면 설명 (선택) <small>(이 장면에서 일어나는 일 · 비워 두어도 「그림 구성」으로 그려져요)</small><textarea class="sc-memo" rows="2">${ColorM.escapeHTML(draft)}</textarea></label>
       <label>본문 글 <small>(책에 실릴 문장)</small><textarea class="sc-content" rows="2" placeholder="${BODY_PH}"></textarea></label>
       <label>대화<textarea class="sc-dialogue" rows="3" placeholder="예: ${ColorM.escapeHTML(hero)}: &quot;대사를 적어보세요.&quot;"></textarea></label>
       <label>그림 구성 <small>(장소·인물 위치·구도 — 그림콘티)</small><textarea class="sc-conti" rows="2" placeholder="예: ${ColorM.escapeHTML(place)}, 인물의 위치와 배경 구도 설명">${ColorM.escapeHTML(place)}</textarea></label>
@@ -116,7 +116,7 @@ function renderSceneCardsFromData(scenes){
       <div class="step"><span>장면 ${no}</span></div>
       <label>장면 제목<input class="sc-title" value="${ColorM.escapeHTML(s.title||'')}"></label>
       <label>등장인물 및 표정, 행동<textarea class="sc-cast" rows="2">${ColorM.escapeHTML(s.cast||'')}</textarea></label>
-      <label>장면 설명 <small>(이 장면에서 일어나는 일 · 그림에 그려져요)</small><textarea class="sc-memo" rows="2">${ColorM.escapeHTML(s.memo||'')}</textarea></label>
+      <label>장면 설명 (선택) <small>(이 장면에서 일어나는 일 · 비워 두어도 「그림 구성」으로 그려져요)</small><textarea class="sc-memo" rows="2">${ColorM.escapeHTML(s.memo||'')}</textarea></label>
       <label>본문 글 <small>(책에 실릴 문장)</small><textarea class="sc-content" rows="2" placeholder="${BODY_PH}">${ColorM.escapeHTML(s.content||'')}</textarea></label>
       <label>대화<textarea class="sc-dialogue" rows="3">${ColorM.escapeHTML(s.dialogue||'')}</textarea></label>
       <label>그림 구성 <small>(장소·인물 위치·구도 — 그림콘티)</small><textarea class="sc-conti" rows="2">${ColorM.escapeHTML(s.conti||'')}</textarea></label>
