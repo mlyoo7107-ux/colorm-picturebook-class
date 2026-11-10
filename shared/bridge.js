@@ -373,7 +373,22 @@ const ColorMBridge = (function () {
   // 03에서 답변을 채운 뒤 호출 → 04 캐릭터 단계로 넘길 정보를 프로젝트에 저장
   function saveCharacters(parsed) {
     const pr = ColorM.getProject();
-    const hero = parseHero(parsed.meta && parsed.meta.hero) || {};
+    let hero = parseHero(parsed.meta && parsed.meta.hero) || {};
+    // 따옴표 없이 「…네이비 고래 두두」처럼 쓴 이름: 맨 끝(또는 맨 앞) 낱말이 본문·대화에 두 번 이상 나오면 이름으로 봐요
+    if (!hero.name && hero.raw) {
+      const body = (parsed.scenes || []).map(function (s) { return [s.content, s.dialogue, s.cast, s.title].join(' '); }).join(' ');
+      const words = String(parsed.meta.hero).replace(/[.。!]+$/, '').split(/\s+/).filter(Boolean);
+      [[words[words.length - 1], false], [words[0], true]].some(function (c) {
+        let w = String(c[0] || '').replace(/^[(（\[]+|[)）\],，]+$/g, '');
+        if (c[1]) w = w.replace(/(은|는)$/, '');
+        // 종류를 뜻하는 낱말(고래·고양이…)은 이름으로 보지 않아요
+        if (/(고래|펭귄|고양이|강아지|토끼|곰|여우|호랑이|사자|새|물고기|거북|소년|소녀|아이|할머니|할아버지|엄마|아빠|친구)$/.test(w)) return false;
+        if (!/^[가-힣A-Za-z]{1,6}$/.test(w)) return false;
+        if ((body.split(w).length - 1) < 2) return false;
+        hero = parseHero(String(parsed.meta.hero).replace(w, '‘' + w + '’')) || hero;
+        return true;
+      });
+    }
     const d = ColorM.deriveCharacters(parsed.scenes, hero.name);
     const main = hero.name || d.main;
     if (main || hero.raw) pr.heroDraft = Object.assign({}, hero, { name: main, fresh: true });

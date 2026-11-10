@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-6.svg">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="../shared/colorm.css?v=20261110a">
+<link rel="stylesheet" href="../shared/colorm.css?v=20261110b">
 <style>
 .cast-mini{display:grid;grid-template-columns:140px 1fr;gap:8px;margin-top:8px}
 .cast-mini input{margin:0}
@@ -66,10 +66,11 @@
 
 <footer></footer>
 
-<script src="../shared/colorm.js?v=20261110a"></script>
-<script src="../shared/mind.js?v=20261110a"></script>
-<script src="../shared/short.js?v=20261110a"></script>
-<script src="../shared/styles.js?v=20261110a"></script>
+<script src="../shared/colorm.js?v=20261110b"></script>
+<script src="../shared/mind.js?v=20261110b"></script>
+<script src="../shared/bridge.js?v=20261110b"></script>
+<script src="../shared/short.js?v=20261110b"></script>
+<script src="../shared/styles.js?v=20261110b"></script>
 <script>
 const $=id=>document.getElementById(id);
 ColorM.renderHeader('cmHeader','character');
@@ -81,7 +82,18 @@ const v=id=>($(id).value||'').trim();
 
 // 처음 열면: 저장한 캐릭터 → 없으면 02에서 받은 이야기의 주인공(heroDraft)으로 채워요
 function fill(){
-  const p=ColorM.getProject(), c=p.character||{}, hd=p.heroDraft||{};
+  let p=ColorM.getProject();
+  // 이름이 아직 없으면 02에 붙여넣었던 캔바 글을 다시 읽어 주인공 · 함께 나오는 인물을 찾아요
+  // (예전에 붙여넣은 글도 새 읽기 방식으로 다시 읽어요)
+  if(!(p.character||{}).name && !(p.heroDraft||{}).name && typeof ColorMBridge!=='undefined'){
+    try{
+      const t=localStorage.getItem(ColorM.BRIDGE_PREFIX+'paste_storyboard')||'';
+      const parsed=t && ColorMBridge.parseScenes(t);
+      if(parsed) ColorMBridge.saveCharacters(parsed);
+      p=ColorM.getProject();
+    }catch(e){}
+  }
+  const c=p.character||{}, hd=p.heroDraft||{};
   const kindFromDraft=String(hd.raw||'').split(/\s*[,，]\s*/).length>=4 ? String(hd.raw).split(/\s*[,，]\s*/)[0] : '';
   $('cName').value = c.name || hd.name || '';
   $('cKind').value = c.kind || kindFromDraft || hd.kind || '';
