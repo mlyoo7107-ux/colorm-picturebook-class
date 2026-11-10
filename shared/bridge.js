@@ -180,17 +180,32 @@ const ColorMBridge = (function () {
   }
 
   // ---------- 답변 분석 (마크다운·번호·굵은 글씨가 섞여도 읽을 수 있게 느슨하게) ----------
-  const SCENE_HEAD = /^\s*(?:#{1,6}\s*)?(?:\*\*)?\[?\s*(?:장면|씬|Scene)\s*0*(\d{1,2})\s*\]?(?:\*\*)?\s*(?:[.:：)\-–—]+\s*(.*?))?\s*$/i;
+  // 장면 머리줄: 「장면 1: 제목」 「### 🌊 장면 01 · 제목」 「[장면 1]」 「1장면 - 제목」 「Scene 1」 「페이지 1」
+  // 캔바 AI는 이모지 · 굵은 글씨 · 제목 기호를 자주 붙여서 앞에 붙은 기호는 넘기고 읽어요.
+  const HEAD_JUNK = /^[\s#>*\-•·_~|\p{Extended_Pictographic}‍️]*/u;
+  const HEAD_A = /^\[?\s*(?:장면|씬|Scene|페이지|Page)\s*0*(\d{1,2})\s*\]?(?:\*\*)?\s*(?:[.:：)\-–—·|]+\s*(.*?))?\s*(?:\*\*)?\s*$/i;
+  const HEAD_B = /^\[?\s*0*(\d{1,2})\s*(?:번째\s*)?(?:장면|쪽|페이지)\s*\]?(?:\*\*)?\s*(?:[.:：)\-–—·|]+\s*(.*?))?\s*(?:\*\*)?\s*$/i;
+  const SCENE_HEAD = {
+    exec: function (ln) {
+      const s = String(ln || '').replace(HEAD_JUNK, '').replace(/^\*\*/, '');
+      const m = HEAD_A.exec(s) || HEAD_B.exec(s);
+      return m ? [m[0], m[1], (m[2] || '').replace(/\*\*/g, '').trim()] : null;
+    },
+    test: function (ln) { return !!this.exec(ln); }
+  };
   const LABELS = [
     ['title', '장면\\s*제목|제목'],
-    ['cast', '등장인물'],
+    ['memo', '장면\\s*설명|상황\\s*설명|장면\\s*묘사'],
+    ['cast', '등장\\s*인물'],
     ['content', '내용|본문|서술'],
     ['dialogue', '대화|대사'],
     // 「그림:」(특강 짧은 요청문으로 받은 답의 그릴 모습 한 줄)도 그림 구성으로 읽어요
     ['conti', '그림\\s*콘티|콘티|구도|그림\\s*구성|그림']
   ];
 
-  function stripMd(s) { return s.replace(/\*\*|__/g, '').replace(/^\s*(?:[-•·*]|\d+[.)])\s+/, ''); }
+  function stripMd(s) {
+    return s.replace(/\*\*|__/g, '').replace(/^[\s\p{Extended_Pictographic}‍️]+/u, ' ').replace(/^\s*(?:[-•·*]|\d+[.)])\s+/, '');
+  }
 
   function matchLabel(rawLine) {
     const s = stripMd(rawLine);
@@ -218,7 +233,7 @@ const ColorMBridge = (function () {
     if (!blocks.length) return null;
     const SPEAKER = /^[^\s:：]{1,12}\s*(?:\([^)]*\)|（[^）]*）)?\s*[:：]/;
     const scenes = blocks.map(function (b, bi) {
-      const buf = { title: [], cast: [], content: [], dialogue: [], conti: [] };
+      const buf = { title: [], memo: [], cast: [], content: [], dialogue: [], conti: [] };
       const isLast = bi === blocks.length - 1;
       let key = null, labeled = false, afterBlank = false;
       b.lines.forEach(function (ln) {
@@ -237,13 +252,14 @@ const ColorMBridge = (function () {
       return {
         no: b.no,
         title: buf.title.join(' ') || b.hint,
+        memo: buf.memo.join(' '),
         cast: buf.cast.join('\n'),
         content: buf.content.join(' '),
         dialogue: buf.dialogue.join('\n'),
         conti: buf.conti.join(' ')
       };
     });
-    const filled = scenes.filter(function (s) { return s.title || s.cast || s.content || s.dialogue || s.conti; });
+    const filled = scenes.filter(function (s) { return s.title || s.memo || s.cast || s.content || s.dialogue || s.conti; });
     if (!filled.length) return null;
     // 첫 장면 앞에 있는 "제목:", "주인공:" 줄(한 번에 완성 모드)
     // 맨 위 머리말 읽기 — AI마다 쓰는 모양이 달라서 넓게 받아요:

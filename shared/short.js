@@ -187,7 +187,10 @@ const ColorMShort = (function () {
       const conti = String(s.conti || '').trim(), planPlace = String((p.plan || {}).place || '').trim();
       // 「그림:」 줄은 이야기에서 받은 그릴 모습이 있을 때만 (없으면 본문과 겹치니 빼요)
       const pic = (conti && conti !== planPlace ? sentence(conti, 70) : '') || (String(s.content || '').trim() ? '' : sentence(s.memo, 60));
+      // 「장면 설명」(선택)을 적었으면 그림을 더 정확하게 그리도록 함께 넣어요
+      const memo = String(s.memo || '').trim(), hasBody = !!String(s.content || '').trim();
       return ['[장면 ' + (s.no || i + 1) + ']' + (s.title && !/^장면\s*\d+$/.test(s.title) ? ' ' + s.title : ''),
+        memo && hasBody ? '장면: ' + sentence(memo, 80) : '',
         pic ? '그림: ' + pic : '',
         '본문: ' + (String(s.content || '').trim() || '(장면 설명으로 문장을 지어 줘)'),
         String(s.dialogue || '').trim() ? '대화: ' + String(s.dialogue).trim().replace(/\n/g, ' / ') : ''

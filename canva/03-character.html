@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="../shared/assets/favicon-6.svg">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="../shared/colorm.css?v=20261110b">
+<link rel="stylesheet" href="../shared/colorm.css?v=20261110c">
 <style>
 .cast-mini{display:grid;grid-template-columns:140px 1fr;gap:8px;margin-top:8px}
 .cast-mini input{margin:0}
@@ -24,6 +24,7 @@
 <form id="charForm" onsubmit="return false">
 <section class="card">
 <div class="step"><span>STEP 01</span><h2>주인공</h2></div>
+<div class="actions" style="margin:0 0 10px;align-items:center"><button type="button" class="btn soft" id="pullCast">↻ 02 이야기에서 인물 불러오기</button><small id="pullNote" class="help" style="margin:0"></small></div>
 <div class="grid">
 <label>이름<input id="cName" placeholder="예: 호기"></label>
 <label>종류 <small>(예: 고양이, 토끼, 여자아이)</small><input id="cKind" placeholder="예: 고양이"></label>
@@ -66,11 +67,11 @@
 
 <footer></footer>
 
-<script src="../shared/colorm.js?v=20261110b"></script>
-<script src="../shared/mind.js?v=20261110b"></script>
-<script src="../shared/bridge.js?v=20261110b"></script>
-<script src="../shared/short.js?v=20261110b"></script>
-<script src="../shared/styles.js?v=20261110b"></script>
+<script src="../shared/colorm.js?v=20261110c"></script>
+<script src="../shared/mind.js?v=20261110c"></script>
+<script src="../shared/bridge.js?v=20261110c"></script>
+<script src="../shared/short.js?v=20261110c"></script>
+<script src="../shared/styles.js?v=20261110c"></script>
 <script>
 const $=id=>document.getElementById(id);
 ColorM.renderHeader('cmHeader','character');
@@ -134,6 +135,33 @@ function save(){
 }
 fill();
 if(!(ColorM.getProject().character||{}).name && v('cName')) save();
+
+// 「02 이야기에서 인물 불러오기」: 02에 붙여넣은 캔바 글을 다시 읽어 빈 칸을 채워요 (이미 쓴 칸은 그대로 둬요)
+function pullFromStory(){
+  const note=$('pullNote');
+  let found=false;
+  try{
+    const t=localStorage.getItem(ColorM.BRIDGE_PREFIX+'paste_storyboard')||'';
+    const parsed=t && typeof ColorMBridge!=='undefined' && ColorMBridge.parseScenes(t);
+    if(parsed){
+      const r=ColorMBridge.saveCharacters(parsed);
+      const p=ColorM.getProject(), hd=p.heroDraft||{};
+      const put=(id,val)=>{ if(val && !v(id)){ $(id).value=val; found=true; } };
+      put('cName', hd.name); put('cKind', hd.kind); put('cLook', hd.appearance);
+      put('cOutfit', String(hd.outfit||'').replace(/[,，]?\s*이름\s*["“'‘][^"”'’]*["”'’]/g,'').trim());
+      (p.cast||[]).slice(0,2).forEach((c,i)=>{
+        const n=document.querySelector('.castName[data-i="'+i+'"]'), d=document.querySelector('.castDesc[data-i="'+i+'"]');
+        if(c.name && !n.value.trim()){ n.value=c.name; found=true; }
+        if(c.desc && !d.value.trim()){ d.value=c.desc; found=true; }
+      });
+      if(r && (r.main || r.extras.length)) found=true;
+    }
+  }catch(e){}
+  if(found){ save(); document.dispatchEvent(new Event('change')); note.textContent='02 이야기에서 인물을 불러왔어요. 생김새는 그림에 보이는 모습으로 다듬어 주세요.'; }
+  else note.textContent='02에 붙여넣은 글에서 인물을 찾지 못했어요. 이름 · 종류 · 생김새를 직접 적어 주세요.';
+}
+$('pullCast').addEventListener('click', pullFromStory);
+if(!v('cName')) $('pullNote').textContent='이름이 비어 있다면 이 버튼을 눌러 보세요. 02에서 붙여넣은 이야기로 채워요.';
 let t=null;
 $('charForm').addEventListener('input', ()=>{ clearTimeout(t); t=setTimeout(()=>{ save(); document.dispatchEvent(new Event('change')); },400); });
 $('charForm').addEventListener('change', save);
