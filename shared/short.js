@@ -55,7 +55,13 @@ const ColorMShort = (function () {
     const c = p.character || {};
     const name = String(c.name || ColorM.heroName(p.plan || {}) || '주인공').trim();
     // 종류(예: 고양이)는 캔바 특강 03에서 적어요 — 그림 AI가 무엇을 그릴지 알게 맨 앞에
-    const feats = [clip(c.kind, 10), clip(String(c.appearance || '').split(/와 |과 /)[0], 14), clip(String(c.outfit || '').split(/와 |과 /)[0], 14)].filter(Boolean);
+    // 길이에서 잘리면 「떠 있는」 「작은」처럼 뒤가 빈 꾸밈말로 끝나지 않게 마지막 낱말을 덜어 내요
+    const noDangle = function (s) {
+      const w = String(s || '').split(' ');
+      while (w.length > 1 && /(는|은|던|한|인|운|진|된|의|에|에서|을|를|로)$/.test(w[w.length - 1])) w.pop();
+      return w.join(' ');
+    };
+    const feats = [clip(c.kind, 10), noDangle(clip(String(c.appearance || '').split(/와 |과 /)[0], 26)), noDangle(clip(String(c.outfit || '').split(/와 |과 /)[0], 26))].filter(Boolean);
     if (!feats.length && (p.plan || {}).hero) feats.push(clip(p.plan.hero, 16));
     return name + (feats.length ? '(' + feats.join(', ') + ')' : '');
   }
@@ -159,7 +165,8 @@ const ColorMShort = (function () {
       const others = othersIn(p, [s.content, s.dialogue, conti, s.cast].join(' '));
       return {
         label: '장면 ' + pad(s.no || i + 1) + (s.title && !/^장면\s*\d+$/.test(s.title) ? ' · ' + clip(s.title, 16) : ''),
-        text: st + ' 그림책 그림. 주인공 ' + h + '.' + (others.length ? ' 함께: ' + others.join(', ') + '.' : '') + ' 장면: ' + act + '. ' + tail(p)
+        // 그림책 페이지(세로 3:4)의 위쪽에 넣을 가로 그림이라 4:3으로 받아요 — 아래쪽에는 본문 · 대화를 얹어요
+        text: st + ' 그림책 그림. 주인공 ' + h + '.' + (others.length ? ' 함께: ' + others.join(', ') + '.' : '') + ' 장면: ' + act + '. 가로 4:3 그림, ' + tail(p)
       };
     });
   }
@@ -175,6 +182,7 @@ const ColorMShort = (function () {
     ];
     if (others.length) lines.push('함께 나오는 인물: ' + others.join(', '));
     lines.push('그림체: ' + style(p) + ' 그림책, 색감: ' + colorWord(p).replace(/ 색감$/, '') + (mood(p) ? ', 분위기: ' + mood(p) : ''));
+    lines.push('책 크기는 세로 3:4로, 페이지마다 위쪽에 가로 그림을 꽉 채우고 아래쪽에 본문·대화 자리를 비워 줘.');
     lines.push('함께 올린 캐릭터 그림이 있으면 그 모습 그대로 그려 줘.');
     lines.push('글은 본문·대화만 넣고, 그림 안에는 다른 글자를 넣지 마.');
     return lines;
@@ -204,10 +212,11 @@ const ColorMShort = (function () {
   function cover(p) {
     const cv = p.cover || {};
     const title = p.bookTitle || (cv.title && cv.title !== '제목 미정' ? cv.title : '') || ((p.story || {}).titles || [])[0] || '';
-    const what = sentence(cv.sceneDesc && cv.sceneDesc !== '표지 장면 미정' ? cv.sceneDesc : '', 45) || '이야기에서 가장 중요한 순간';
+    const what = sentence(cv.sceneDesc && cv.sceneDesc !== '표지 장면 미정' ? cv.sceneDesc : '', 90) || '이야기에서 가장 중요한 순간';
+    const others = othersIn(p, String(cv.sceneDesc || ''));
     return [{
       label: '표지 그림' + (title ? ' · 『' + title + '』' : ''),
-      text: style(p) + ' 그림책 표지 그림. 주인공 ' + hero(p) + '. ' + what + '. ' + colorWord(p) + ', 위쪽에 제목 넣을 여백, 글자 없이'
+      text: style(p) + ' 그림책 표지 그림. 주인공 ' + hero(p) + '.' + (others.length ? ' 함께: ' + others.join(', ') + '.' : '') + ' ' + what + '. ' + colorWord(p) + ', 세로 3:4 비율, 위쪽에 제목 넣을 여백, 글자 없이'
     }];
   }
   // 04 그림책: 전체 장면 한 번에(①②)가 기본, 장면 하나씩은 접어 둔 예비용(extra)
@@ -228,8 +237,8 @@ const ColorMShort = (function () {
   const GUIDE = {
     story: ['캔바 홈에서 「문서(Docs)」를 새로 만들어요', '「Magic Write」(글쓰기 AI)를 열어요', '아래 요청문을 그대로 쳐요(또는 붙여넣기)', '나온 글 전체를 복사해서 위 붙여넣기 칸에 넣어요'],
     character: ['캔바 디자인을 열고 왼쪽 「앱」에서 「Magic Media」(이미지 만들기)를 열어요', '주인공 그림 → 주인공 시트 순서로 요청문을 쳐요', '함께 나오는 인물도 그림과 시트를 하나씩 만들어요 (스타일은 주인공과 같은 것)', '마지막으로 라인업(모두 한 장에)을 만들어 크기와 그림체를 맞춰요', '마음에 드는 그림은 모두 내려받아 두세요 — 04에서 함께 올려요'],
-    scene: ['캔바에서 AI에게 디자인을 부탁하는 창(Canva AI 등)을 열어요', '① 따라 치기용 줄을 치고, 그 아래에 02에서 캔바로 받은 이야기 전체를 붙여넣어요 (같은 컴퓨터라면 ② 전체 요청문을 복사해 넣어도 돼요)', '03에서 만든 캐릭터 그림을 모두 함께 올려요 — 주인공, 함께 나오는 인물, 라인업 그림까지 (모습이 더 잘 유지돼요)', '만들어진 페이지를 넘겨 보며 장면 순서와 글이 맞는지 확인해요', '마음에 안 드는 장면만 아래 「장면 하나씩」 요청문으로 다시 만들어 바꿔 넣어요'],
-    cover: ['그림책 디자인의 맨 앞 페이지에서 「Magic Media」를 열어요', '아래 표지 요청문을 쳐요', '그림을 넣고 위쪽 여백에 제목·지은이를 글자로 얹어요']
+    scene: ['캔바에서 AI에게 디자인을 부탁하는 창(Canva AI 등)을 열어요', '그림책 크기는 세로 3:4(예: 1500 × 2000px)예요. 그림은 가로로 받아 페이지 위쪽에 꽉 채우고, 아래쪽에 본문·대화를 얹어요 — 가로로 너무 길면 양옆을 조금 잘라 맞춰요', '① 따라 치기용 줄을 치고, 그 아래에 02에서 캔바로 받은 이야기 전체를 붙여넣어요 (같은 컴퓨터라면 ② 전체 요청문을 복사해 넣어도 돼요)', '03에서 만든 캐릭터 그림을 모두 함께 올려요 — 주인공, 함께 나오는 인물, 라인업 그림까지 (모습이 더 잘 유지돼요)', '만들어진 페이지를 넘겨 보며 장면 순서와 글이 맞는지 확인해요', '마음에 안 드는 장면만 아래 「장면 하나씩」 요청문으로 다시 만들어 바꿔 넣어요'],
+    cover: ['그림책 디자인의 맨 앞 페이지에서 「Magic Media」를 열어요', '아래 표지 요청문을 쳐요 (세로 그림으로 골라요)', '그림이 3:4 페이지를 다 채우지 못하면 그림을 선택하고 「사진 편집 → 매직 확장」으로 페이지 크기에 맞게 늘려요 — 모자란 위아래를 AI가 이어 그려 줘요', '위쪽 여백에 제목·지은이를 글자로 얹어요']
   };
   const EMPTY = {
     story: '01 기획을 먼저 해 주세요.',
